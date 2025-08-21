@@ -115,20 +115,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Panel Drag and Drop ---
     panelsContainer.addEventListener('dragstart', e => {
-        if (e.target.classList.contains('drag-handle')) {
-            const panel = e.target.closest('.panel');
-            panel.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-        } else {
-            // If not dragging from the handle, prevent drag
+        const handle = e.target.closest('.drag-handle');
+        // Only allow dragging from the handle
+        if (!handle) {
             e.preventDefault();
+            return;
         }
+
+        const panel = e.target.closest('.panel');
+        // Use a timeout to avoid visual glitches when the class is added
+        setTimeout(() => {
+            panel.classList.add('dragging');
+        }, 0);
+
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', panel.dataset.id);
     });
 
     panelsContainer.addEventListener('dragend', e => {
-        const panel = e.target.closest('.panel');
-        if (panel) {
-            panel.classList.remove('dragging');
+        const draggingPanel = document.querySelector('.panel.dragging');
+        if (draggingPanel) {
+            draggingPanel.classList.remove('dragging');
         }
     });
 
