@@ -16,6 +16,8 @@ function createPanel(panelState, onStateChange) {
     panelHeader.className = 'panel-header drag-handle';
     const titleElement = document.createElement('h3');
     titleElement.textContent = title;
+    titleElement.contentEditable = true;
+    titleElement.addEventListener('blur', onStateChange);
     panelHeader.appendChild(titleElement);
 
     const panelActions = document.createElement('div');
@@ -35,8 +37,6 @@ function createPanel(panelState, onStateChange) {
 
     if (type === 'notes') {
         contentContainer.className = 'cards-container';
-        titleElement.contentEditable = true;
-        titleElement.addEventListener('blur', onStateChange);
 
         const addCardButton = document.createElement('button');
         addCardButton.textContent = '+';

@@ -216,6 +216,10 @@ body {
     margin-top: 20px;
 }
 
+#add-panel-modal.bookmark-mode #panel-type-selector {
+    display: none;
+}
+
 
 /* Hidden Class */
 .hidden {

@@ -18,7 +18,8 @@
                     <input type="search" id="search-input" placeholder="Google Search...">
                 </div>
                 <div id="header-bookmarks"></div>
-                <button id="add-panel-btn">+ Add Panel</button>
+                <button id="add-notes-panel-btn" title="Add Notes Panel">+ P</button>
+                <button id="add-bookmarks-panel-btn" title="Add Bookmarks Panel">+ L</button>
                 <button id="settings-btn">Settings</button>
             </header>
             <div id="panels-container">
@@ -57,9 +58,9 @@
             <form id="add-panel-form">
                 <div class="form-group">
                     <label for="panel-title-input">Title</label>
-                    <input type="text" id="panel-title-input" required>
+                    <input type="text" id="panel-title-input">
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="panel-type-selector">
                     <label>Panel Type</label>
                     <label><input type="radio" name="panel-type" value="notes" checked> Notes</label>
                     <label><input type="radio" name="panel-type" value="bookmarks"> Bookmarks</label>
