@@ -67,18 +67,52 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Event Listeners ---
-    document.getElementById('add-panel-btn').addEventListener('click', () => {
+    document.getElementById('add-notes-panel-btn').addEventListener('click', () => {
+        const newPanelState = {
+            id: `panel-${Date.now()}`,
+            title: 'New Notes',
+            type: 'notes',
+            cards: []
+        };
+        const panelEl = createPanel(newPanelState, saveState);
+        panelsContainer.appendChild(panelEl);
+        saveState();
+    });
+
+    document.getElementById('add-bookmarks-panel-btn').addEventListener('click', () => {
+        addPanelModal.classList.add('bookmark-mode');
+        // Ensure the bookmarks radio is selected, which also shows the folder dropdown
+        addPanelForm.elements['panel-type'].value = 'bookmarks';
+        // Manually trigger change event to update UI, targeting the bookmarks radio specifically
+        addPanelForm.querySelector('input[name="panel-type"][value="bookmarks"]').dispatchEvent(new Event('change'));
         addPanelModal.classList.remove('hidden');
     });
 
     cancelAddPanelBtn.addEventListener('click', () => {
         addPanelModal.classList.add('hidden');
+        addPanelModal.classList.remove('bookmark-mode'); // Reset mode
     });
 
     addPanelForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const title = e.target.elements['panel-title-input'].value;
-        const type = e.target.elements['panel-type'].value;
+        let title = e.target.elements['panel-title-input'].value;
+        // If in bookmark-mode, the type is always bookmarks. Otherwise, read from radio.
+        const type = addPanelModal.classList.contains('bookmark-mode')
+            ? 'bookmarks'
+            : e.target.elements['panel-type'].value;
+
+        if (!title) {
+            if (type === 'bookmarks') {
+                const folderSelect = e.target.elements['panel-folder-select'];
+                if (folderSelect.value) { // Ensure a folder is selected
+                    title = folderSelect.options[folderSelect.selectedIndex].text;
+                } else {
+                    title = 'New Bookmarks'; // Fallback if no folder is chosen
+                }
+            } else {
+                title = 'New Panel'; // Default for non-bookmark panels (e.g. notes)
+            }
+        }
 
         const newPanelState = {
             id: `panel-${Date.now()}`,
@@ -100,6 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveState();
 
         addPanelModal.classList.add('hidden');
+        addPanelModal.classList.remove('bookmark-mode'); // Reset mode
         addPanelForm.reset();
         bookmarkFolderGroup.classList.add('hidden');
     });
@@ -115,14 +150,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Panel Drag and Drop ---
     panelsContainer.addEventListener('dragstart', e => {
-        const handle = e.target.closest('.drag-handle');
-        // Only allow dragging from the handle
-        if (!handle) {
-            e.preventDefault();
-            return;
+        // This listener is on the container to handle panel dragging.
+        // It must NOT interfere with drag events from children (e.g., cards).
+        // We only act if the drag's target is a .panel element itself.
+        if (!e.target.classList.contains('panel')) {
+            return; // Exit for card drags, etc.
         }
 
-        const panel = e.target.closest('.panel');
+        const panel = e.target; // The target is the panel itself
+
         // Use a timeout to avoid visual glitches when the class is added
         setTimeout(() => {
             panel.classList.add('dragging');
@@ -144,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const draggingPanel = document.querySelector('.panel.dragging');
         if (!draggingPanel) return;
 
-        const afterElement = getDragAfterElement(panelsContainer, e.clientX);
+        const afterElement = getDragAfterElement(panelsContainer, e.clientX, e.clientY);
         if (afterElement == null) {
             panelsContainer.appendChild(draggingPanel);
         } else {
@@ -161,17 +197,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function getDragAfterElement(container, x) {
+    function getDragAfterElement(container, x, y) {
         const draggableElements = [...container.querySelectorAll('.panel:not(.dragging)')];
-        return draggableElements.reduce((closest, child) => {
+
+        // Find the panel that is visually closest to the cursor's position
+        const closest = draggableElements.reduce((acc, child) => {
             const box = child.getBoundingClientRect();
-            const offset = x - box.left - box.width / 2;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
+            const offsetX = x - (box.left + box.width / 2);
+            const offsetY = y - (box.top + box.height / 2);
+            // Simple distance formula
+            const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+
+            if (distance < acc.distance) {
+                return { distance: distance, element: child };
             } else {
-                return closest;
+                return acc;
             }
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }, { distance: Number.POSITIVE_INFINITY });
+
+        if (!closest.element) {
+            return null; // No other elements to compare against
+        }
+
+        const closestBox = closest.element.getBoundingClientRect();
+        const offset = x - (closestBox.left + closestBox.width / 2);
+
+        if (offset < 0) {
+            // Cursor is to the left of the closest element's center, so insert before it
+            return closest.element;
+        } else {
+            // Cursor is to the right, so insert after it (by returning its next sibling)
+            return closest.element.nextElementSibling;
+        }
     }
 
 

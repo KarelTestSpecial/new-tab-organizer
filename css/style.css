@@ -92,6 +92,12 @@ body {
     font-size: 16px;
 }
 
+.panel-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
 .add-card-btn {
     border: none;
     background-color: #42b72a;
@@ -208,6 +214,10 @@ body {
 .form-actions {
     text-align: right;
     margin-top: 20px;
+}
+
+#add-panel-modal.bookmark-mode #panel-type-selector {
+    display: none;
 }
 
 
