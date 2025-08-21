@@ -4,6 +4,8 @@ A highly customizable and feature-rich startpage for your browser, designed to r
 
 ## Features
 
+-   **Undo Deletions:** Accidentally deleted a panel or a card? Just press `Ctrl+Z` to restore it instantly.
+-   **Data Portability:** Use the Import and Export buttons in the Settings panel to save your entire layout and settings to a file, or to restore your setup from a backup.
 -   **Dynamic Panel System:** Create, delete, and rearrange panels to fit your workflow.
 -   **Notes Panels:** Jot down quick notes, to-do lists, or ideas in text-based panels.
     -   Add, delete, and reorder individual cards within each notes panel.
