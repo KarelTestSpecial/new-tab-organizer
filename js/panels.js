@@ -28,6 +28,15 @@ function createPanel(panelState, onStateChange) {
     deletePanelButton.innerHTML = '&times;'; // A simple 'x'
     deletePanelButton.className = 'delete-btn panel-delete-btn';
     deletePanelButton.addEventListener('click', () => {
+        // For undo functionality
+        const nextSibling = panel.nextElementSibling;
+        const undoItem = {
+            itemType: 'panel',
+            state: panelState,
+            nextSiblingId: nextSibling ? nextSibling.dataset.id : null
+        };
+        undoStack.push(undoItem);
+
         panel.remove();
         onStateChange();
     });
@@ -101,6 +110,17 @@ function createCard(cardsContainer, cardState, onStateChange) {
     deleteCardButton.innerHTML = '&times;';
     deleteCardButton.className = 'delete-btn card-delete-btn';
     deleteCardButton.addEventListener('click', () => {
+        // For undo functionality
+        const parentPanelId = card.closest('.panel').dataset.id;
+        const nextSibling = card.nextElementSibling;
+        const undoItem = {
+            itemType: 'card',
+            state: cardState,
+            parentPanelId: parentPanelId,
+            nextSiblingId: nextSibling ? nextSibling.id : null
+        };
+        undoStack.push(undoItem);
+
         card.remove();
         onStateChange();
     });

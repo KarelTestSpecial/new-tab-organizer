@@ -49,6 +49,13 @@
                     <option value="">--Select a folder--</option>
                 </select>
             </div>
+            <div class="settings-section">
+                <h3>Data Management</h3>
+                <p>Save your current setup to a file or load a setup from a backup file.</p>
+                <button type="button" id="export-data-btn">Export Data</button>
+                <button type="button" id="import-data-btn">Import Data</button>
+                <input type="file" id="import-file-input" class="hidden" accept=".json">
+            </div>
             <button id="save-settings-btn">Save and Close</button>
             <button id="close-settings-btn">Cancel</button>
         </div>
