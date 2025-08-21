@@ -102,7 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
             : e.target.elements['panel-type'].value;
 
         if (!title) {
-            title = 'New Panel';
+            if (type === 'bookmarks') {
+                const folderSelect = e.target.elements['panel-folder-select'];
+                if (folderSelect.value) { // Ensure a folder is selected
+                    title = folderSelect.options[folderSelect.selectedIndex].text;
+                } else {
+                    title = 'New Bookmarks'; // Fallback if no folder is chosen
+                }
+            } else {
+                title = 'New Panel'; // Default for non-bookmark panels (e.g. notes)
+            }
         }
 
         const newPanelState = {
