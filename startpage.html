@@ -18,7 +18,8 @@
                     <input type="search" id="search-input" placeholder="Google Search...">
                 </div>
                 <div id="header-bookmarks"></div>
-                <button id="add-panel-btn">+ Add Panel</button>
+                <button id="add-notes-panel-btn" title="Add Notes Panel">+ P</button>
+                <button id="add-bookmarks-panel-btn" title="Add Bookmarks Panel">+ L</button>
                 <button id="settings-btn">Settings</button>
             </header>
             <div id="panels-container">
@@ -48,6 +49,13 @@
                     <option value="">--Select a folder--</option>
                 </select>
             </div>
+            <div class="settings-section">
+                <h3>Data Management</h3>
+                <p>Save your current setup to a file or load a setup from a backup file.</p>
+                <button type="button" id="export-data-btn">Export Data</button>
+                <button type="button" id="import-data-btn">Import Data</button>
+                <input type="file" id="import-file-input" class="hidden" accept=".json">
+            </div>
             <button id="save-settings-btn">Save and Close</button>
             <button id="close-settings-btn">Cancel</button>
         </div>
@@ -57,9 +65,9 @@
             <form id="add-panel-form">
                 <div class="form-group">
                     <label for="panel-title-input">Title</label>
-                    <input type="text" id="panel-title-input" required>
+                    <input type="text" id="panel-title-input">
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="panel-type-selector">
                     <label>Panel Type</label>
                     <label><input type="radio" name="panel-type" value="notes" checked> Notes</label>
                     <label><input type="radio" name="panel-type" value="bookmarks"> Bookmarks</label>
