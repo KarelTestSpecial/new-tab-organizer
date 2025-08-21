@@ -50,6 +50,26 @@ body {
     border: 1px solid #dddfe2;
 }
 
+/* Add Panel Buttons */
+#add-notes-panel-btn,
+#add-bookmarks-panel-btn {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 14px;
+    font-weight: normal;
+    cursor: pointer;
+    color: #555;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+#add-notes-panel-btn:hover,
+#add-bookmarks-panel-btn:hover {
+    background-color: #f0f0f0;
+    color: #111;
+}
+
 /* Panels */
 #panels-container {
     display: flex;
@@ -262,6 +282,18 @@ body {
     background-color: #3a3b3c;
     color: #e4e6eb;
     border: 1px solid #555;
+}
+
+[data-theme="dark"] #add-notes-panel-btn,
+[data-theme="dark"] #add-bookmarks-panel-btn {
+    border-color: #555;
+    color: #aaa;
+}
+
+[data-theme="dark"] #add-notes-panel-btn:hover,
+[data-theme="dark"] #add-bookmarks-panel-btn:hover {
+    background-color: #3a3b3c;
+    color: #eee;
 }
 
 /* Bookmark Links */
