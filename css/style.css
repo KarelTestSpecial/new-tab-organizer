@@ -66,6 +66,11 @@ body {
     width: 300px;
     display: flex;
     flex-direction: column;
+    transition: opacity 0.2s;
+}
+
+.panel.dragging {
+    opacity: 0.5;
 }
 
 .panel-header {
@@ -75,6 +80,10 @@ body {
     padding: 10px 15px;
     border-bottom: 1px solid #dddfe2;
     gap: 10px;
+}
+
+.panel-header.drag-handle {
+    cursor: move;
 }
 
 .panel-header h3 {

@@ -113,6 +113,61 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Panel Drag and Drop ---
+    panelsContainer.addEventListener('dragstart', e => {
+        if (e.target.classList.contains('drag-handle')) {
+            const panel = e.target.closest('.panel');
+            panel.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        } else {
+            // If not dragging from the handle, prevent drag
+            e.preventDefault();
+        }
+    });
+
+    panelsContainer.addEventListener('dragend', e => {
+        const panel = e.target.closest('.panel');
+        if (panel) {
+            panel.classList.remove('dragging');
+        }
+    });
+
+    panelsContainer.addEventListener('dragover', e => {
+        e.preventDefault();
+        const draggingPanel = document.querySelector('.panel.dragging');
+        if (!draggingPanel) return;
+
+        const afterElement = getDragAfterElement(panelsContainer, e.clientX);
+        if (afterElement == null) {
+            panelsContainer.appendChild(draggingPanel);
+        } else {
+            panelsContainer.insertBefore(draggingPanel, afterElement);
+        }
+    });
+
+    panelsContainer.addEventListener('drop', e => {
+        e.preventDefault();
+        const draggingPanel = document.querySelector('.panel.dragging');
+        if (draggingPanel) {
+            draggingPanel.classList.remove('dragging');
+            saveState(); // Persist the new order
+        }
+    });
+
+    function getDragAfterElement(container, x) {
+        const draggableElements = [...container.querySelectorAll('.panel:not(.dragging)')];
+        return draggableElements.reduce((closest, child) => {
+            const box = child.getBoundingClientRect();
+            const offset = x - box.left - box.width / 2;
+            if (offset < 0 && offset > closest.offset) {
+                return { offset: offset, element: child };
+            } else {
+                return closest;
+            }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+
+
     // --- Initialization ---
     loadState();
 });

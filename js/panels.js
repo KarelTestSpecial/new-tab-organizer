@@ -5,6 +5,7 @@ function createPanel(panelState, onStateChange) {
 
     const panel = document.createElement('div');
     panel.className = 'panel';
+    panel.draggable = true;
     panel.dataset.id = id;
     panel.dataset.type = type;
     if (folderId) {
@@ -12,7 +13,7 @@ function createPanel(panelState, onStateChange) {
     }
 
     const panelHeader = document.createElement('div');
-    panelHeader.className = 'panel-header';
+    panelHeader.className = 'panel-header drag-handle';
     const titleElement = document.createElement('h3');
     titleElement.textContent = title;
     panelHeader.appendChild(titleElement);
