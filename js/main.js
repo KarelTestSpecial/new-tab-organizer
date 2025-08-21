@@ -67,18 +67,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Event Listeners ---
-    document.getElementById('add-panel-btn').addEventListener('click', () => {
+    document.getElementById('add-notes-panel-btn').addEventListener('click', () => {
+        const newPanelState = {
+            id: `panel-${Date.now()}`,
+            title: 'New Notes',
+            type: 'notes',
+            cards: []
+        };
+        const panelEl = createPanel(newPanelState, saveState);
+        panelsContainer.appendChild(panelEl);
+        saveState();
+    });
+
+    document.getElementById('add-bookmarks-panel-btn').addEventListener('click', () => {
+        addPanelModal.classList.add('bookmark-mode');
+        // Ensure the bookmarks radio is selected, which also shows the folder dropdown
+        addPanelForm.elements['panel-type'].value = 'bookmarks';
+        // Manually trigger change event to update UI, targeting the bookmarks radio specifically
+        addPanelForm.querySelector('input[name="panel-type"][value="bookmarks"]').dispatchEvent(new Event('change'));
         addPanelModal.classList.remove('hidden');
     });
 
     cancelAddPanelBtn.addEventListener('click', () => {
         addPanelModal.classList.add('hidden');
+        addPanelModal.classList.remove('bookmark-mode'); // Reset mode
     });
 
     addPanelForm.addEventListener('submit', (e) => {
         e.preventDefault();
         let title = e.target.elements['panel-title-input'].value;
-        const type = e.target.elements['panel-type'].value;
+        // If in bookmark-mode, the type is always bookmarks. Otherwise, read from radio.
+        const type = addPanelModal.classList.contains('bookmark-mode')
+            ? 'bookmarks'
+            : e.target.elements['panel-type'].value;
 
         if (!title) {
             title = 'New Panel';
@@ -104,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveState();
 
         addPanelModal.classList.add('hidden');
+        addPanelModal.classList.remove('bookmark-mode'); // Reset mode
         addPanelForm.reset();
         bookmarkFolderGroup.classList.add('hidden');
     });
