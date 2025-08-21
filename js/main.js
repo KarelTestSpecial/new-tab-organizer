@@ -77,8 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addPanelForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const title = e.target.elements['panel-title-input'].value;
+        let title = e.target.elements['panel-title-input'].value;
         const type = e.target.elements['panel-type'].value;
+
+        if (!title) {
+            title = 'New Panel';
+        }
 
         const newPanelState = {
             id: `panel-${Date.now()}`,
@@ -115,14 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Panel Drag and Drop ---
     panelsContainer.addEventListener('dragstart', e => {
-        const handle = e.target.closest('.drag-handle');
-        // Only allow dragging from the handle
-        if (!handle) {
-            e.preventDefault();
-            return;
+        // This listener is on the container to handle panel dragging.
+        // It must NOT interfere with drag events from children (e.g., cards).
+        // We only act if the drag's target is a .panel element itself.
+        if (!e.target.classList.contains('panel')) {
+            return; // Exit for card drags, etc.
         }
 
-        const panel = e.target.closest('.panel');
+        const panel = e.target; // The target is the panel itself
+
         // Use a timeout to avoid visual glitches when the class is added
         setTimeout(() => {
             panel.classList.add('dragging');
