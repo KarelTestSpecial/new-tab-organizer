@@ -1,3 +1,5 @@
+const undoStack = [];
+
 document.addEventListener('DOMContentLoaded', () => {
     const panelsContainer = document.getElementById('panels-container');
 
@@ -230,6 +232,39 @@ document.addEventListener('DOMContentLoaded', () => {
             return closest.element.nextElementSibling;
         }
     }
+
+
+    // --- Undo Logic ---
+    document.addEventListener('keydown', (e) => {
+        // We listen for both 'z' and 'Z' to account for Shift key.
+        if (e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
+            e.preventDefault(); // Prevent the browser's default undo action.
+
+            if (undoStack.length > 0) {
+                const undoItem = undoStack.pop();
+
+                if (undoItem.itemType === 'panel') {
+                    const newPanel = createPanel(undoItem.state, saveState);
+                    const nextSibling = undoItem.nextSiblingId ? document.querySelector(`[data-id='${undoItem.nextSiblingId}']`) : null;
+                    panelsContainer.insertBefore(newPanel, nextSibling); // If nextSibling is null, it appends to the end.
+                } else if (undoItem.itemType === 'card') {
+                    const parentPanel = document.querySelector(`[data-id='${undoItem.parentPanelId}']`);
+                    if (parentPanel) {
+                        const cardsContainer = parentPanel.querySelector('.cards-container');
+                        if (cardsContainer) {
+                             // createCard appends the card to the container, so we create it first.
+                            const newCard = createCard(cardsContainer, undoItem.state, saveState);
+                            // Then, we find its correct position and move it.
+                            const nextSibling = undoItem.nextSiblingId ? document.getElementById(undoItem.nextSiblingId) : null;
+                            cardsContainer.insertBefore(newCard, nextSibling);
+                        }
+                    }
+                }
+                // Save the state after restoring the item
+                saveState();
+            }
+        }
+    });
 
 
     // --- Initialization ---
