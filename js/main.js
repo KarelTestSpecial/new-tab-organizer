@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const draggingPanel = document.querySelector('.panel.dragging');
         if (!draggingPanel) return;
 
-        const afterElement = getDragAfterElement(panelsContainer, e.clientX);
+        const afterElement = getDragAfterElement(panelsContainer, e.clientX, e.clientY);
         if (afterElement == null) {
             panelsContainer.appendChild(draggingPanel);
         } else {
@@ -197,14 +197,38 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function getDragAfterElement(container, x) {
+    function getDragAfterElement(container, x, y) {
         const draggableElements = [...container.querySelectorAll('.panel:not(.dragging)')];
-        // Find the first element where the mouse cursor is in the left half of the element.
-        // This will be the element we want to insert the dragged panel *before*.
-        return draggableElements.find(child => {
+
+        // Find the panel that is visually closest to the cursor's position
+        const closest = draggableElements.reduce((acc, child) => {
             const box = child.getBoundingClientRect();
-            return x < box.left + box.width / 2;
-        });
+            const offsetX = x - (box.left + box.width / 2);
+            const offsetY = y - (box.top + box.height / 2);
+            // Simple distance formula
+            const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
+
+            if (distance < acc.distance) {
+                return { distance: distance, element: child };
+            } else {
+                return acc;
+            }
+        }, { distance: Number.POSITIVE_INFINITY });
+
+        if (!closest.element) {
+            return null; // No other elements to compare against
+        }
+
+        const closestBox = closest.element.getBoundingClientRect();
+        const offset = x - (closestBox.left + closestBox.width / 2);
+
+        if (offset < 0) {
+            // Cursor is to the left of the closest element's center, so insert before it
+            return closest.element;
+        } else {
+            // Cursor is to the right, so insert after it (by returning its next sibling)
+            return closest.element.nextElementSibling;
+        }
     }
 
 
