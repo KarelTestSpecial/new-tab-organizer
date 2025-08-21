@@ -74,9 +74,11 @@ body {
     align-items: center;
     padding: 10px 15px;
     border-bottom: 1px solid #dddfe2;
+    gap: 10px;
 }
 
 .panel-header h3 {
+    flex-grow: 1;
     margin: 0;
     font-size: 16px;
 }
@@ -267,4 +269,42 @@ body {
 #header-bookmarks {
     display: flex;
     gap: 10px;
+}
+
+/* Delete Buttons */
+.delete-btn {
+    background: none;
+    border: none;
+    color: #90949c;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.delete-btn:hover {
+    color: #333;
+}
+
+[data-theme="dark"] .delete-btn {
+    color: #8a8d91;
+}
+
+[data-theme="dark"] .delete-btn:hover {
+    color: #e4e6eb;
+}
+
+.card {
+    position: relative;
+}
+
+.card .card-delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: none; /* Hidden by default */
+}
+
+.card:hover .card-delete-btn {
+    display: block; /* Show on hover */
 }

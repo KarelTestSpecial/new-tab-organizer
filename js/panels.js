@@ -17,6 +17,19 @@ function createPanel(panelState, onStateChange) {
     titleElement.textContent = title;
     panelHeader.appendChild(titleElement);
 
+    const panelActions = document.createElement('div');
+    panelActions.className = 'panel-actions';
+    panelHeader.appendChild(panelActions);
+
+    const deletePanelButton = document.createElement('button');
+    deletePanelButton.innerHTML = '&times;'; // A simple 'x'
+    deletePanelButton.className = 'delete-btn panel-delete-btn';
+    deletePanelButton.addEventListener('click', () => {
+        panel.remove();
+        onStateChange();
+    });
+    panelActions.appendChild(deletePanelButton);
+
     const contentContainer = document.createElement('div');
 
     if (type === 'notes') {
@@ -27,7 +40,7 @@ function createPanel(panelState, onStateChange) {
         const addCardButton = document.createElement('button');
         addCardButton.textContent = '+';
         addCardButton.className = 'add-card-btn';
-        panelHeader.appendChild(addCardButton);
+        panelActions.appendChild(addCardButton);
 
         addCardButton.addEventListener('click', () => {
             createCard(contentContainer, { id: `card-${Date.now()}`, text: 'New Card' }, onStateChange);
@@ -82,6 +95,15 @@ function createCard(cardsContainer, cardState, onStateChange) {
     cardText.textContent = text;
     cardText.contentEditable = true;
     card.appendChild(cardText);
+
+    const deleteCardButton = document.createElement('button');
+    deleteCardButton.innerHTML = '&times;';
+    deleteCardButton.className = 'delete-btn card-delete-btn';
+    deleteCardButton.addEventListener('click', () => {
+        card.remove();
+        onStateChange();
+    });
+    card.appendChild(deleteCardButton);
 
     cardText.addEventListener('blur', onStateChange);
 
