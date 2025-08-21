@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Custom Startpage",
+  "version": "1.0",
+  "description": "A customizable startpage with bookmarks and notes.",
+  "permissions": [
+    "bookmarks",
+    "storage"
+  ],
+  "chrome_url_overrides": {
+    "newtab": "startpage.html"
+  },
+  "action": {
+    "default_icon": {
+      "16": "assets/icon.png",
+      "48": "assets/icon.png",
+      "128": "assets/icon.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icon.png",
+    "48": "assets/icon.png",
+    "128": "assets/icon.png"
+  }
+}

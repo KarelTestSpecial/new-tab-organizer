@@ -1,0 +1,268 @@
+/* General Body Styling */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f2f5;
+    color: #1c1e21;
+}
+
+#app {
+    display: flex;
+    height: 100vh;
+}
+
+/* Sidebar */
+#sidebar {
+    width: 250px;
+    background-color: #ffffff;
+    padding: 15px;
+    border-right: 1px solid #dddfe2;
+    overflow-y: auto;
+}
+
+/* Main Content */
+#main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+/* Header */
+#page-header {
+    padding: 15px;
+    border-bottom: 1px solid #dddfe2;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#search-container {
+    flex-grow: 1;
+}
+
+#search-container input {
+    width: 100%;
+    padding: 8px;
+    border-radius: 20px;
+    border: 1px solid #dddfe2;
+}
+
+/* Panels */
+#panels-container {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start; /* Align panels to the top */
+    padding: 15px;
+    gap: 15px;
+}
+
+.panel {
+    background-color: #ffffff;
+    border-radius: 8px;
+    border: 1px solid #dddfe2;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid #dddfe2;
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.add-card-btn {
+    border: none;
+    background-color: #42b72a;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.cards-container {
+    padding: 10px;
+    min-height: 100px; /* So empty panels have a drop zone */
+    transition: background-color 0.2s;
+}
+
+.cards-container.drag-over {
+    background-color: #e7f3ff; /* Highlight drop zone */
+}
+
+/* Cards */
+.card {
+    background-color: #fff;
+    border: 1px solid #ccd0d5;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 8px;
+    cursor: grab;
+}
+
+.card p {
+    margin: 0;
+}
+
+.card.dragging {
+    opacity: 0.5;
+}
+
+
+/* Settings Panel */
+#settings-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    max-width: 90%;
+    background-color: white;
+    border: 1px solid #dddfe2;
+    border-radius: 8px;
+    padding: 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+#settings-panel h2 {
+    margin-top: 0;
+}
+
+.settings-section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.settings-section:last-of-type {
+    border-bottom: none;
+}
+
+#settings-panel label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+#settings-panel select {
+    width: 100%;
+    padding: 8px;
+}
+
+/* Modal Styles (shared between Settings and Add Panel) */
+#settings-panel, #add-panel-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    max-width: 90%;
+    background-color: white;
+    border: 1px solid #dddfe2;
+    border-radius: 8px;
+    padding: 20px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+#settings-panel h2, #add-panel-modal h2 {
+    margin-top: 0;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input[type="text"], .form-group select {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.form-actions {
+    text-align: right;
+    margin-top: 20px;
+}
+
+
+/* Hidden Class */
+.hidden {
+    display: none;
+}
+
+/* --- Dark Theme --- */
+[data-theme="dark"] body {
+    background-color: #18191a;
+    color: #e4e6eb;
+}
+
+[data-theme="dark"] #sidebar,
+[data-theme="dark"] #page-header,
+[data-theme="dark"] .panel,
+[data-theme="dark"] #settings-panel,
+[data-theme="dark"] #add-panel-modal {
+    background-color: #242526;
+    border-color: #3a3b3c;
+}
+
+[data-theme="dark"] #search-container input {
+    background-color: #3a3b3c;
+    border-color: #555;
+    color: #e4e6eb;
+}
+
+[data-theme="dark"] .card {
+    background-color: #3a3b3c;
+    border-color: #555;
+}
+
+[data-theme="dark"] a {
+    color: #4c9eff;
+}
+
+[data-theme="dark"] .add-card-btn {
+    background-color: #3a3b3c;
+    color: #e4e6eb;
+    border: 1px solid #555;
+}
+
+/* Bookmark Links */
+.bookmark-link {
+    display: block;
+    padding: 8px;
+    text-decoration: none;
+    color: #050505;
+    border-radius: 4px;
+}
+
+.bookmark-link:hover {
+    background-color: #e7f3ff;
+}
+
+[data-theme="dark"] .bookmark-link {
+    color: #e4e6eb;
+}
+
+[data-theme="dark"] .bookmark-link:hover {
+    background-color: #3a3b3c;
+}
+
+#header-bookmarks {
+    display: flex;
+    gap: 10px;
+}
