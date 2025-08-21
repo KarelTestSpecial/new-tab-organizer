@@ -54,14 +54,15 @@ body {
 #add-notes-panel-btn,
 #add-bookmarks-panel-btn {
     background: none;
-    border: 1px solid #ccc;
+    border: none;
     border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 14px;
+    padding: 2px 6px;
+    font-size: 13px;
     font-weight: normal;
     cursor: pointer;
-    color: #555;
+    color: #666;
     transition: background-color 0.2s, color 0.2s;
+    line-height: 1;
 }
 
 #add-notes-panel-btn:hover,
@@ -287,7 +288,7 @@ body {
 [data-theme="dark"] #add-notes-panel-btn,
 [data-theme="dark"] #add-bookmarks-panel-btn {
     border-color: #555;
-    color: #aaa;
+    color: #999;
 }
 
 [data-theme="dark"] #add-notes-panel-btn:hover,
