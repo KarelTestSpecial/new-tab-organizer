@@ -199,15 +199,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getDragAfterElement(container, x) {
         const draggableElements = [...container.querySelectorAll('.panel:not(.dragging)')];
-        return draggableElements.reduce((closest, child) => {
+        // Find the first element where the mouse cursor is in the left half of the element.
+        // This will be the element we want to insert the dragged panel *before*.
+        return draggableElements.find(child => {
             const box = child.getBoundingClientRect();
-            const offset = x - box.left - box.width / 2;
-            if (offset < 0 && offset > closest.offset) {
-                return { offset: offset, element: child };
-            } else {
-                return closest;
-            }
-        }, { offset: Number.NEGATIVE_INFINITY }).element;
+            return x < box.left + box.width / 2;
+        });
     }
 
 
