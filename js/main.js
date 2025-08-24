@@ -40,8 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
             saveState();
         };
 
-        if (typeof chrome === 'undefined' || typeof chrome.storage === 'undefined') {
-            console.error("Chrome storage API not available. Creating default panel as a fallback.");
+        if (window.location.protocol === 'file:' || typeof chrome === 'undefined' || typeof chrome.storage === 'undefined') {
+            console.error("Testing environment detected (file://) or Chrome storage API not available. Creating default panel as a fallback.");
             createDefaultPanel();
             return;
         }
@@ -88,8 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Attempting to add panel...");
         // The chrome.storage API is asynchronous and only available in an extension context.
         // When testing via file://, this API will not be available.
-        if (typeof chrome === 'undefined' || typeof chrome.storage === 'undefined') {
-            console.error("Chrome storage API not available. Appending panel as a fallback.");
+        if (window.location.protocol === 'file:' || typeof chrome === 'undefined' || typeof chrome.storage === 'undefined') {
+            console.error("Testing environment detected (file://) or Chrome storage API not available. Appending panel as a fallback.");
             panelsContainer.appendChild(panelElement);
             saveState();
             return;
