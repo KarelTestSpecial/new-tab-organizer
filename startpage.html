@@ -10,18 +10,15 @@
     <div id="app">
         <aside id="sidebar">
             <h2><a href="#" id="bookmarks-title-link">Bookmarks</a></h2>
-            <div id="sidebar-bookmarks"></div>
-        </aside>
-        <main id="main-content">
-            <header id="page-header">
-                <div id="search-container">
-                    <input type="search" id="search-input" placeholder="Google Search...">
-                </div>
+            <div class="sidebar-actions">
                 <button id="add-notes-panel-btn" title="Add Notes Panel">+ P</button>
                 <button id="add-bookmarks-panel-btn" title="Add Bookmarks Panel">+ L</button>
                 <button id="quick-backup-btn" title="Backup (Export Data)">&#8595;<br>D</button>
                 <button id="settings-btn">Settings</button>
-            </header>
+            </div>
+            <div id="sidebar-bookmarks"></div>
+        </aside>
+        <main id="main-content">
             <div id="panels-container">
                 <!-- Panels will be dynamically inserted here -->
             </div>
@@ -36,9 +33,7 @@
                 </div>
             </div>
             <div class="settings-section">
-                <h3>Bookmark Folders</h3>
-                <p>Select which bookmark folders to display in each section.</p>
-                <label for="sidebar-folder-select">Sidebar Folder:</label>
+                <h3>Sidebar Folder</h3>
                 <select id="sidebar-folder-select">
                     <option value="">--Select a folder--</option>
                 </select>

@@ -35,33 +35,20 @@ body {
     text-decoration: underline;
 }
 
+.sidebar-actions {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #dddfe2;
+}
+
 /* Main Content */
 #main-content {
     flex-grow: 1;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-}
-
-/* Header */
-#page-header {
-    padding: 15px;
-    border-bottom: 1px solid #dddfe2;
-    background-color: #ffffff;
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-#search-container {
-    flex-grow: 1;
-}
-
-#search-container input {
-    width: 100%;
-    padding: 8px;
-    border-radius: 20px;
-    border: 1px solid #dddfe2;
 }
 
 /* Add Panel Buttons */
@@ -312,7 +299,6 @@ body {
 }
 
 [data-theme="dark"] #sidebar,
-[data-theme="dark"] #page-header,
 [data-theme="dark"] .panel,
 [data-theme="dark"] #settings-panel,
 [data-theme="dark"] #add-panel-modal {
@@ -320,12 +306,15 @@ body {
     border-color: #3a3b3c;
 }
 
-[data-theme="dark"] #search-container input,
 [data-theme="dark"] input[type="text"],
 [data-theme="dark"] select {
     background-color: #3a3b3c;
     border-color: #555;
     color: #e4e6eb;
+}
+
+[data-theme="dark"] .sidebar-actions {
+    border-bottom-color: #3a3b3c;
 }
 
 [data-theme="dark"] .card {
@@ -389,11 +378,6 @@ body {
 
 [data-theme="dark"] .bookmark-link:hover {
     background-color: #3a3b3c;
-}
-
-#header-bookmarks {
-    display: flex;
-    gap: 10px;
 }
 
 /* Delete Buttons */
