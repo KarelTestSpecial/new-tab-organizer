@@ -14,11 +14,23 @@ body {
 
 /* Sidebar */
 #sidebar {
-    width: 250px;
+    width: 180px;
     background-color: #ffffff;
     padding: 15px;
     border-right: 1px solid #dddfe2;
     overflow-y: auto;
+    flex-shrink: 0; /* Prevent the sidebar from shrinking */
+}
+
+#bookmarks-title-link,
+#bookmarks-title-link:visited,
+#bookmarks-title-link:active {
+    text-decoration: none;
+    color: inherit;
+}
+
+#bookmarks-title-link:hover {
+    text-decoration: underline;
 }
 
 /* Main Content */
@@ -71,6 +83,25 @@ body {
     color: #111;
 }
 
+/* Quick Backup Button */
+#quick-backup-btn {
+    background: none;
+    border: none;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-size: 13px; /* Match other small buttons */
+    line-height: 1.2; /* Adjust for two lines */
+    cursor: pointer;
+    color: #666;
+    transition: background-color 0.2s, color 0.2s;
+    text-align: center;
+}
+
+#quick-backup-btn:hover {
+    background-color: #f0f0f0;
+    color: #111;
+}
+
 /* Panels */
 #panels-container {
     display: flex;
@@ -111,12 +142,6 @@ body {
     flex-grow: 1;
     margin: 0;
     font-size: 16px;
-}
-
-.panel-actions {
-    display: flex;
-    align-items: center;
-    gap: 5px;
 }
 
 .add-card-btn {
@@ -237,10 +262,6 @@ body {
     margin-top: 20px;
 }
 
-#add-panel-modal.bookmark-mode #panel-type-selector {
-    display: none;
-}
-
 
 /* Hidden Class */
 .hidden {
@@ -279,6 +300,12 @@ body {
     color: #4c9eff;
 }
 
+[data-theme="dark"] #bookmarks-title-link,
+[data-theme="dark"] #bookmarks-title-link:visited,
+[data-theme="dark"] #bookmarks-title-link:active {
+    color: inherit;
+}
+
 [data-theme="dark"] .add-card-btn {
     background-color: #3a3b3c;
     color: #e4e6eb;
@@ -293,6 +320,15 @@ body {
 
 [data-theme="dark"] #add-notes-panel-btn:hover,
 [data-theme="dark"] #add-bookmarks-panel-btn:hover {
+    background-color: #3a3b3c;
+    color: #eee;
+}
+
+[data-theme="dark"] #quick-backup-btn {
+    color: #999;
+}
+
+[data-theme="dark"] #quick-backup-btn:hover {
     background-color: #3a3b3c;
     color: #eee;
 }
@@ -359,35 +395,4 @@ body {
 
 .card:hover .card-delete-btn {
     display: block; /* Show on hover */
-}
-
-/* Settings Toggle Buttons */
-.toggle-settings-container {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-start;
-}
-
-.toggle-btn {
-    padding: 8px 12px;
-    border: 1px solid var(--border-color, #dddfe2);
-    background-color: var(--background-color, #ffffff);
-    color: var(--text-color, #1c1e21);
-    border-radius: 4px;
-    cursor: pointer;
-    flex-grow: 1;
-    text-align: center;
-    transition: background-color 0.2s;
-}
-
-.toggle-btn:hover {
-    background-color: var(--hover-color, #f0f2f5);
-}
-
-[data-theme="dark"] .toggle-btn {
-    border-color: #555;
-}
-
-[data-theme="dark"] .toggle-btn:hover {
-    background-color: #3a3b3c;
 }

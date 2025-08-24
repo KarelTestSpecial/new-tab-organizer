@@ -4,13 +4,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = document.getElementById('close-settings-btn');
     const saveBtn = document.getElementById('save-settings-btn');
 
-    // --- Toggle Panel Visibility ---
+    // --- Panel Visibility and Actions ---
     settingsBtn.addEventListener('click', () => {
-        settingsPanel.classList.remove('hidden');
+        if (settingsPanel.classList.contains('hidden')) {
+            // If panel is hidden, show it
+            settingsPanel.classList.remove('hidden');
+        } else {
+            // If panel is visible, save and close
+            saveSettings();
+        }
     });
 
     closeBtn.addEventListener('click', () => {
         settingsPanel.classList.add('hidden');
+        // Revert any unsaved changes by reloading the saved settings
+        loadSettings();
     });
 
     // --- Populate Bookmark Folders ---
@@ -39,31 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Save and Load Settings ---
-    const themeToggleBtn = document.getElementById('theme-toggle-btn');
-    const panelPositionToggleBtn = document.getElementById('panel-position-toggle-btn');
-
-    // --- Toggle Button Logic ---
-    themeToggleBtn.addEventListener('click', () => {
-        const currentTheme = themeToggleBtn.dataset.value;
-        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        themeToggleBtn.dataset.value = newTheme;
-        themeToggleBtn.textContent = `Theme: ${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)}`;
-    });
-
-    panelPositionToggleBtn.addEventListener('click', () => {
-        const currentPosition = panelPositionToggleBtn.dataset.value;
-        const newPosition = currentPosition === 'end' ? 'start' : 'end';
-        panelPositionToggleBtn.dataset.value = newPosition;
-        panelPositionToggleBtn.textContent = `Add Panels: ${newPosition.charAt(0).toUpperCase() + newPosition.slice(1)}`;
-    });
-
+    const themeSelect = document.getElementById('theme-select');
 
     function saveSettings() {
         const settings = {
-            theme: themeToggleBtn.dataset.value,
+            theme: themeSelect.value,
             sidebarFolderId: sidebarFolderSelect.value,
-            headerFolderId: headerFolderSelect.value,
-            newPanelPosition: panelPositionToggleBtn.dataset.value
+            headerFolderId: headerFolderSelect.value
         };
         chrome.storage.sync.set({ settings }, () => {
             console.log('Settings saved');
@@ -75,18 +65,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadSettings() {
         chrome.storage.sync.get('settings', data => {
             if (data.settings) {
-                // Set button states without triggering click events
-                const theme = data.settings.theme || 'light';
-                themeToggleBtn.dataset.value = theme;
-                themeToggleBtn.textContent = `Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`;
-
-                const position = data.settings.newPanelPosition || 'end';
-                panelPositionToggleBtn.dataset.value = position;
-                panelPositionToggleBtn.textContent = `Add Panels: ${position.charAt(0).toUpperCase() + position.slice(1)}`;
-
+                themeSelect.value = data.settings.theme || 'light';
                 sidebarFolderSelect.value = data.settings.sidebarFolderId || '';
                 headerFolderSelect.value = data.settings.headerFolderId || '';
-
                 applySettings(data.settings); // Apply loaded settings on page load
             }
         });
@@ -95,9 +76,8 @@ document.addEventListener('DOMContentLoaded', () => {
     saveBtn.addEventListener('click', saveSettings);
 
     // --- Data Management ---
-    const exportBtn = document.getElementById('export-data-btn');
-
-    exportBtn.addEventListener('click', () => {
+    // Make export function global to be accessible by main.js
+    window.handleExport = () => {
         // Get all data from storage
         chrome.storage.sync.get(null, (data) => {
             if (chrome.runtime.lastError) {
@@ -124,7 +104,10 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         });
-    });
+    };
+
+    const exportBtn = document.getElementById('export-data-btn');
+    exportBtn.addEventListener('click', window.handleExport);
 
     const importBtn = document.getElementById('import-data-btn');
     const importFileInput = document.getElementById('import-file-input');
@@ -173,6 +156,64 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
         reader.readAsText(file);
+    });
+
+    const importAllBookmarksBtn = document.getElementById('import-all-bookmarks-btn');
+
+    importAllBookmarksBtn.addEventListener('click', () => {
+        if (!confirm('Are you sure you want to add a new panel for every bookmark folder? This may add a large number of panels to your page.')) {
+            return;
+        }
+
+        // 1. Get all bookmark folders
+        chrome.bookmarks.getTree((tree) => {
+            const folders = [];
+            function findFolders(node) {
+                if (node.children) {
+                    // A folder must have children and at least one actual bookmark to be useful
+                    if (node.children.some(child => child.url)) {
+                        // We also don't want the root "Bookmarks Bar" etc. folders
+                        if (node.id !== '0' && node.id !== '1' && node.id !== '2') {
+                             folders.push({ id: node.id, title: node.title });
+                        }
+                    }
+                    node.children.forEach(findFolders);
+                }
+            }
+            findFolders(tree[0]);
+
+            // 2. Get current panels state
+            chrome.storage.sync.get('panelsState', (data) => {
+                const currentPanels = data.panelsState || [];
+                const existingFolderIds = new Set(currentPanels.map(p => p.folderId));
+                let newPanelsAdded = 0;
+
+                // 3. Add new panels for folders that don't already have one
+                folders.forEach(folder => {
+                    if (!existingFolderIds.has(folder.id)) {
+                        const newPanelState = {
+                            id: `panel-${Date.now()}-${folder.id}`,
+                            title: folder.title,
+                            type: 'bookmarks',
+                            folderId: folder.id,
+                            cards: []
+                        };
+                        currentPanels.push(newPanelState);
+                        newPanelsAdded++;
+                    }
+                });
+
+                if (newPanelsAdded > 0) {
+                    // 4. Save the new state and reload
+                    chrome.storage.sync.set({ panelsState: currentPanels }, () => {
+                        alert(`${newPanelsAdded} new bookmark panels have been added. The page will now reload.`);
+                        location.reload();
+                    });
+                } else {
+                    alert('No new bookmark folders to import.');
+                }
+            });
+        });
     });
 
     // --- Initialization ---

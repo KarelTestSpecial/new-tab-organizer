@@ -5,10 +5,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- State Management ---
     const saveState = () => {
-        if (typeof chrome === 'undefined' || typeof chrome.storage === 'undefined') {
-            console.error("Chrome storage API not available. State will not be saved.");
-            return;
-        }
         const panels = [];
         document.querySelectorAll('.panel').forEach(panelEl => {
             const panel = {
@@ -32,20 +28,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadState = () => {
-        const createDefaultPanel = () => {
-            panelsContainer.innerHTML = '';
-            const defaultPanelState = { id: `panel-${Date.now()}`, title: 'To-Do List', type: 'notes', cards: [] };
-            const panelEl = createPanel(defaultPanelState, saveState);
-            panelsContainer.appendChild(panelEl);
-            saveState();
-        };
-
-        if (window.location.protocol === 'file:' || typeof chrome === 'undefined' || typeof chrome.storage === 'undefined') {
-            console.error("Testing environment detected (file://) or Chrome storage API not available. Creating default panel as a fallback.");
-            createDefaultPanel();
-            return;
-        }
-
         chrome.storage.sync.get('panelsState', data => {
             panelsContainer.innerHTML = ''; // Clear before loading
             if (data.panelsState && data.panelsState.length > 0) {
@@ -55,7 +37,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             } else {
                 // If no state, create a default "To-Do" list
-                createDefaultPanel();
+                const defaultPanelState = { id: `panel-${Date.now()}`, title: 'To-Do List', type: 'notes', cards: [] };
+                const panelEl = createPanel(defaultPanelState, saveState);
+                panelsContainer.appendChild(panelEl);
+                saveState();
             }
         });
     };
@@ -83,30 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Panel Creation Logic ---
-    function addPanelToContainer(panelElement) {
-        console.log("Attempting to add panel...");
-        // The chrome.storage API is asynchronous and only available in an extension context.
-        // When testing via file://, this API will not be available.
-        if (window.location.protocol === 'file:' || typeof chrome === 'undefined' || typeof chrome.storage === 'undefined') {
-            console.error("Testing environment detected (file://) or Chrome storage API not available. Appending panel as a fallback.");
-            panelsContainer.appendChild(panelElement);
-            saveState();
-            return;
-        }
-
-        chrome.storage.sync.get('settings', (data) => {
-            console.log("chrome.storage.sync.get callback executed. Position:", data.settings?.newPanelPosition);
-            const position = data.settings?.newPanelPosition || 'end';
-            if (position === 'start') {
-                panelsContainer.prepend(panelElement);
-            } else {
-                panelsContainer.appendChild(panelElement);
-            }
-            saveState(); // Save state after the panel is added to the DOM
-        });
-    }
-
     // --- Event Listeners ---
     document.getElementById('add-notes-panel-btn').addEventListener('click', () => {
         const newPanelState = {
@@ -116,7 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
             cards: []
         };
         const panelEl = createPanel(newPanelState, saveState);
-        addPanelToContainer(panelEl);
+        panelsContainer.appendChild(panelEl);
+        saveState();
     });
 
     document.getElementById('add-bookmarks-panel-btn').addEventListener('click', () => {
@@ -126,6 +88,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Manually trigger change event to update UI, targeting the bookmarks radio specifically
         addPanelForm.querySelector('input[name="panel-type"][value="bookmarks"]').dispatchEvent(new Event('change'));
         addPanelModal.classList.remove('hidden');
+    });
+
+    document.getElementById('quick-backup-btn').addEventListener('click', () => {
+        // This function is defined in settings.js
+        if (window.handleExport) {
+            window.handleExport();
+        } else {
+            alert('Could not perform export. Function not found.');
+        }
     });
 
     cancelAddPanelBtn.addEventListener('click', () => {
@@ -170,7 +141,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const panelEl = createPanel(newPanelState, saveState);
-        addPanelToContainer(panelEl);
+        panelsContainer.appendChild(panelEl);
+        saveState();
 
         addPanelModal.classList.add('hidden');
         addPanelModal.classList.remove('bookmark-mode'); // Reset mode
@@ -185,6 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
             }
         }
+    });
+
+    // Handle clicks on the sidebar title to open the bookmarks manager
+    document.getElementById('bookmarks-title-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: 'chrome://bookmarks' });
     });
 
     // --- Panel Drag and Drop ---
