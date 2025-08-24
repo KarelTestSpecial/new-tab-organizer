@@ -159,15 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
         bookmarkFolderGroup.classList.add('hidden');
     });
 
-    document.getElementById('search-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const query = e.target.value;
-            if (query) {
-                window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-            }
-        }
-    });
-
     // Handle clicks on the sidebar title to open the bookmarks manager
     document.getElementById('bookmarks-title-link').addEventListener('click', (e) => {
         e.preventDefault();

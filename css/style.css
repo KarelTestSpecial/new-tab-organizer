@@ -37,10 +37,16 @@ body {
 
 .sidebar-actions {
     display: flex;
-    justify-content: space-around;
+    flex-direction: column;
+    gap: 10px;
     margin-bottom: 15px;
     padding-bottom: 15px;
     border-bottom: 1px solid #dddfe2;
+}
+
+.sidebar-actions-group {
+    display: flex;
+    justify-content: space-around;
 }
 
 /* Main Content */
