@@ -40,12 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Save and Load Settings ---
     const themeSelect = document.getElementById('theme-select');
+    const newPanelPositionSelect = document.getElementById('new-panel-position-select');
 
     function saveSettings() {
         const settings = {
             theme: themeSelect.value,
             sidebarFolderId: sidebarFolderSelect.value,
-            headerFolderId: headerFolderSelect.value
+            headerFolderId: headerFolderSelect.value,
+            newPanelPosition: newPanelPositionSelect.value
         };
         chrome.storage.sync.set({ settings }, () => {
             console.log('Settings saved');
@@ -60,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 themeSelect.value = data.settings.theme || 'light';
                 sidebarFolderSelect.value = data.settings.sidebarFolderId || '';
                 headerFolderSelect.value = data.settings.headerFolderId || '';
+                newPanelPositionSelect.value = data.settings.newPanelPosition || 'end';
                 applySettings(data.settings); // Apply loaded settings on page load
             }
         });
