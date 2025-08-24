@@ -39,8 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // If no state, create a default "To-Do" list
                 const defaultPanelState = { id: `panel-${Date.now()}`, title: 'To-Do List', type: 'notes', cards: [] };
                 const panelEl = createPanel(defaultPanelState, saveState);
-                panelsContainer.appendChild(panelEl);
-                saveState();
+                addPanelToContainer(panelEl);
             }
         });
     };
@@ -69,6 +68,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Event Listeners ---
+    const addPanelToContainer = (panelEl) => {
+        chrome.storage.sync.get('settings', (data) => {
+            const position = data.settings?.newPanelPosition || 'bottom';
+            if (position === 'top') {
+                panelsContainer.prepend(panelEl);
+            } else {
+                panelsContainer.appendChild(panelEl);
+            }
+            saveState();
+        });
+    };
+
     document.getElementById('add-notes-panel-btn').addEventListener('click', () => {
         const newPanelState = {
             id: `panel-${Date.now()}`,
@@ -77,8 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cards: []
         };
         const panelEl = createPanel(newPanelState, saveState);
-        panelsContainer.appendChild(panelEl);
-        saveState();
+        addPanelToContainer(panelEl);
     });
 
     document.getElementById('add-bookmarks-panel-btn').addEventListener('click', () => {
@@ -141,8 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const panelEl = createPanel(newPanelState, saveState);
-        panelsContainer.appendChild(panelEl);
-        saveState();
+        addPanelToContainer(panelEl);
 
         addPanelModal.classList.add('hidden');
         addPanelModal.classList.remove('bookmark-mode'); // Reset mode

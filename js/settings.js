@@ -47,11 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Save and Load Settings ---
-    const themeSelect = document.getElementById('theme-select');
+    const themeToggle = document.getElementById('theme-toggle');
+    const newPanelPositionToggle = document.getElementById('new-panel-position-toggle');
 
     function saveSettings() {
         const settings = {
-            theme: themeSelect.value,
+            theme: themeToggle.checked ? 'dark' : 'light',
+            newPanelPosition: newPanelPositionToggle.checked ? 'top' : 'bottom',
             sidebarFolderId: sidebarFolderSelect.value,
             headerFolderId: headerFolderSelect.value
         };
@@ -65,10 +67,19 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadSettings() {
         chrome.storage.sync.get('settings', data => {
             if (data.settings) {
-                themeSelect.value = data.settings.theme || 'light';
+                // Set toggles
+                themeToggle.checked = data.settings.theme === 'dark';
+                newPanelPositionToggle.checked = data.settings.newPanelPosition === 'top';
+
+                // Set dropdowns
                 sidebarFolderSelect.value = data.settings.sidebarFolderId || '';
                 headerFolderSelect.value = data.settings.headerFolderId || '';
+
                 applySettings(data.settings); // Apply loaded settings on page load
+            } else {
+                // Default settings for first-time users
+                themeToggle.checked = false; // Light mode
+                newPanelPositionToggle.checked = false; // Add to bottom
             }
         });
     }

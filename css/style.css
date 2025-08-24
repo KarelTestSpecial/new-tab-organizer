@@ -222,6 +222,64 @@ body {
     padding: 8px;
 }
 
+/* Toggle Switch Styles */
+.settings-toggles {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+}
+
+.toggle-switch-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px; /* Smaller width */
+    height: 28px; /* Smaller height */
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 28px; /* Match height */
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px; /* Smaller circle */
+    width: 20px;  /* Smaller circle */
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #42b72a;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px); /* Adjust translation */
+}
+
 /* Modal Styles (shared between Settings and Add Panel) */
 #settings-panel, #add-panel-modal {
     position: fixed;
