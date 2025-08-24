@@ -14,7 +14,9 @@ body {
 
 /* Sidebar */
 #sidebar {
-    width: 180px;
+    width: 15vw;
+    min-width: 120px;
+    max-width: 180px;
     background-color: #ffffff;
     padding: 15px;
     border-right: 1px solid #dddfe2;

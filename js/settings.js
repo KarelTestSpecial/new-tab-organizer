@@ -20,22 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Populate Bookmark Folders ---
     const sidebarFolderSelect = document.getElementById('sidebar-folder-select');
-    const headerFolderSelect = document.getElementById('header-folder-select');
 
     function populateFolderDropdowns() {
         getBookmarkFolders(folders => {
             sidebarFolderSelect.innerHTML = '<option value="">--Select a folder--</option>';
-            headerFolderSelect.innerHTML = '<option value="">--Select a folder--</option>';
             folders.forEach(folder => {
                 if (folder.id === '0') return;
-                const option1 = document.createElement('option');
-                option1.value = folder.id;
-                option1.textContent = folder.title;
-                sidebarFolderSelect.appendChild(option1);
-                const option2 = document.createElement('option');
-                option2.value = folder.id;
-                option2.textContent = folder.title;
-                headerFolderSelect.appendChild(option2);
+                const option = document.createElement('option');
+                option.value = folder.id;
+                option.textContent = folder.title;
+                sidebarFolderSelect.appendChild(option);
             });
         });
     }
@@ -44,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeBtn = document.getElementById('theme-toggle-btn');
     const panelPositionBtn = document.getElementById('panel-position-toggle-btn');
 
-    // Temporary state for user changes before saving
     let tempSettings = {};
 
     function updateButtonText() {
@@ -55,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeBtn.addEventListener('click', () => {
         tempSettings.theme = tempSettings.theme === 'dark' ? 'light' : 'dark';
         updateButtonText();
-        applySettings(tempSettings); // Apply theme change immediately
+        applySettings(tempSettings);
     });
 
     panelPositionBtn.addEventListener('click', () => {
@@ -65,10 +58,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveSettings() {
         const settingsToSave = {
-            ...tempSettings, // Save the changes from the temp state
+            ...tempSettings,
             sidebarFolderId: sidebarFolderSelect.value,
-            headerFolderId: headerFolderSelect.value
         };
+        // Remove undefined properties before saving
+        delete settingsToSave.headerFolderId;
+
         chrome.storage.sync.set({ settings: settingsToSave }, () => {
             console.log('Settings saved');
             settingsPanel.classList.add('hidden');
@@ -79,20 +74,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadSettings() {
         chrome.storage.sync.get('settings', data => {
             const currentSettings = data.settings || {};
-            // Initialize tempSettings with loaded or default values
             tempSettings = {
                 theme: currentSettings.theme || 'light',
                 newPanelPosition: currentSettings.newPanelPosition || 'bottom',
                 sidebarFolderId: currentSettings.sidebarFolderId || '',
-                headerFolderId: currentSettings.headerFolderId || ''
             };
 
-            // Update UI elements
             updateButtonText();
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
-            headerFolderSelect.value = tempSettings.headerFolderId;
 
-            // Apply the currently saved settings to the page
             applySettings(tempSettings);
         });
     }
