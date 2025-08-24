@@ -295,6 +295,39 @@ document.addEventListener('DOMContentLoaded', () => {
     loadState();
 });
 
+// --- Responsive Sidebar Logic ---
+function initResponsiveSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) {
+        setTimeout(initResponsiveSidebar, 50);
+        return;
+    }
+
+    const initialWindowWidth = window.innerWidth;
+    // Use getComputedStyle to get the actual CSS 'width' value, not offsetWidth
+    const initialSidebarWidth = parseFloat(window.getComputedStyle(sidebar).width);
+    const minSidebarWidth = 120;
+    const maxSidebarWidth = initialSidebarWidth;
+
+    window.addEventListener('resize', () => {
+        const currentWindowWidth = window.innerWidth;
+        const windowWidthChange = initialWindowWidth - currentWindowWidth;
+        const sidebarWidthChange = windowWidthChange / 2;
+        let newSidebarWidth = initialSidebarWidth - sidebarWidthChange;
+
+        if (newSidebarWidth < minSidebarWidth) {
+            newSidebarWidth = minSidebarWidth;
+        } else if (newSidebarWidth > maxSidebarWidth) {
+            newSidebarWidth = maxSidebarWidth;
+        }
+
+        sidebar.style.width = `${newSidebarWidth}px`;
+    });
+}
+
+initResponsiveSidebar();
+
+
 // --- Functions called by settings.js ---
 function renderBookmarks(element, bookmarks) {
     element.innerHTML = ''; // Clear existing bookmarks
