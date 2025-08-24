@@ -39,13 +39,31 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Save and Load Settings ---
-    const themeSelect = document.getElementById('theme-select');
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const panelPositionToggleBtn = document.getElementById('panel-position-toggle-btn');
+
+    // --- Toggle Button Logic ---
+    themeToggleBtn.addEventListener('click', () => {
+        const currentTheme = themeToggleBtn.dataset.value;
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        themeToggleBtn.dataset.value = newTheme;
+        themeToggleBtn.textContent = `Theme: ${newTheme.charAt(0).toUpperCase() + newTheme.slice(1)}`;
+    });
+
+    panelPositionToggleBtn.addEventListener('click', () => {
+        const currentPosition = panelPositionToggleBtn.dataset.value;
+        const newPosition = currentPosition === 'end' ? 'start' : 'end';
+        panelPositionToggleBtn.dataset.value = newPosition;
+        panelPositionToggleBtn.textContent = `Add Panels: ${newPosition.charAt(0).toUpperCase() + newPosition.slice(1)}`;
+    });
+
 
     function saveSettings() {
         const settings = {
-            theme: themeSelect.value,
+            theme: themeToggleBtn.dataset.value,
             sidebarFolderId: sidebarFolderSelect.value,
-            headerFolderId: headerFolderSelect.value
+            headerFolderId: headerFolderSelect.value,
+            newPanelPosition: panelPositionToggleBtn.dataset.value
         };
         chrome.storage.sync.set({ settings }, () => {
             console.log('Settings saved');
@@ -57,9 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadSettings() {
         chrome.storage.sync.get('settings', data => {
             if (data.settings) {
-                themeSelect.value = data.settings.theme || 'light';
+                // Set button states without triggering click events
+                const theme = data.settings.theme || 'light';
+                themeToggleBtn.dataset.value = theme;
+                themeToggleBtn.textContent = `Theme: ${theme.charAt(0).toUpperCase() + theme.slice(1)}`;
+
+                const position = data.settings.newPanelPosition || 'end';
+                panelPositionToggleBtn.dataset.value = position;
+                panelPositionToggleBtn.textContent = `Add Panels: ${position.charAt(0).toUpperCase() + position.slice(1)}`;
+
                 sidebarFolderSelect.value = data.settings.sidebarFolderId || '';
                 headerFolderSelect.value = data.settings.headerFolderId || '';
+
                 applySettings(data.settings); // Apply loaded settings on page load
             }
         });

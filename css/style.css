@@ -360,3 +360,34 @@ body {
 .card:hover .card-delete-btn {
     display: block; /* Show on hover */
 }
+
+/* Settings Toggle Buttons */
+.toggle-settings-container {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.toggle-btn {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color, #dddfe2);
+    background-color: var(--background-color, #ffffff);
+    color: var(--text-color, #1c1e21);
+    border-radius: 4px;
+    cursor: pointer;
+    flex-grow: 1;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.toggle-btn:hover {
+    background-color: var(--hover-color, #f0f2f5);
+}
+
+[data-theme="dark"] .toggle-btn {
+    border-color: #555;
+}
+
+[data-theme="dark"] .toggle-btn:hover {
+    background-color: #3a3b3c;
+}
