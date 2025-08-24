@@ -31,21 +31,9 @@
             <h2>Settings</h2>
             <div class="settings-section">
                 <h3>General</h3>
-                <div class="settings-toggles">
-                    <div class="toggle-switch-container">
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="theme-toggle">
-                            <span class="slider"></span>
-                        </label>
-                        <label for="theme-toggle">Dark Mode</label>
-                    </div>
-                    <div class="toggle-switch-container">
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="new-panel-position-toggle">
-                            <span class="slider"></span>
-                        </label>
-                        <label for="new-panel-position-toggle">Add New Panels to Top</label>
-                    </div>
+                <div class="settings-buttons">
+                    <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
+                    <button type="button" id="panel-position-toggle-btn" class="settings-btn-item">Add New Panels: Bottom</button>
                 </div>
             </div>
             <div class="settings-section">
@@ -64,11 +52,12 @@
             <div class="settings-section">
                 <h3>Data Management</h3>
                 <p>Save your current setup to a file or load a setup from a backup file.</p>
-                <button type="button" id="export-data-btn">Export Data</button>
-                <button type="button" id="import-data-btn">Import Data</button>
+                <div class="data-buttons">
+                    <button type="button" id="export-data-btn">Export Data</button>
+                    <button type="button" id="import-data-btn">Import Data</button>
+                    <button type="button" id="import-all-bookmarks-btn">Import All Bookmarks</button>
+                </div>
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
-                <hr style="margin: 15px 0;">
-                <button type="button" id="import-all-bookmarks-btn">Import All Bookmarks as Panels</button>
             </div>
             <button id="save-settings-btn">Save and Close</button>
             <button id="close-settings-btn">Cancel</button>
