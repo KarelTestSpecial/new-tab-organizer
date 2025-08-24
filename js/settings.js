@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     themeBtn.addEventListener('click', () => {
         tempSettings.theme = tempSettings.theme === 'dark' ? 'light' : 'dark';
         updateButtonText();
+        applySettings(tempSettings); // Apply theme change immediately
     });
 
     panelPositionBtn.addEventListener('click', () => {
