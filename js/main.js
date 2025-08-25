@@ -312,7 +312,7 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             actions.className = 'bookmark-actions';
 
             const editButton = document.createElement('button');
-            editButton.innerHTML = '&#9998;'; // Pencil icon
+            editButton.textContent = 'e';
             editButton.className = 'edit-bookmark-btn';
             editButton.title = 'Edit bookmark';
             editButton.addEventListener('click', () => {
@@ -345,7 +345,7 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             actions.appendChild(editButton);
 
             const deleteButton = document.createElement('button');
-            deleteButton.innerHTML = '&times;'; // 'x'
+            deleteButton.textContent = 'x';
             deleteButton.className = 'delete-bookmark-btn';
             deleteButton.title = 'Delete bookmark';
             deleteButton.addEventListener('click', () => {
