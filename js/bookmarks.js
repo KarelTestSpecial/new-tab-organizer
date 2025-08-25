@@ -31,3 +31,15 @@ function getBookmarksInFolder(folderId, callback) {
         callback(children || []);
     });
 }
+
+function deleteBookmark(id, callback) {
+    chrome.bookmarks.remove(id, () => {
+        if (callback) callback();
+    });
+}
+
+function updateBookmark(id, changes, callback) {
+    chrome.bookmarks.update(id, changes, () => {
+        if (callback) callback();
+    });
+}

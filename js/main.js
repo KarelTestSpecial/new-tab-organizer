@@ -287,16 +287,78 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- Functions called by settings.js ---
-function renderBookmarks(element, bookmarks) {
+function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
     element.innerHTML = ''; // Clear existing bookmarks
     const fragment = document.createDocumentFragment();
+
+    if (!bookmarks || bookmarks.length === 0) {
+        element.innerHTML = '<p class="empty-folder-message">This folder is empty.</p>';
+        return;
+    }
+
     bookmarks.forEach(bookmark => {
         if (bookmark.url) {
+            const item = document.createElement('div');
+            item.className = 'bookmark-item';
+            item.dataset.id = bookmark.id;
+
             const link = document.createElement('a');
             link.href = bookmark.url;
             link.textContent = bookmark.title;
             link.className = 'bookmark-link';
-            fragment.appendChild(link);
+            item.appendChild(link);
+
+            const actions = document.createElement('div');
+            actions.className = 'bookmark-actions';
+
+            const editButton = document.createElement('button');
+            editButton.textContent = 'e';
+            editButton.className = 'edit-bookmark-btn';
+            editButton.title = 'Edit bookmark';
+            editButton.addEventListener('click', () => {
+                const currentTitle = link.textContent;
+                const currentUrl = link.href;
+
+                item.innerHTML = `
+                    <div class="edit-form">
+                        <input type="text" class="edit-title" value="${currentTitle}">
+                        <input type="text" class="edit-url" value="${currentUrl}">
+                        <button class="save-bookmark-btn">Save</button>
+                        <button class="cancel-edit-btn">Cancel</button>
+                    </div>
+                `;
+
+                item.querySelector('.save-bookmark-btn').addEventListener('click', () => {
+                    const newTitle = item.querySelector('.edit-title').value.trim();
+                    const newUrl = item.querySelector('.edit-url').value.trim();
+                    if (newTitle && newUrl) {
+                        updateBookmark(bookmark.id, { title: newTitle, url: newUrl }, () => {
+                            if (refreshCallback) refreshCallback();
+                        });
+                    }
+                });
+
+                item.querySelector('.cancel-edit-btn').addEventListener('click', () => {
+                    if (refreshCallback) refreshCallback();
+                });
+            });
+            actions.appendChild(editButton);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'x';
+            deleteButton.className = 'delete-bookmark-btn';
+            deleteButton.title = 'Delete bookmark';
+            deleteButton.addEventListener('click', () => {
+                if (window.confirm(`Are you sure you want to delete "${bookmark.title}"?`)) {
+                    deleteBookmark(bookmark.id, () => {
+                        if (refreshCallback) refreshCallback();
+                    });
+                }
+            });
+            actions.appendChild(deleteButton);
+
+            item.appendChild(actions);
+            fragment.appendChild(item);
         }
     });
     element.appendChild(fragment);
@@ -307,7 +369,12 @@ function applySettings(settings) {
     document.documentElement.setAttribute('data-theme', settings.theme || 'light');
     const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
     if (settings.sidebarFolderId) {
-        getBookmarksInFolder(settings.sidebarFolderId, (bookmarks) => renderBookmarks(sidebarBookmarks, bookmarks));
+        const refreshSidebar = () => {
+            getBookmarksInFolder(settings.sidebarFolderId, (bookmarks) => {
+                renderBookmarks(sidebarBookmarks, bookmarks, settings.sidebarFolderId, refreshSidebar);
+            });
+        };
+        refreshSidebar();
     } else {
         sidebarBookmarks.innerHTML = '<p style="padding: 8px;">Select a folder in settings.</p>';
     }
