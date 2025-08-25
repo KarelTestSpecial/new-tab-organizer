@@ -81,9 +81,12 @@ function createPanel(panelState, onStateChange) {
     } else if (type === 'bookmarks') {
         contentContainer.className = 'bookmark-panel-container';
         if (folderId) {
-            getBookmarksInFolder(folderId, (bookmarks) => {
-                renderBookmarks(contentContainer, bookmarks);
-            });
+            const refreshPanel = () => {
+                getBookmarksInFolder(folderId, (bookmarks) => {
+                    renderBookmarks(contentContainer, bookmarks, folderId, refreshPanel);
+                });
+            };
+            refreshPanel();
         }
     }
 
