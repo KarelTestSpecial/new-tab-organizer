@@ -172,7 +172,8 @@ body {
     transition: background-color 0.2s;
 }
 
-.cards-container.drag-over {
+.cards-container.drag-over,
+.bookmark-panel-container.drag-over {
     background-color: #e7f3ff; /* Highlight drop zone */
 }
 
@@ -425,6 +426,10 @@ body {
 
 .bookmark-item:hover .bookmark-actions {
     visibility: visible;
+}
+
+.bookmark-item.dragging {
+    opacity: 0.5;
 }
 
 .edit-bookmark-btn, .delete-bookmark-btn {
