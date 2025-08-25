@@ -387,25 +387,105 @@ body {
     color: #eee;
 }
 
-/* Bookmark Links */
-.bookmark-link {
-    display: block;
-    padding: 8px;
+/* Bookmark Item specific styles */
+.bookmark-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 4px;
+    margin: 2px 0;
+}
+
+.bookmark-item:hover {
+    background-color: #f0f0f0;
+}
+
+[data-theme="dark"] .bookmark-item:hover {
+    background-color: #3a3b3c;
+}
+
+.bookmark-item .bookmark-link {
+    flex-grow: 1;
     text-decoration: none;
     color: #050505;
+    padding: 6px 8px;
     border-radius: 4px;
 }
 
-.bookmark-link:hover {
-    background-color: #e7f3ff;
-}
-
-[data-theme="dark"] .bookmark-link {
+[data-theme="dark"] .bookmark-item .bookmark-link {
     color: #e4e6eb;
 }
 
-[data-theme="dark"] .bookmark-link:hover {
+.bookmark-actions {
+    visibility: hidden;
+    padding-right: 8px;
+    display: flex;
+    gap: 4px;
+}
+
+.bookmark-item:hover .bookmark-actions {
+    visibility: visible;
+}
+
+.edit-bookmark-btn, .delete-bookmark-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #606770;
+    font-size: 13px;
+    font-family: monospace;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+
+.edit-bookmark-btn:hover, .delete-bookmark-btn:hover {
+    color: #1c1e21;
+    background-color: #e0e0e0;
+}
+
+[data-theme="dark"] .edit-bookmark-btn, [data-theme="dark"] .delete-bookmark-btn {
+    color: #b0b3b8;
+}
+
+[data-theme="dark"] .edit-bookmark-btn:hover, [data-theme="dark"] .delete-bookmark-btn:hover {
+    color: #e4e6eb;
+    background-color: #4a4a4a;
+}
+
+/* Edit form styling */
+.edit-form {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 2px 4px;
+    gap: 5px;
+}
+.edit-form input {
+    flex-grow: 1;
+    border: 1px solid #ccd0d5;
+    border-radius: 3px;
+    padding: 4px;
+    font-size: 13px;
+}
+[data-theme="dark"] .edit-form input {
     background-color: #3a3b3c;
+    border-color: #555;
+    color: #e4e6eb;
+}
+
+.edit-form button {
+    background-color: #42b72a;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.edit-form .cancel-edit-btn {
+    background-color: #90949c;
 }
 
 /* Delete Buttons */
