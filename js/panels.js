@@ -166,6 +166,12 @@ function createCard(cardsContainer, cardState, onStateChange) {
 
     cardText.addEventListener('blur', onStateChange);
 
+    cardText.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            e.target.blur();
+        }
+    });
+
     card.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', e.target.id);
         setTimeout(() => card.classList.add('dragging'), 0);
