@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-08-25
+
+### Added
+- Pressing the `Escape` key while editing a note card will now save the text and exit the editing mode.
+
+### Fixed
+- Improved the reliability of the Escape key functionality to ensure it consistently removes focus from the text area in the extension environment.
+
 ## [1.1.0] - 2025-08-25
 
 ### Added
