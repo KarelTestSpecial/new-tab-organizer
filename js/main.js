@@ -1,4 +1,5 @@
 const undoStack = [];
+window.bookmarkRefreshCallbacks = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     const panelsContainer = document.getElementById('panels-container');
@@ -302,6 +303,18 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             item.className = 'bookmark-item';
             item.dataset.id = bookmark.id;
 
+            item.draggable = true;
+
+            item.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('text/plain', bookmark.id);
+                e.dataTransfer.effectAllowed = 'move';
+                setTimeout(() => item.classList.add('dragging'), 0);
+            });
+
+            item.addEventListener('dragend', () => {
+                item.classList.remove('dragging');
+            });
+
             const link = document.createElement('a');
             link.href = bookmark.url;
             link.textContent = bookmark.title;
@@ -368,14 +381,47 @@ function applySettings(settings) {
     if (!settings) return;
     document.documentElement.setAttribute('data-theme', settings.theme || 'light');
     const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
+
+    sidebarBookmarks.addEventListener('dragover', e => {
+        e.preventDefault();
+        sidebarBookmarks.classList.add('drag-over');
+    });
+    sidebarBookmarks.addEventListener('dragleave', () => {
+        sidebarBookmarks.classList.remove('drag-over');
+    });
+    sidebarBookmarks.addEventListener('drop', e => {
+        e.preventDefault();
+        sidebarBookmarks.classList.remove('drag-over');
+        const bookmarkId = e.dataTransfer.getData('text/plain');
+        const destinationFolderId = sidebarBookmarks.dataset.folderId;
+
+        if (!bookmarkId || !destinationFolderId) return;
+
+        // Find the drop index
+        const afterElement = getBookmarkDragAfterElement(sidebarBookmarks, e.clientY);
+        const children = [...sidebarBookmarks.querySelectorAll('.bookmark-item')];
+        const dropIndex = afterElement ? children.indexOf(afterElement) : children.length;
+
+        moveBookmark(bookmarkId, { parentId: destinationFolderId, index: dropIndex }, () => {
+            // Refresh all bookmark panels/sidebar
+            window.bookmarkRefreshCallbacks.forEach(cb => cb());
+        });
+    });
+
     if (settings.sidebarFolderId) {
+
+        sidebarBookmarks.dataset.folderId = settings.sidebarFolderId;
         const refreshSidebar = () => {
             getBookmarksInFolder(settings.sidebarFolderId, (bookmarks) => {
                 renderBookmarks(sidebarBookmarks, bookmarks, settings.sidebarFolderId, refreshSidebar);
             });
         };
+
+        // Register this refresh function globally
+        window.bookmarkRefreshCallbacks.push(refreshSidebar);
         refreshSidebar();
     } else {
+        delete sidebarBookmarks.dataset.folderId;
         sidebarBookmarks.innerHTML = '<p style="padding: 8px;">Select a folder in settings.</p>';
     }
 }

@@ -38,6 +38,13 @@ function deleteBookmark(id, callback) {
     });
 }
 
+function moveBookmark(id, destination, callback) {
+    // destination should be an object like { parentId: '...', index: ... }
+    chrome.bookmarks.move(id, destination, () => {
+        if (callback) callback();
+    });
+}
+
 function updateBookmark(id, changes, callback) {
     chrome.bookmarks.update(id, changes, () => {
         if (callback) callback();

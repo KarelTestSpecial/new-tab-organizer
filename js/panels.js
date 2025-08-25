@@ -68,8 +68,14 @@ function createPanel(panelState, onStateChange) {
             contentContainer.classList.remove('drag-over');
             const cardId = e.dataTransfer.getData('text/plain');
             const draggable = document.getElementById(cardId);
+
             if (draggable) {
-                contentContainer.appendChild(draggable);
+                const afterElement = getCardDragAfterElement(contentContainer, e.clientY);
+                if (afterElement == null) {
+                    contentContainer.appendChild(draggable);
+                } else {
+                    contentContainer.insertBefore(draggable, afterElement);
+                }
                 onStateChange();
             }
         });
@@ -80,12 +86,43 @@ function createPanel(panelState, onStateChange) {
         }
     } else if (type === 'bookmarks') {
         contentContainer.className = 'bookmark-panel-container';
+
+
+        contentContainer.addEventListener('dragover', e => {
+            e.preventDefault();
+            contentContainer.classList.add('drag-over');
+        });
+        contentContainer.addEventListener('dragleave', () => {
+            contentContainer.classList.remove('drag-over');
+        });
+        contentContainer.addEventListener('drop', e => {
+            e.preventDefault();
+            contentContainer.classList.remove('drag-over');
+            const bookmarkId = e.dataTransfer.getData('text/plain');
+            const destinationFolderId = panel.dataset.folderId;
+
+            if (!bookmarkId || !destinationFolderId) return;
+
+            // Find the drop index
+            const afterElement = getBookmarkDragAfterElement(contentContainer, e.clientY);
+            const children = [...contentContainer.querySelectorAll('.bookmark-item')];
+            const dropIndex = afterElement ? children.indexOf(afterElement) : children.length;
+
+            moveBookmark(bookmarkId, { parentId: destinationFolderId, index: dropIndex }, () => {
+                // Refresh all bookmark panels/sidebar
+                window.bookmarkRefreshCallbacks.forEach(cb => cb());
+            });
+        });
+
         if (folderId) {
             const refreshPanel = () => {
                 getBookmarksInFolder(folderId, (bookmarks) => {
                     renderBookmarks(contentContainer, bookmarks, folderId, refreshPanel);
                 });
             };
+
+            // Register this refresh function globally
+            window.bookmarkRefreshCallbacks.push(refreshPanel);
             refreshPanel();
         }
     }
@@ -140,4 +177,32 @@ function createCard(cardsContainer, cardState, onStateChange) {
 
     cardsContainer.appendChild(card);
     return card;
+}
+
+function getCardDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.card:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function getBookmarkDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.bookmark-item:not(.dragging)')];
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
