@@ -10,7 +10,10 @@ A highly customizable and feature-rich startpage for your browser, designed to r
 -   **Notes Panels:** Jot down quick notes, to-do lists, or ideas in text-based panels.
     -   Add, delete, and reorder individual cards within each notes panel.
     -   Drag and drop cards between different notes panels.
--   **Bookmark Panels:** Display links from your browser's bookmark folders directly on the startpage.
+-   **Bookmark Panels:** Display and manage links from your browser's bookmark folders.
+    -   Hover over any bookmark to reveal subtle "edit" (e) and "delete" (x) controls.
+    -   Modify a bookmark's title and URL directly on the page.
+    -   Remove bookmarks with a confirmation step to prevent accidents.
 -   **Customizable Layout:**
     -   Drag and drop panels to arrange them in any order.
     -   The layout supports multiple rows and wraps automatically.
