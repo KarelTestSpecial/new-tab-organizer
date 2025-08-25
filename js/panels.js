@@ -87,7 +87,6 @@ function createPanel(panelState, onStateChange) {
     } else if (type === 'bookmarks') {
         contentContainer.className = 'bookmark-panel-container';
 
-
         contentContainer.addEventListener('dragover', e => {
             e.preventDefault();
             contentContainer.classList.add('drag-over');
@@ -120,7 +119,6 @@ function createPanel(panelState, onStateChange) {
                     renderBookmarks(contentContainer, bookmarks, folderId, refreshPanel);
                 });
             };
-
             // Register this refresh function globally
             window.bookmarkRefreshCallbacks.push(refreshPanel);
             refreshPanel();

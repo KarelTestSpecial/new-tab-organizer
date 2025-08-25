@@ -8,12 +8,15 @@ A highly customizable and feature-rich startpage for your browser, designed to r
 -   **Data Portability:** Use the Import and Export buttons in the Settings panel to save your entire layout and settings to a file, or to restore your setup from a backup.
 -   **Dynamic Panel System:** Create, delete, and rearrange panels to fit your workflow.
 -   **Notes Panels:** Jot down quick notes, to-do lists, or ideas in text-based panels.
-    -   Add, delete, and reorder individual cards within each notes panel.
-    -   Drag and drop cards between different notes panels.
+    -   Add and delete individual cards.
+    -   Intuitively reorder cards by dragging and dropping them up or down in the list.
+    -   Move cards between different notes panels by dragging them.
 -   **Bookmark Panels:** Display and manage links from your browser's bookmark folders.
     -   Hover over any bookmark to reveal subtle "edit" (e) and "delete" (x) controls.
     -   Modify a bookmark's title and URL directly on the page.
     -   Remove bookmarks with a confirmation step to prevent accidents.
+    -   Reorder bookmarks within a panel using drag-and-drop.
+    -   Move bookmarks to a different folder by dragging them to another bookmark panel.
 -   **Customizable Layout:**
     -   Drag and drop panels to arrange them in any order.
     -   The layout supports multiple rows and wraps automatically.

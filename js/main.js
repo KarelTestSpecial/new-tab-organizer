@@ -302,7 +302,6 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             const item = document.createElement('div');
             item.className = 'bookmark-item';
             item.dataset.id = bookmark.id;
-
             item.draggable = true;
 
             item.addEventListener('dragstart', e => {
@@ -409,14 +408,12 @@ function applySettings(settings) {
     });
 
     if (settings.sidebarFolderId) {
-
         sidebarBookmarks.dataset.folderId = settings.sidebarFolderId;
         const refreshSidebar = () => {
             getBookmarksInFolder(settings.sidebarFolderId, (bookmarks) => {
                 renderBookmarks(sidebarBookmarks, bookmarks, settings.sidebarFolderId, refreshSidebar);
             });
         };
-
         // Register this refresh function globally
         window.bookmarkRefreshCallbacks.push(refreshSidebar);
         refreshSidebar();
