@@ -168,6 +168,7 @@ function createCard(cardsContainer, cardState, onStateChange) {
 
     cardText.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+            e.preventDefault();
             e.target.blur();
         }
     });
