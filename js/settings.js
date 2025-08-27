@@ -18,8 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
         loadSettings(); // Revert any unsaved changes
     });
 
-    // --- Populate Bookmark Folders ---
+    // --- Get Elements ---
     const sidebarFolderSelect = document.getElementById('sidebar-folder-select');
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const panelPositionBtn = document.getElementById('panel-position-toggle-btn');
+    const clockVisibilityBtn = document.getElementById('clock-visibility-btn');
+    const dateVisibilityBtn = document.getElementById('date-visibility-btn');
+
+    // --- State Management ---
+    let tempSettings = {};
 
     function populateFolderDropdowns() {
         getBookmarkFolders(folders => {
@@ -34,17 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Settings State Management ---
-    const themeBtn = document.getElementById('theme-toggle-btn');
-    const panelPositionBtn = document.getElementById('panel-position-toggle-btn');
-
-    let tempSettings = {};
-
     function updateButtonText() {
         themeBtn.textContent = `Theme: ${tempSettings.theme === 'dark' ? 'Dark' : 'Light'}`;
         panelPositionBtn.textContent = `Add New Panels: ${tempSettings.newPanelPosition === 'top' ? 'Top' : 'Bottom'}`;
+        clockVisibilityBtn.textContent = `Show Clock: ${tempSettings.showClock ? 'Yes' : 'No'}`;
+        dateVisibilityBtn.textContent = `Show Date: ${tempSettings.showDate ? 'Yes' : 'No'}`;
     }
 
+    // --- Event Listeners ---
     themeBtn.addEventListener('click', () => {
         tempSettings.theme = tempSettings.theme === 'dark' ? 'light' : 'dark';
         updateButtonText();
@@ -56,13 +60,22 @@ document.addEventListener('DOMContentLoaded', () => {
         updateButtonText();
     });
 
+    clockVisibilityBtn.addEventListener('click', () => {
+        tempSettings.showClock = !tempSettings.showClock;
+        updateButtonText();
+        applySettings(tempSettings); // Apply immediately
+    });
+
+    dateVisibilityBtn.addEventListener('click', () => {
+        tempSettings.showDate = !tempSettings.showDate;
+        updateButtonText();
+        applySettings(tempSettings); // Apply immediately
+    });
+
+
     function saveSettings() {
-        const settingsToSave = {
-            ...tempSettings,
-            sidebarFolderId: sidebarFolderSelect.value,
-        };
-        // Remove undefined properties before saving
-        delete settingsToSave.headerFolderId;
+        const settingsToSave = { ...tempSettings };
+        settingsToSave.sidebarFolderId = sidebarFolderSelect.value;
 
         chrome.storage.sync.set({ settings: settingsToSave }, () => {
             console.log('Settings saved');
@@ -74,15 +87,17 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadSettings() {
         chrome.storage.sync.get('settings', data => {
             const currentSettings = data.settings || {};
+            // Initialize tempSettings with loaded or default values
             tempSettings = {
                 theme: currentSettings.theme || 'light',
                 newPanelPosition: currentSettings.newPanelPosition || 'bottom',
                 sidebarFolderId: currentSettings.sidebarFolderId || '',
+                showClock: typeof currentSettings.showClock === 'boolean' ? currentSettings.showClock : true,
+                showDate: typeof currentSettings.showDate === 'boolean' ? currentSettings.showDate : true,
             };
 
             updateButtonText();
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
-
             applySettings(tempSettings);
         });
     }
@@ -90,6 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveBtn.addEventListener('click', saveSettings);
 
     // --- Data Management ---
+    // (This section remains unchanged)
     window.handleExport = () => {
         chrome.storage.sync.get(null, (data) => {
             if (chrome.runtime.lastError) {
@@ -113,13 +129,10 @@ document.addEventListener('DOMContentLoaded', () => {
             URL.revokeObjectURL(url);
         });
     };
-
     document.getElementById('export-data-btn').addEventListener('click', window.handleExport);
-
     const importBtn = document.getElementById('import-data-btn');
     const importFileInput = document.getElementById('import-file-input');
     importBtn.addEventListener('click', () => importFileInput.click());
-
     importFileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (!file) return;
@@ -152,7 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         reader.readAsText(file);
     });
-
     document.getElementById('import-all-bookmarks-btn').addEventListener('click', () => {
         if (!confirm('Are you sure you want to add a new panel for every bookmark folder?')) {
             return;

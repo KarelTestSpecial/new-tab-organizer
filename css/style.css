@@ -21,7 +21,45 @@ body {
     padding: 15px;
     border-right: 1px solid #dddfe2;
     overflow-y: auto;
-    flex-shrink: 0; /* Prevent the sidebar from shrinking */
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#clock-container {
+    text-align: center;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #dddfe2;
+}
+
+#clock-time {
+    font-size: 2.5em;
+    font-weight: bold;
+}
+
+#clock-date {
+    font-size: 0.9em;
+    color: #666;
+}
+
+[data-theme="dark"] #clock-container {
+    border-bottom-color: #3a3b3c;
+}
+
+[data-theme="dark"] #clock-date {
+    color: #aaa;
+}
+
+#sidebar h2 {
+    margin: 15px 0 10px 0;
+    padding: 15px 8px 0;
+    font-size: 1.2em;
+    border-top: 1px solid #dddfe2;
+}
+
+[data-theme="dark"] #sidebar h2 {
+    border-top-color: #3a3b3c;
 }
 
 #bookmarks-title-link,
@@ -40,8 +78,6 @@ body {
     flex-direction: column;
     gap: 10px;
     margin-bottom: 15px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid #dddfe2;
 }
 
 .sidebar-actions-group {
@@ -56,6 +92,7 @@ body {
     text-decoration: none;
     padding: 4px;
     border-radius: 4px;
+    margin-top: 5px;
 }
 
 #settings-btn:hover {
@@ -102,8 +139,8 @@ body {
     border: none;
     border-radius: 4px;
     padding: 2px 6px;
-    font-size: 13px; /* Match other small buttons */
-    line-height: 1.2; /* Adjust for two lines */
+    font-size: 13px;
+    line-height: 1.2;
     cursor: pointer;
     color: #666;
     transition: background-color 0.2s, color 0.2s;
@@ -119,7 +156,7 @@ body {
 #panels-container {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-start; /* Align panels to the top */
+    align-items: flex-start;
     padding: 15px;
     gap: 15px;
 }
@@ -168,12 +205,12 @@ body {
 
 .cards-container {
     padding: 10px;
-    min-height: 100px; /* So empty panels have a drop zone */
+    min-height: 100px;
     transition: background-color 0.2s;
 }
 
 .cards-container.drag-over {
-    background-color: #e7f3ff; /* Highlight drop zone */
+    background-color: #e7f3ff;
 }
 
 /* Cards */
@@ -243,7 +280,7 @@ body {
 }
 
 .settings-btn-item {
-    background-color: #f0f0f0; /* Light gray */
+    background-color: #f0f0f0;
     border: 1px solid #ccc;
     padding: 8px 12px;
     border-radius: 4px;

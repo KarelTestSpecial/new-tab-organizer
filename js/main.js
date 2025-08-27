@@ -304,11 +304,25 @@ function renderBookmarks(element, bookmarks) {
 
 function applySettings(settings) {
     if (!settings) return;
+
+    // Apply theme
     document.documentElement.setAttribute('data-theme', settings.theme || 'light');
+
+    // Apply sidebar folder
     const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
     if (settings.sidebarFolderId) {
         getBookmarksInFolder(settings.sidebarFolderId, (bookmarks) => renderBookmarks(sidebarBookmarks, bookmarks));
     } else {
         sidebarBookmarks.innerHTML = '<p style="padding: 8px;">Select a folder in settings.</p>';
+    }
+
+    // Apply clock and date visibility
+    const clockContainer = document.getElementById('clock-container');
+    const clockTime = document.getElementById('clock-time');
+    const clockDate = document.getElementById('clock-date');
+    if (clockContainer && clockTime && clockDate) {
+        clockContainer.style.display = settings.showClock ? 'block' : 'none';
+        clockTime.style.display = settings.showClock ? 'block' : 'none';
+        clockDate.style.display = settings.showDate ? 'block' : 'none';
     }
 }

@@ -9,7 +9,10 @@
 <body>
     <div id="app">
         <aside id="sidebar">
-            <h2><a href="#" id="bookmarks-title-link">Bookmarks</a></h2>
+            <div id="clock-container">
+                <div id="clock-time"></div>
+                <div id="clock-date"></div>
+            </div>
             <div class="sidebar-actions">
                 <div class="sidebar-actions-group">
                     <button id="add-notes-panel-btn" title="Add Notes Panel">+ P</button>
@@ -18,6 +21,7 @@
                 </div>
                 <a href="#" id="settings-btn">Settings</a>
             </div>
+            <h2><a href="#" id="bookmarks-title-link">Bookmarks</a></h2>
             <div id="sidebar-bookmarks"></div>
         </aside>
         <main id="main-content">
@@ -32,6 +36,13 @@
                 <div class="settings-buttons">
                     <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
                     <button type="button" id="panel-position-toggle-btn" class="settings-btn-item">Add New Panels: Bottom</button>
+                </div>
+            </div>
+            <div class="settings-section">
+                <h3>Clock & Date</h3>
+                <div class="settings-buttons">
+                    <button type="button" id="clock-visibility-btn" class="settings-btn-item">Show Clock: Yes</button>
+                    <button type="button" id="date-visibility-btn" class="settings-btn-item">Show Date: Yes</button>
                 </div>
             </div>
             <div class="settings-section">
@@ -81,6 +92,7 @@
     </div>
     <script src="js/bookmarks.js"></script>
     <script src="js/panels.js"></script>
+    <script src="js/clock.js"></script>
     <script src="js/settings.js"></script>
     <script src="js/main.js"></script>
 </body>
