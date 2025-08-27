@@ -68,8 +68,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    margin-bottom: 15px;
-    padding-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .sidebar-actions-group {
