@@ -27,6 +27,7 @@ body {
 }
 
 #sidebar-header {
+    padding-top: 10px;
     padding-bottom: 15px;
     text-align: center;
 }
