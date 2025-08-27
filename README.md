@@ -6,6 +6,7 @@ A highly customizable and feature-rich startpage for your browser, designed to r
 
 -   **Undo Deletions:** Accidentally deleted a panel or a card? Just press `Ctrl+Z` to restore it instantly.
 -   **Data Portability:** Use the Import and Export buttons in the Settings panel to save your entire layout and settings to a file, or to restore your setup from a backup.
+-   **Bulk Bookmark Import:** Quickly populate your startpage by using the "Import All Bookmarks" button in the Settings panel. This automatically creates panels for all your bookmark folders that aren't already displayed.
 -   **Dynamic Panel System:** Create, delete, and rearrange panels to fit your workflow.
 -   **Notes Panels:** Jot down quick notes, to-do lists, or ideas in text-based panels.
     -   Add and delete individual cards.
@@ -21,6 +22,7 @@ A highly customizable and feature-rich startpage for your browser, designed to r
     -   Drag and drop panels to arrange them in any order.
     -   The layout supports multiple rows and wraps automatically.
     -   The sidebar is responsive and will resize with the window.
+-   **Live Clock and Date:** Keep track of time with a clean, digital clock and date display at the top of the page.
 -   **Quick & Efficient Workflow:**
     -   All primary actions are available directly in the sidebar.
     -   Instantly create new notes panels with a single click (`+ P`).
@@ -33,6 +35,7 @@ A highly customizable and feature-rich startpage for your browser, designed to r
 -   **Customizable Settings:**
     -   Switch between light and dark themes.
     -   Choose whether new panels are added to the top or bottom of the page.
+    -   Show or hide the clock and date display.
 
 ## How to Install and Use
 

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2025-08-27
+
+### Added
+- **Import All Bookmarks:** In the Settings panel, a new "Import All Bookmarks" button will automatically create new panels for any of your bookmark folders that are not already displayed on the page.
+- **Clock and Date Display:** Added a customizable clock and date display to the startpage. Users can toggle their visibility in the Settings panel.
+
 ## [1.1.1] - 2025-08-25
 
 ### Added
