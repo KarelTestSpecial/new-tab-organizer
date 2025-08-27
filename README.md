@@ -14,18 +14,19 @@ A highly customizable and feature-rich startpage for your browser, designed to r
 -   **Customizable Layout:**
     -   Drag and drop panels to arrange them in any order.
     -   The layout supports multiple rows and wraps automatically.
+    -   The sidebar is responsive and will resize with the window.
 -   **Quick & Efficient Workflow:**
+    -   All primary actions are available directly in the sidebar.
     -   Instantly create new notes panels with a single click (`+ P`).
     -   Streamlined process for creating bookmark panels (`+ L`).
 -   **Smart & Editable Titles:**
     -   All panel titles are editable directly on the page.
     -   Bookmark panels automatically use the folder name as a default title if the title is left blank.
 -   **Customizable Bookmarks Display:**
-    -   Choose specific bookmark folders to display in the persistent sidebar and header sections via the Settings menu.
--   **Theming:**
-    -   Switch between light and dark themes in the Settings menu.
--   **Integrated Google Search:**
-    -   A convenient search bar at the top of the page for quick Google searches.
+    -   Choose a specific bookmark folder to display in the persistent sidebar via the Settings menu.
+-   **Customizable Settings:**
+    -   Switch between light and dark themes.
+    -   Choose whether new panels are added to the top or bottom of the page.
 
 ## How to Install and Use
 

@@ -7,95 +7,103 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Panel Visibility and Actions ---
     settingsBtn.addEventListener('click', () => {
         if (settingsPanel.classList.contains('hidden')) {
-            // If panel is hidden, show it
             settingsPanel.classList.remove('hidden');
         } else {
-            // If panel is visible, save and close
             saveSettings();
         }
     });
 
     closeBtn.addEventListener('click', () => {
         settingsPanel.classList.add('hidden');
-        // Revert any unsaved changes by reloading the saved settings
-        loadSettings();
+        loadSettings(); // Revert any unsaved changes
     });
 
     // --- Populate Bookmark Folders ---
     const sidebarFolderSelect = document.getElementById('sidebar-folder-select');
-    const headerFolderSelect = document.getElementById('header-folder-select');
 
     function populateFolderDropdowns() {
         getBookmarkFolders(folders => {
-            // Clear existing options except the first one
             sidebarFolderSelect.innerHTML = '<option value="">--Select a folder--</option>';
-            headerFolderSelect.innerHTML = '<option value="">--Select a folder--</option>';
-
             folders.forEach(folder => {
-                if (folder.id === '0') return; // Skip the root folder which isn't a real folder
-                const option1 = document.createElement('option');
-                option1.value = folder.id;
-                option1.textContent = folder.title;
-                sidebarFolderSelect.appendChild(option1);
-
-                const option2 = document.createElement('option');
-                option2.value = folder.id;
-                option2.textContent = folder.title;
-                headerFolderSelect.appendChild(option2);
+                if (folder.id === '0') return;
+                const option = document.createElement('option');
+                option.value = folder.id;
+                option.textContent = folder.title;
+                sidebarFolderSelect.appendChild(option);
             });
         });
     }
 
-    // --- Save and Load Settings ---
-    const themeSelect = document.getElementById('theme-select');
+    // --- Settings State Management ---
+    const themeBtn = document.getElementById('theme-toggle-btn');
+    const panelPositionBtn = document.getElementById('panel-position-toggle-btn');
+
+    let tempSettings = {};
+
+    function updateButtonText() {
+        themeBtn.textContent = `Theme: ${tempSettings.theme === 'dark' ? 'Dark' : 'Light'}`;
+        panelPositionBtn.textContent = `Add New Panels: ${tempSettings.newPanelPosition === 'top' ? 'Top' : 'Bottom'}`;
+    }
+
+    themeBtn.addEventListener('click', () => {
+        tempSettings.theme = tempSettings.theme === 'dark' ? 'light' : 'dark';
+        updateButtonText();
+        applySettings(tempSettings);
+    });
+
+    panelPositionBtn.addEventListener('click', () => {
+        tempSettings.newPanelPosition = tempSettings.newPanelPosition === 'top' ? 'bottom' : 'top';
+        updateButtonText();
+    });
 
     function saveSettings() {
-        const settings = {
-            theme: themeSelect.value,
+        const settingsToSave = {
+            ...tempSettings,
             sidebarFolderId: sidebarFolderSelect.value,
-            headerFolderId: headerFolderSelect.value
         };
-        chrome.storage.sync.set({ settings }, () => {
+        // Remove undefined properties before saving
+        delete settingsToSave.headerFolderId;
+
+        chrome.storage.sync.set({ settings: settingsToSave }, () => {
             console.log('Settings saved');
             settingsPanel.classList.add('hidden');
-            applySettings(settings); // Apply settings immediately after saving
+            applySettings(settingsToSave);
         });
     }
 
     function loadSettings() {
         chrome.storage.sync.get('settings', data => {
-            if (data.settings) {
-                themeSelect.value = data.settings.theme || 'light';
-                sidebarFolderSelect.value = data.settings.sidebarFolderId || '';
-                headerFolderSelect.value = data.settings.headerFolderId || '';
-                applySettings(data.settings); // Apply loaded settings on page load
-            }
+            const currentSettings = data.settings || {};
+            tempSettings = {
+                theme: currentSettings.theme || 'light',
+                newPanelPosition: currentSettings.newPanelPosition || 'bottom',
+                sidebarFolderId: currentSettings.sidebarFolderId || '',
+            };
+
+            updateButtonText();
+            sidebarFolderSelect.value = tempSettings.sidebarFolderId;
+
+            applySettings(tempSettings);
         });
     }
 
     saveBtn.addEventListener('click', saveSettings);
 
     // --- Data Management ---
-    // Make export function global to be accessible by main.js
     window.handleExport = () => {
-        // Get all data from storage
         chrome.storage.sync.get(null, (data) => {
             if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError);
                 alert('Error exporting data.');
                 return;
             }
-
-            // We don't want to export everything, e.g. internal chrome sync state
             const exportData = {
                 panelsState: data.panelsState || [],
                 settings: data.settings || {}
             };
-
             const dataString = JSON.stringify(exportData, null, 2);
             const blob = new Blob([dataString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
-
             const a = document.createElement('a');
             a.href = url;
             a.download = `startpage-backup-${new Date().toISOString().slice(0, 10)}.json`;
@@ -106,32 +114,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    const exportBtn = document.getElementById('export-data-btn');
-    exportBtn.addEventListener('click', window.handleExport);
+    document.getElementById('export-data-btn').addEventListener('click', window.handleExport);
 
     const importBtn = document.getElementById('import-data-btn');
     const importFileInput = document.getElementById('import-file-input');
-
-    importBtn.addEventListener('click', () => {
-        importFileInput.click(); // Trigger the hidden file input
-    });
+    importBtn.addEventListener('click', () => importFileInput.click());
 
     importFileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
-        if (!file) {
-            return;
-        }
-
+        if (!file) return;
         const reader = new FileReader();
         reader.onload = (e) => {
-            const text = e.target.result;
             try {
-                const data = JSON.parse(text);
-
-                // Basic validation
+                const data = JSON.parse(e.target.result);
                 if (data && typeof data.panelsState !== 'undefined' && typeof data.settings !== 'undefined') {
                     if (confirm('Are you sure you want to import this data? Your current layout and settings will be overwritten.')) {
-                        // Clear existing data before setting new data to avoid merging issues
                         chrome.storage.sync.clear(() => {
                             chrome.storage.sync.set(data, () => {
                                 if (chrome.runtime.lastError) {
@@ -145,66 +142,49 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
                 } else {
-                    alert('Invalid backup file. The file does not contain the expected data (panelsState and settings).');
+                    alert('Invalid backup file.');
                 }
             } catch (error) {
-                console.error('Error parsing backup file:', error);
-                alert('Error reading backup file. It may be corrupted or not a valid JSON file.');
+                alert('Error reading backup file.');
             } finally {
-                // Reset the file input so the user can select the same file again if needed
                 importFileInput.value = '';
             }
         };
         reader.readAsText(file);
     });
 
-    const importAllBookmarksBtn = document.getElementById('import-all-bookmarks-btn');
-
-    importAllBookmarksBtn.addEventListener('click', () => {
-        if (!confirm('Are you sure you want to add a new panel for every bookmark folder? This may add a large number of panels to your page.')) {
+    document.getElementById('import-all-bookmarks-btn').addEventListener('click', () => {
+        if (!confirm('Are you sure you want to add a new panel for every bookmark folder?')) {
             return;
         }
-
-        // 1. Get all bookmark folders
         chrome.bookmarks.getTree((tree) => {
             const folders = [];
             function findFolders(node) {
                 if (node.children) {
-                    // A folder must have children and at least one actual bookmark to be useful
-                    if (node.children.some(child => child.url)) {
-                        // We also don't want the root "Bookmarks Bar" etc. folders
-                        if (node.id !== '0' && node.id !== '1' && node.id !== '2') {
-                             folders.push({ id: node.id, title: node.title });
-                        }
+                    if (node.children.some(child => child.url) && node.id !== '0' && node.id !== '1' && node.id !== '2') {
+                        folders.push({ id: node.id, title: node.title });
                     }
                     node.children.forEach(findFolders);
                 }
             }
             findFolders(tree[0]);
-
-            // 2. Get current panels state
             chrome.storage.sync.get('panelsState', (data) => {
                 const currentPanels = data.panelsState || [];
                 const existingFolderIds = new Set(currentPanels.map(p => p.folderId));
                 let newPanelsAdded = 0;
-
-                // 3. Add new panels for folders that don't already have one
                 folders.forEach(folder => {
                     if (!existingFolderIds.has(folder.id)) {
-                        const newPanelState = {
+                        currentPanels.push({
                             id: `panel-${Date.now()}-${folder.id}`,
                             title: folder.title,
                             type: 'bookmarks',
                             folderId: folder.id,
                             cards: []
-                        };
-                        currentPanels.push(newPanelState);
+                        });
                         newPanelsAdded++;
                     }
                 });
-
                 if (newPanelsAdded > 0) {
-                    // 4. Save the new state and reload
                     chrome.storage.sync.set({ panelsState: currentPanels }, () => {
                         alert(`${newPanelsAdded} new bookmark panels have been added. The page will now reload.`);
                         location.reload();
