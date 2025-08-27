@@ -283,8 +283,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+    // --- Clock and Date ---
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        document.getElementById('clock').textContent = timeString;
+        document.getElementById('date').textContent = dateString;
+    }
+
     // --- Initialization ---
     loadState();
+    updateClock();
+    setInterval(updateClock, 1000); // Update every second
 });
 
 // --- Functions called by settings.js ---
@@ -378,9 +390,22 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
 
 function applySettings(settings) {
     if (!settings) return;
-    document.documentElement.setAttribute('data-theme', settings.theme || 'light');
-    const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
 
+    // Theme
+    document.documentElement.setAttribute('data-theme', settings.theme || 'light');
+
+    // Clock and Date Visibility
+    const clockElement = document.getElementById('clock');
+    const dateElement = document.getElementById('date');
+    if (clockElement) {
+        clockElement.style.display = settings.showClock ? 'block' : 'none';
+    }
+    if (dateElement) {
+        dateElement.style.display = settings.showDate ? 'block' : 'none';
+    }
+
+    // Sidebar Bookmarks
+    const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
     sidebarBookmarks.addEventListener('dragover', e => {
         e.preventDefault();
         sidebarBookmarks.classList.add('drag-over');

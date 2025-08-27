@@ -22,6 +22,34 @@ body {
     border-right: 1px solid #dddfe2;
     overflow-y: auto;
     flex-shrink: 0; /* Prevent the sidebar from shrinking */
+    display: flex;
+    flex-direction: column;
+}
+
+#sidebar-header {
+    padding-bottom: 15px;
+    text-align: center;
+}
+
+#clock {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+#date {
+    font-size: 14px;
+    color: #666;
+}
+
+[data-theme="dark"] #date {
+    color: #999;
+}
+
+#sidebar h2 {
+    margin: 0 0 10px 0;
+    padding-left: 8px; /* Aligns with bookmark items */
+    font-size: 16px; /* Example size, adjust as needed */
 }
 
 #bookmarks-title-link,
@@ -386,6 +414,11 @@ body {
 [data-theme="dark"] #quick-backup-btn:hover {
     background-color: #3a3b3c;
     color: #eee;
+}
+
+#sidebar-bookmarks {
+    flex-grow: 1; /* Allows this area to fill remaining space */
+    overflow-y: auto; /* Add scroll if content overflows */
 }
 
 /* Bookmark Item specific styles */

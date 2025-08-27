@@ -37,12 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Settings State Management ---
     const themeBtn = document.getElementById('theme-toggle-btn');
     const panelPositionBtn = document.getElementById('panel-position-toggle-btn');
+    const clockToggleBtn = document.getElementById('clock-toggle-btn');
+    const dateToggleBtn = document.getElementById('date-toggle-btn');
 
     let tempSettings = {};
 
     function updateButtonText() {
         themeBtn.textContent = `Theme: ${tempSettings.theme === 'dark' ? 'Dark' : 'Light'}`;
         panelPositionBtn.textContent = `Add New Panels: ${tempSettings.newPanelPosition === 'top' ? 'Top' : 'Bottom'}`;
+        clockToggleBtn.textContent = `${tempSettings.showClock ? 'Hide' : 'Show'} Clock`;
+        dateToggleBtn.textContent = `${tempSettings.showDate ? 'Hide' : 'Show'} Date`;
     }
 
     themeBtn.addEventListener('click', () => {
@@ -54,6 +58,18 @@ document.addEventListener('DOMContentLoaded', () => {
     panelPositionBtn.addEventListener('click', () => {
         tempSettings.newPanelPosition = tempSettings.newPanelPosition === 'top' ? 'bottom' : 'top';
         updateButtonText();
+    });
+
+    clockToggleBtn.addEventListener('click', () => {
+        tempSettings.showClock = !tempSettings.showClock;
+        updateButtonText();
+        applySettings(tempSettings);
+    });
+
+    dateToggleBtn.addEventListener('click', () => {
+        tempSettings.showDate = !tempSettings.showDate;
+        updateButtonText();
+        applySettings(tempSettings);
     });
 
     function saveSettings() {
@@ -78,6 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 theme: currentSettings.theme || 'light',
                 newPanelPosition: currentSettings.newPanelPosition || 'bottom',
                 sidebarFolderId: currentSettings.sidebarFolderId || '',
+                showClock: typeof currentSettings.showClock === 'boolean' ? currentSettings.showClock : true,
+                showDate: typeof currentSettings.showDate === 'boolean' ? currentSettings.showDate : true,
             };
 
             updateButtonText();
