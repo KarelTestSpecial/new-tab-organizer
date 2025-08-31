@@ -47,21 +47,43 @@ body {
     color: #999;
 }
 
-#sidebar h2 {
-    margin: 0 0 10px 0;
-    padding-left: 8px; /* Aligns with bookmark items */
-    font-size: 16px; /* Example size, adjust as needed */
+.sidebar-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 8px;
+    margin-bottom: 10px;
 }
 
+#sidebar .sidebar-links h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+}
+
+#history-link,
 #bookmarks-title-link,
 #bookmarks-title-link:visited,
-#bookmarks-title-link:active {
+#bookmarks-title-link:active,
+#history-link:visited,
+#history-link:active {
     text-decoration: none;
     color: inherit;
 }
 
 #bookmarks-title-link:hover {
     text-decoration: underline;
+}
+
+#history-link {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: opacity 0.2s;
+}
+
+#history-link:hover {
+    opacity: 0.7;
 }
 
 .sidebar-actions {

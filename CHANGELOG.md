@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-08-31
+
+### Fixed
+- **History Link:** The history link now correctly opens the history page (`chrome://history`) by using the `chrome.tabs` API, preventing it from being blocked by browser security policies.
+
+## [1.3.0] - 2025-08-31
+
+### Added
+- **History Link:** Added a link to the sidebar to open `chrome://history/`.
+
+### Changed
+- The "History" link in the sidebar is now an icon instead of text.
+
 ## [1.2.0] - 2025-08-27
 
 ### Added
