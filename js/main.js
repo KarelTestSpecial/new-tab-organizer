@@ -166,6 +166,12 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.tabs.create({ url: 'chrome://bookmarks' });
     });
 
+    // Handle clicks on the history icon to open the history page
+    document.getElementById('history-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.tabs.create({ url: 'chrome://history' });
+    });
+
     // --- Panel Drag and Drop ---
     panelsContainer.addEventListener('dragstart', e => {
         // This listener is on the container to handle panel dragging.
