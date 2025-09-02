@@ -17,10 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             if (panel.type === 'notes') {
                 panelEl.querySelectorAll('.card').forEach(cardEl => {
-                    panel.cards.push({
+                    const cardData = {
                         id: cardEl.id,
-                        text: cardEl.querySelector('p').textContent
-                    });
+                        text: cardEl.querySelector('p').textContent,
+                        imageUrl: null
+                    };
+                    const img = cardEl.querySelector('img');
+                    if (img) {
+                        cardData.imageUrl = img.src;
+                    }
+                    panel.cards.push(cardData);
                 });
             }
             panels.push(panel);

@@ -80,6 +80,29 @@ function createPanel(panelState, onStateChange) {
             }
         });
 
+        // Paste listener for images
+        contentContainer.addEventListener('paste', e => {
+            const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+            for (let item of items) {
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    e.preventDefault();
+                    const file = item.getAsFile();
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const cardState = {
+                            id: `card-${Date.now()}`,
+                            imageUrl: event.target.result,
+                            text: ''
+                        };
+                        createCard(contentContainer, cardState, onStateChange);
+                        onStateChange();
+                    };
+                    reader.readAsDataURL(file);
+                    return; // Handle only the first image
+                }
+            }
+        });
+
         // Render existing cards
         if (cards) {
             cards.forEach(cardState => createCard(contentContainer, cardState, onStateChange));
@@ -132,17 +155,29 @@ function createPanel(panelState, onStateChange) {
 }
 
 function createCard(cardsContainer, cardState, onStateChange) {
-    const { id, text } = cardState;
+    const { id, text, imageUrl } = cardState;
 
     const card = document.createElement('div');
     card.className = 'card';
     card.draggable = true;
     card.id = id;
 
+    if (imageUrl) {
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = text || 'Pasted image';
+        card.appendChild(img);
+        card.classList.add('image-card');
+    }
+
     const cardText = document.createElement('p');
-    cardText.textContent = text;
+    cardText.textContent = text || '';
     cardText.contentEditable = true;
     card.appendChild(cardText);
+
+    if (!text && imageUrl) {
+        cardText.classList.add('hidden'); // Hide empty text if there's an image
+    }
 
     const deleteCardButton = document.createElement('button');
     deleteCardButton.innerHTML = '&times;';
