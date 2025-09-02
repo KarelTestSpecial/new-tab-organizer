@@ -2,6 +2,15 @@
 
 A highly customizable and feature-rich startpage for your browser, designed to replace the default new tab page. Organize your digital life with interactive panels for notes, bookmarks, and more.
 
+## Data Storage
+
+**Important:** This extension uses a hybrid storage model to provide the best of both worlds—synchronization for most data and local storage for large items like images.
+
+-   **Synced Data (`chrome.storage.sync`):** The structure of your panels, the text in your notes, your settings, and your bookmarks are all synchronized across your devices.
+-   **Local Data (`chrome.storage.local`):** To allow for pasting images without hitting sync storage limits, all pasted images are saved only on the local machine where they were added.
+
+This means your layout and text will always be in sync, but **pasted images will not appear on your other devices.**
+
 ## Features
 
 -   **Undo Deletions:** Accidentally deleted a panel or a card? Just press `Ctrl+Z` to restore it instantly.

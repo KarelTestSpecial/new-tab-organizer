@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- State Management ---
     const saveState = () => {
         const panels = [];
+        const imagesToSaveLocally = {};
+        const localImageKeysToRemove = [];
+
         document.querySelectorAll('.panel').forEach(panelEl => {
             const panel = {
                 id: panelEl.dataset.id,
@@ -15,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 folderId: panelEl.dataset.folderId,
                 cards: []
             };
+
             if (panel.type === 'notes') {
                 panelEl.querySelectorAll('.card').forEach(cardEl => {
                     const cardData = {
@@ -23,31 +27,76 @@ document.addEventListener('DOMContentLoaded', () => {
                         imageUrl: null
                     };
                     const img = cardEl.querySelector('img');
-                    if (img) {
-                        cardData.imageUrl = img.src;
+                    if (img && img.src.startsWith('data:image')) {
+                        // This is an image card with a data URL that needs to be stored locally
+                        imagesToSaveLocally[cardData.id] = img.src;
+                        // In the sync data, we'll store a placeholder
+                        cardData.imageUrl = 'local';
+                    } else if (img) {
+                        // This might be an image with a 'local' placeholder already, keep it
+                        cardData.imageUrl = 'local';
                     }
                     panel.cards.push(cardData);
                 });
             }
             panels.push(panel);
         });
+
+        // Save image data to local storage
+        if (Object.keys(imagesToSaveLocally).length > 0) {
+            chrome.storage.local.set(imagesToSaveLocally);
+        }
+
+        // Save panel structure to sync storage
         chrome.storage.sync.set({ panelsState: panels });
     };
 
     const loadState = () => {
         chrome.storage.sync.get('panelsState', data => {
             panelsContainer.innerHTML = ''; // Clear before loading
-            if (data.panelsState && data.panelsState.length > 0) {
-                data.panelsState.forEach(panelState => {
-                    const panelEl = createPanel(panelState, saveState);
-                    panelsContainer.appendChild(panelEl);
+            const panelsState = data.panelsState;
+
+            if (panelsState && panelsState.length > 0) {
+                const imageCardIds = [];
+                panelsState.forEach(panel => {
+                    if (panel.type === 'notes' && panel.cards) {
+                        panel.cards.forEach(card => {
+                            if (card.imageUrl === 'local') {
+                                imageCardIds.push(card.id);
+                            }
+                        });
+                    }
                 });
+
+                if (imageCardIds.length > 0) {
+                    chrome.storage.local.get(imageCardIds, localImages => {
+                        panelsState.forEach(panel => {
+                            if (panel.type === 'notes' && panel.cards) {
+                                panel.cards.forEach(card => {
+                                    if (localImages[card.id]) {
+                                        card.imageUrl = localImages[card.id];
+                                    }
+                                });
+                            }
+                        });
+                        renderPanels(panelsState);
+                    });
+                } else {
+                    renderPanels(panelsState);
+                }
             } else {
                 // If no state, create a default "To-Do" list
                 const defaultPanelState = { id: `panel-${Date.now()}`, title: 'To-Do List', type: 'notes', cards: [] };
                 const panelEl = createPanel(defaultPanelState, saveState);
                 addPanelToContainer(panelEl);
             }
+        });
+    };
+
+    const renderPanels = (panelsState) => {
+        panelsState.forEach(panelState => {
+            const panelEl = createPanel(panelState, saveState);
+            panelsContainer.appendChild(panelEl);
         });
     };
 
