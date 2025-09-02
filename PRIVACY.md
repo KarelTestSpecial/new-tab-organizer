@@ -29,4 +29,4 @@ We may update this Privacy Policy from time to time. We will notify you of any c
 
 ## 5. Contact Us
 
-If you have any questions about this Privacy Policy, you can contact us. (Note to user: You should add your contact information here, e.g., an email address or a link to the GitHub repository issues page).
+If you have any questions about this Privacy Policy, you can raise an issue on the project's GitHub page.
