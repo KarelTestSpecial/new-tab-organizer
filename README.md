@@ -4,9 +4,6 @@ A highly customizable and feature-rich startpage for your browser, designed to r
 
 ## Features
 
--   **Dynamic Panel System / Customizable Layout:** Create, delete, and rearrange panels to fit your workflow.
-    -   Drag and drop panels to arrange them in any order.
-    -   The layout supports multiple rows and wraps automatically.
 -   **Notes Panels:** Jot down quick notes, to-do lists, or ideas in text-based panels.
     -   Add and delete individual cards.
     -   Intuitively reorder cards by dragging and dropping them up or down in the list.
@@ -17,7 +14,11 @@ A highly customizable and feature-rich startpage for your browser, designed to r
     -   Remove bookmarks with a confirmation step to prevent accidents.
     -   Reorder bookmarks within a panel using drag-and-drop.
     -   Move bookmarks to a different folder by dragging them to another bookmark panel.
--   **Bulk Bookmark Import:** Quickly populate your startpage by using the "Import All Bookmarks" button in the Settings panel. This automatically creates panels for all your bookmark folders that aren't already displayed.
+-   **Dynamic Panel System / Customizable Layout:** Create, delete, and rearrange panels to fit your workflow.
+    -   Drag and drop panels to arrange them in any order.
+    -   The layout supports multiple rows and wraps automatically.
+-   **Bulk Bookmark Import:** Quickly populate your startpage by using the "Import All Bookmarks" button in the Settings panel.
+    -   This automatically creates panels for all your bookmark folders that aren't already displayed.
 -   **Quick & Efficient Workflow:**
     -   All primary actions are available directly in the sidebar.
     -   Instantly create new notes panels with a single click (`+ P`).
