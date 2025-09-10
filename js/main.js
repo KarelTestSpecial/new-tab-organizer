@@ -355,16 +355,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- View Navigation ---
-    function navigateToView(viewUrl) {
+    function navigateToView(viewUrl, viewTitle) {
+        // For View 1 (the New Tab Page), we must query by title as the URL is masked.
+        if (viewUrl === 'startpage.html') {
+            chrome.tabs.query({ title: viewTitle }, (tabs) => {
+                if (tabs.length > 0) {
+                    // Tab exists, focus it
+                    chrome.tabs.update(tabs[0].id, { active: true });
+                    chrome.windows.update(tabs[0].windowId, { focused: true });
+                } else {
+                    // Create a new tab, which will be overridden by the extension
+                    chrome.tabs.create({});
+                }
+            });
+            return;
+        }
+
+        // For other views, we can query by their unique URL.
         const targetUrl = chrome.runtime.getURL(viewUrl);
         chrome.tabs.query({ url: targetUrl }, (tabs) => {
             if (tabs.length > 0) {
-                // Tab exists, focus it
                 chrome.tabs.update(tabs[0].id, { active: true });
-                // Optional: focus the window as well
                 chrome.windows.update(tabs[0].windowId, { focused: true });
             } else {
-                // Tab does not exist, create it
                 chrome.tabs.create({ url: targetUrl });
             }
         });
@@ -372,15 +385,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('nav-view-1').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('startpage.html');
+        navigateToView('startpage.html', 'Dashboard 1');
     });
     document.getElementById('nav-view-2').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelB.html');
+        navigateToView('panelB.html', 'Dashboard 2');
     });
     document.getElementById('nav-view-3').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelC.html');
+        navigateToView('panelC.html', 'Dashboard 3');
     });
 
     // Highlight the active view link
