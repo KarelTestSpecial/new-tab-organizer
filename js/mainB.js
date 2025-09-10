@@ -48,13 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Save panel structure to sync storage
-        chrome.storage.sync.set({ panelsState: panels });
+        chrome.storage.sync.set({ panelsState_B: panels });
     };
 
     const loadState = () => {
-        chrome.storage.sync.get('panelsState', data => {
+        chrome.storage.sync.get('panelsState_B', data => {
             panelsContainer.innerHTML = ''; // Clear before loading
-            const panelsState = data.panelsState;
+            const panelsState = data.panelsState_B;
 
             if (panelsState && panelsState.length > 0) {
                 const imageCardIds = [];
@@ -163,10 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             alert('Could not perform export. Function not found.');
         }
-    });
-
-    document.getElementById('open-second-view-btn').addEventListener('click', () => {
-        chrome.tabs.create({ url: chrome.runtime.getURL("panelB.html") });
     });
 
     cancelAddPanelBtn.addEventListener('click', () => {
