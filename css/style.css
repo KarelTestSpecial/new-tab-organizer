@@ -90,7 +90,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
-    margin-bottom: 8px;
+    margin-bottom: 16px;
 }
 
 .sidebar-actions-group {
@@ -600,7 +600,7 @@ body {
 .sidebar-view-nav {
     display: flex;
     flex-direction: row;
-    gap: 5px;
+    gap: 8px;
 }
 
 .sidebar-view-nav a {
