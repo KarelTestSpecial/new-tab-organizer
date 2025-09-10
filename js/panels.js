@@ -17,7 +17,19 @@ function createPanel(panelState, onStateChange) {
     const titleElement = document.createElement('h3');
     titleElement.textContent = title;
     titleElement.contentEditable = true;
-    titleElement.addEventListener('blur', onStateChange);
+    titleElement.addEventListener('blur', () => {
+        if (panel.dataset.type === 'bookmarks' && panel.dataset.folderId) {
+            const newTitle = titleElement.textContent;
+            chrome.bookmarks.update(panel.dataset.folderId, { title: newTitle }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error(`Error updating bookmark folder: ${chrome.runtime.lastError.message}`);
+                }
+                onStateChange();
+            });
+        } else {
+            onStateChange();
+        }
+    });
     panelHeader.appendChild(titleElement);
 
     const panelActions = document.createElement('div');
@@ -40,8 +52,6 @@ function createPanel(panelState, onStateChange) {
         panel.remove();
         onStateChange();
     });
-    panelActions.appendChild(deletePanelButton);
-
     const contentContainer = document.createElement('div');
 
     if (type === 'notes') {
@@ -107,7 +117,9 @@ function createPanel(panelState, onStateChange) {
         if (cards) {
             cards.forEach(cardState => createCard(contentContainer, cardState, onStateChange));
         }
+        panelActions.appendChild(deletePanelButton);
     } else if (type === 'bookmarks') {
+        panelActions.appendChild(deletePanelButton);
         contentContainer.className = 'bookmark-panel-container';
 
         contentContainer.addEventListener('dragover', e => {

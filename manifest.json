@@ -1,12 +1,17 @@
 {
   "manifest_version": 3,
   "name": "New Tab Organizer",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "A customizable startpage with bookmarks and notes.",
   "permissions": [
     "bookmarks",
-    "storage"
+    "storage",
+    "tabs"
   ],
+  "web_accessible_resources": [{
+    "resources": [ "panelB.html", "panelB-inner.html", "panelC.html", "panelC-inner.html" ],
+    "matches": [ "<all_urls>" ]
+  }],
   "chrome_url_overrides": {
     "newtab": "startpage.html"
   },
