@@ -589,7 +589,8 @@ body {
 /* --- View Navigation --- */
 .sidebar-view-nav {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    justify-content: space-around;
     gap: 5px;
     margin-bottom: 10px;
 }
