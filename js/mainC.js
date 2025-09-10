@@ -356,12 +356,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- View Navigation ---
     function navigateToView(viewUrl) {
-        // For View 1 (the main new tab page), we always just open a new tab.
-        if (viewUrl === 'startpage.html') {
-            chrome.tabs.create({ url: 'chrome://newtab' });
-            return;
-        }
-
         const targetUrl = chrome.runtime.getURL(viewUrl);
         chrome.tabs.query({ url: targetUrl }, (tabs) => {
             if (tabs.length > 0) {
