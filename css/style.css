@@ -585,3 +585,32 @@ body {
 .card:hover .card-delete-btn {
     display: block; /* Show on hover */
 }
+
+/* --- View Navigation --- */
+.sidebar-view-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 10px;
+}
+
+.sidebar-view-nav a {
+    color: inherit;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.sidebar-view-nav a:hover {
+    background-color: #f0f0f0;
+}
+
+[data-theme="dark"] .sidebar-view-nav a:hover {
+    background-color: #3a3b3c;
+}
+
+.sidebar-view-nav a.active-view-link {
+    font-weight: bold;
+    text-decoration: underline;
+}

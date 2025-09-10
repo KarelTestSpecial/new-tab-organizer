@@ -22,6 +22,7 @@ This extension requires the following permissions to function:
 
 -   **`bookmarks`**: This permission is required to read your bookmarks. It is used solely to display your bookmark folders as panels on the startpage, as configured by you. The extension **never** modifies, deletes, or transmits your bookmark data.
 -   **`storage`**: This permission is required to save your extension's settings and panel layout. As mentioned above, this data is stored locally and/or synced to your own Google account.
+-   **`tabs`**: This permission is required for the multi-view navigation feature. It is used to check if a specific view (e.g., "View 2") is already open in another tab. If it is, the extension will focus on the existing tab instead of opening a duplicate. This permission is **not** used to read your browsing history or the content of your tabs.
 
 ## 4. Changes to This Privacy Policy
 

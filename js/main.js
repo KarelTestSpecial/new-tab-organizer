@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     title = 'New Bookmarks'; // Fallback if no folder is chosen
                 }
             } else {
-                title = 'New Panel'; // Default for non-bookmark panels (e.g. notes)
+                    title = 'New Notes'; // Default for non-bookmark panels (e.g. notes)
             }
         }
 
@@ -357,6 +357,45 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('clock').textContent = timeString;
         document.getElementById('date').textContent = dateString;
     }
+
+    // --- View Navigation ---
+    function navigateToView(viewUrl) {
+        // For View 1 (the main new tab page), we always just open a new tab.
+        if (viewUrl === 'startpage.html') {
+            chrome.tabs.create({ url: 'chrome://newtab' });
+            return;
+        }
+
+        const targetUrl = chrome.runtime.getURL(viewUrl);
+        chrome.tabs.query({ url: targetUrl }, (tabs) => {
+            if (tabs.length > 0) {
+                // Tab exists, focus it
+                chrome.tabs.update(tabs[0].id, { active: true });
+                // Optional: focus the window as well
+                chrome.windows.update(tabs[0].windowId, { focused: true });
+            } else {
+                // Tab does not exist, create it
+                chrome.tabs.create({ url: targetUrl });
+            }
+        });
+    }
+
+    document.getElementById('nav-view-1').addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateToView('startpage.html');
+    });
+    document.getElementById('nav-view-2').addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateToView('panelB.html');
+    });
+    document.getElementById('nav-view-3').addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateToView('panelC.html');
+    });
+
+    // Highlight the active view link
+    document.getElementById('nav-view-1').classList.add('active-view-link');
+
 
     // --- Initialization ---
     loadState();

@@ -48,13 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Save panel structure to sync storage
-        chrome.storage.sync.set({ panelsState_B: panels });
+        chrome.storage.sync.set({ panelsState_C: panels });
     };
 
     const loadState = () => {
-        chrome.storage.sync.get('panelsState_B', data => {
+        chrome.storage.sync.get('panelsState_C', data => {
             panelsContainer.innerHTML = ''; // Clear before loading
-            const panelsState = data.panelsState_B;
+            const panelsState = data.panelsState_C;
 
             if (panelsState && panelsState.length > 0) {
                 const imageCardIds = [];
@@ -390,7 +390,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Highlight the active view link
-    document.getElementById('nav-view-2').classList.add('active-view-link');
+    document.getElementById('nav-view-3').classList.add('active-view-link');
 
 
     // --- Initialization ---

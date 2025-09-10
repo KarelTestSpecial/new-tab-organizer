@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.4.0] - 2025-09-10
+
+### Added
+- **Multi-View System:** Added support for up to three independent views (View 1, 2, and 3) to mitigate memory overload from a large number of panels. Each view runs in a separate process with its own data storage.
+- **Smart View Navigation:** Implemented navigation links in the sidebar of each view. Clicking a link will focus the tab for that view if it is already open, or open a new tab if it is not. This requires the `tabs` permission.
+- **Active View Highlighting:** The navigation link for the currently active view is now visually highlighted in the sidebar.
+
+### Changed
+- **Sidebar Layout:** The main action buttons in the sidebar have been redesigned to accommodate the new view navigation links. The "Settings" link is now on its own line.
+
+### Fixed
+- The default title for new notes panels created via the modal is now consistently "New Notes".
+- The order of action buttons on notes panels has been corrected to place the delete button ('x') on the far right.
+
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 

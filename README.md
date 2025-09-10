@@ -34,6 +34,10 @@ A highly customizable and feature-rich startpage for your browser, designed to r
     -   Show or hide the clock and date display.
 -   **Live Clock and Date:** Keep track of time with a clean, digital clock and date display at the top of the page.
 -   **Data Portability:** Use the Import and Export buttons in the Settings panel to save your entire layout and settings to a file, or to restore your setup from a backup.
+-   **Multiple Independent Views:** To prevent memory overload from too many panels, the extension now supports up to three independent views.
+    -   Use the "View 1", "View 2", and "View 3" links in the sidebar to switch between different workspaces.
+    -   Each view has its own separate set of panels and data, allowing you to organize projects or contexts without clutter.
+    -   The navigation is "smart"—it will focus an existing view's tab if it's already open, preventing duplicate tabs.
 -   **Undo Deletions:** Accidentally deleted a panel or a card? Just press `Ctrl+Z` to restore it instantly.
 
 ## How to Install and Use
