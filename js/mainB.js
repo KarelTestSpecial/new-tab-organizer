@@ -385,15 +385,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('nav-view-1').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('startpage.html', 'Dashboard 1');
+        navigateToView('startpage.html', 'Organizer 1');
     });
     document.getElementById('nav-view-2').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelB.html', 'Dashboard 2');
+        navigateToView('panelB.html', 'Organizer 2');
     });
     document.getElementById('nav-view-3').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelC.html', 'Dashboard 3');
+        navigateToView('panelC.html', 'Organizer 3');
     });
 
     // Highlight the active view link
@@ -447,6 +447,9 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             editButton.className = 'edit-bookmark-btn';
             editButton.title = 'Edit bookmark';
             editButton.addEventListener('click', () => {
+                const parentPanel = item.closest('.panel');
+                parentPanel.classList.add('editing');
+
                 const currentTitle = link.textContent;
                 const currentUrl = link.href;
 
@@ -464,12 +467,17 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                     const newUrl = item.querySelector('.edit-url').value.trim();
                     if (newTitle && newUrl) {
                         updateBookmark(bookmark.id, { title: newTitle, url: newUrl }, () => {
+                            parentPanel.classList.remove('editing');
                             if (refreshCallback) refreshCallback();
                         });
+                    } else {
+                        parentPanel.classList.remove('editing');
+                        if (refreshCallback) refreshCallback();
                     }
                 });
 
                 item.querySelector('.cancel-edit-btn').addEventListener('click', () => {
+                    parentPanel.classList.remove('editing');
                     if (refreshCallback) refreshCallback();
                 });
             });
