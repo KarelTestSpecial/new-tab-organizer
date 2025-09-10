@@ -27,8 +27,8 @@ body {
 }
 
 #sidebar-header {
-    padding-top: 10px;
-    padding-bottom: 15px;
+    padding-top: 5px;
+    padding-bottom: 10px;
     text-align: center;
 }
 
@@ -89,7 +89,7 @@ body {
 .sidebar-actions {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
     margin-bottom: 8px;
 }
 
