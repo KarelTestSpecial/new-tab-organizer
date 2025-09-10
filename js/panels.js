@@ -40,7 +40,6 @@ function createPanel(panelState, onStateChange) {
         panel.remove();
         onStateChange();
     });
-
     const contentContainer = document.createElement('div');
 
     if (type === 'notes') {
@@ -106,11 +105,9 @@ function createPanel(panelState, onStateChange) {
         if (cards) {
             cards.forEach(cardState => createCard(contentContainer, cardState, onStateChange));
         }
-    }
-
-    panelActions.appendChild(deletePanelButton);
-
-    if (type === 'bookmarks') {
+        panelActions.appendChild(deletePanelButton);
+    } else if (type === 'bookmarks') {
+        panelActions.appendChild(deletePanelButton);
         contentContainer.className = 'bookmark-panel-container';
 
         contentContainer.addEventListener('dragover', e => {

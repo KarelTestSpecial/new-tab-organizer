@@ -165,10 +165,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    document.getElementById('open-second-view-btn').addEventListener('click', () => {
-        chrome.tabs.create({ url: chrome.runtime.getURL("panelB.html") });
-    });
-
     cancelAddPanelBtn.addEventListener('click', () => {
         addPanelModal.classList.add('hidden');
         addPanelModal.classList.remove('bookmark-mode'); // Reset mode
