@@ -21,8 +21,8 @@ The extension uses `chrome.storage.sync` to save your settings and panel data. T
 This extension requires the following permissions to function:
 
 -   **`bookmarks`**: To read, display, create, edit, and organize your bookmarks. This permission is essential for the extension's core features, which include: displaying bookmarks in the sidebar, creating dedicated bookmark panels, and allowing you to manage your bookmarks (edit titles/URLs, delete, and move them) directly from the start page. Your bookmark data is not collected or shared.
--   **`storage`**: This permission is required to save your extension's settings and panel layout. As mentioned above, this data is stored locally and/or synced to your own Google account.
--   **`tabs`**: This permission is required for the multi-view navigation feature. It is used to check if a specific view (e.g., "View 2") is already open in another tab. If it is, the extension will focus on the existing tab instead of opening a duplicate. This permission is **not** used to read your browsing history or the content of your tabs.
+-   **`storage`**: The extension requires storage permission to save the user's personalized layout and settings. This includes the state of their panels (position, content, titles) and their chosen preferences (like theme). This allows the user's custom startpage to persist between sessions and sync across their devices via their own Google account. No data is collected by or sent to the developer.
+-   **`tabs`**: This permission is used to manage tabs for the extension's core navigation features. This includes: 1. Opening your bookmarks in a new tab when you click them. 2. Opening the browser's history page from the sidebar link. 3. Switching between the extension's different views (1, 2, 3) without opening duplicate tabs. This permission is **not** used to read your browsing history or the content of other tabs.
 
 ## 4. Changes to This Privacy Policy
 
