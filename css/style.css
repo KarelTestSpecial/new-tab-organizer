@@ -89,8 +89,8 @@ body {
 .sidebar-actions {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 10px;
+    gap: 8px;
+    margin-bottom: 8px;
 }
 
 .sidebar-actions-group {
@@ -597,7 +597,7 @@ body {
     flex-direction: row;
     justify-content: space-around;
     gap: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
 }
 
 .sidebar-view-nav a {
@@ -617,6 +617,5 @@ body {
 }
 
 .sidebar-view-nav a.active-view-link {
-    font-weight: bold;
     text-decoration: underline;
 }
