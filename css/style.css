@@ -28,7 +28,8 @@ body {
 
 #sidebar-header {
     padding-top: 5px;
-    padding-bottom: 2px;
+    padding-bottom: 10px;
+
     text-align: center;
 }
 
@@ -89,8 +90,9 @@ body {
 .sidebar-actions {
     display: flex;
     flex-direction: column;
-    gap: 16px;
-    margin-bottom: 16px;
+    gap: 4px;
+    margin-bottom: 8px;
+
 }
 
 .sidebar-actions-group {
@@ -600,7 +602,10 @@ body {
 .sidebar-view-nav {
     display: flex;
     flex-direction: row;
-    gap: 8px;
+    justify-content: space-around;
+    gap: 5px;
+    margin-bottom: 8px;
+
 }
 
 .sidebar-view-nav a {
