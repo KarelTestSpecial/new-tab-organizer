@@ -437,6 +437,10 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             link.href = bookmark.url;
             link.textContent = bookmark.title;
             link.className = 'bookmark-link';
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                chrome.tabs.create({ url: link.href });
+            });
             item.appendChild(link);
 
             const actions = document.createElement('div');
