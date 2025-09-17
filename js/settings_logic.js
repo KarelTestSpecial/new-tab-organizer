@@ -1,10 +1,15 @@
+function getStorageKey(view) {
+    if (view === 'B') return 'panelsState_B';
+    if (view === 'C') return 'panelsState_C';
+    return 'panelsState'; // Default for A
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const settingsPanel = document.getElementById('settings-panel');
     const settingsBtn = document.getElementById('settings-btn');
     const closeBtn = document.getElementById('close-settings-btn');
     const saveBtn = document.getElementById('save-settings-btn');
 
-    // --- Panel Visibility and Actions ---
     settingsBtn.addEventListener('click', () => {
         if (settingsPanel.classList.contains('hidden')) {
             settingsPanel.classList.remove('hidden');
@@ -15,10 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeBtn.addEventListener('click', () => {
         settingsPanel.classList.add('hidden');
-        loadSettings(); // Revert any unsaved changes
+        loadSettings();
     });
 
-    // --- Populate Bookmark Folders ---
     const sidebarFolderSelect = document.getElementById('sidebar-folder-select');
 
     function populateFolderDropdowns() {
@@ -34,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Settings State Management ---
     const themeBtn = document.getElementById('theme-toggle-btn');
     const panelPositionBtn = document.getElementById('panel-position-toggle-btn');
     const clockToggleBtn = document.getElementById('clock-toggle-btn');
@@ -73,13 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function saveSettings() {
-        const settingsToSave = {
-            ...tempSettings,
-            sidebarFolderId: sidebarFolderSelect.value,
-        };
-        // Remove undefined properties before saving
-        delete settingsToSave.headerFolderId;
-
+        const settingsToSave = { ...tempSettings, sidebarFolderId: sidebarFolderSelect.value };
         chrome.storage.sync.set({ settings: settingsToSave }, () => {
             console.log('Settings saved');
             settingsPanel.classList.add('hidden');
@@ -97,34 +94,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 showClock: typeof currentSettings.showClock === 'boolean' ? currentSettings.showClock : true,
                 showDate: typeof currentSettings.showDate === 'boolean' ? currentSettings.showDate : true,
             };
-
             updateButtonText();
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
-
             applySettings(tempSettings);
         });
     }
 
     saveBtn.addEventListener('click', saveSettings);
 
-    // --- Data Management (View C) ---
-    window.handleExport = () => {
-        chrome.storage.sync.get(['panelsState_C', 'settings'], (data) => {
+    // --- Data Management ---
+    window.handleExport = (storageKey) => {
+        chrome.storage.sync.get([storageKey, 'settings'], (data) => {
             if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError);
-                alert('Error exporting data for View C.');
+                alert(`Error exporting data for ${storageKey}.`);
                 return;
             }
             const exportData = {
-                panelsState_C: data.panelsState_C || [],
-                settings: data.settings || {} // Settings are shared, but good to back them up.
+                [storageKey]: data[storageKey] || [],
+                settings: data.settings || {}
             };
             const dataString = JSON.stringify(exportData, null, 2);
             const blob = new Blob([dataString], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `startpage-backup-C-${new Date().toISOString().slice(0, 10)}.json`;
+            a.download = `startpage-backup-${CURRENT_VIEW}-${new Date().toISOString().slice(0, 10)}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -132,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    document.getElementById('export-data-btn').addEventListener('click', window.handleExport);
+    document.getElementById('export-data-btn').addEventListener('click', () => window.handleExport(STORAGE_KEY));
 
     const importBtn = document.getElementById('import-data-btn');
     const importFileInput = document.getElementById('import-file-input');
@@ -145,26 +140,24 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = (e) => {
             try {
                 const data = JSON.parse(e.target.result);
-                // Check for the correct panel state key for View C
-                if (data && typeof data.panelsState_C !== 'undefined' && typeof data.settings !== 'undefined') {
-                    if (confirm('Are you sure you want to import this data? Your current layout and settings for THIS VIEW will be overwritten.')) {
-                        // IMPORTANT: Do NOT clear sync storage. Only set the keys for this view.
+                if (data && typeof data[STORAGE_KEY] !== 'undefined' && typeof data.settings !== 'undefined') {
+                    if (confirm(`Are you sure you want to import this data? Your current layout and settings for THIS VIEW will be overwritten.`)) {
                         const dataToImport = {
-                            panelsState_C: data.panelsState_C,
-                            settings: data.settings // Overwrite settings as well
+                            [STORAGE_KEY]: data[STORAGE_KEY],
+                            settings: data.settings
                         };
                         chrome.storage.sync.set(dataToImport, () => {
                             if (chrome.runtime.lastError) {
                                 console.error(chrome.runtime.lastError);
-                                alert('Error importing data for View C.');
+                                alert(`Error importing data for ${CURRENT_VIEW}.`);
                             } else {
-                                alert('Data for View C imported successfully! The page will now reload.');
+                                alert(`Data for ${CURRENT_VIEW} imported successfully! The page will now reload.`);
                                 location.reload();
                             }
                         });
                     }
                 } else {
-                    alert('Invalid backup file for View C. Make sure you are using a "backup-C" file.');
+                    alert(`Invalid backup file for this view. Make sure you are using a "backup-${CURRENT_VIEW}" file.`);
                 }
             } catch (error) {
                 alert('Error reading backup file.');
@@ -190,9 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             findFolders(tree[0]);
-            // Use the correct state for View C
-            chrome.storage.sync.get('panelsState_C', (data) => {
-                const currentPanels = data.panelsState_C || [];
+            chrome.storage.sync.get(STORAGE_KEY, (data) => {
+                const currentPanels = data[STORAGE_KEY] || [];
                 const existingFolderIds = new Set(currentPanels.map(p => p.folderId));
                 let newPanelsAdded = 0;
                 folders.forEach(folder => {
@@ -208,9 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 if (newPanelsAdded > 0) {
-                    // Save to the correct state for View C
-                    chrome.storage.sync.set({ panelsState_C: currentPanels }, () => {
-                        alert(`${newPanelsAdded} new bookmark panels have been added to View C. The page will now reload.`);
+                    chrome.storage.sync.set({ [STORAGE_KEY]: currentPanels }, () => {
+                        alert(`${newPanelsAdded} new bookmark panels have been added to ${CURRENT_VIEW}. The page will now reload.`);
                         location.reload();
                     });
                 } else {
@@ -220,7 +211,43 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Initialization ---
     populateFolderDropdowns();
     loadSettings();
+
+    // --- Swap Logic ---
+    const swapBtn = document.getElementById('swap-organizers-btn');
+    const swapSelect1 = document.getElementById('swap-select-1');
+    const swapSelect2 = document.getElementById('swap-select-2');
+
+    swapBtn.addEventListener('click', () => {
+        const view1 = swapSelect1.value;
+        const view2 = swapSelect2.value;
+
+        if (view1 === view2) {
+            alert('Please select two different organizers to swap.');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to swap the content of Organizer ${view1} and Organizer ${view2}?`)) {
+            return;
+        }
+
+        const key1 = getStorageKey(view1);
+        const key2 = getStorageKey(view2);
+
+        chrome.storage.sync.get([key1, key2], data => {
+            const data1 = data[key1] || [];
+            const data2 = data[key2] || [];
+
+            chrome.storage.sync.set({ [key1]: data2, [key2]: data1 }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error(chrome.runtime.lastError);
+                    alert('An error occurred while swapping the organizers. Please try again.');
+                } else {
+                    alert('Organizers have been swapped successfully! The page will now reload.');
+                    location.reload();
+                }
+            });
+        });
+    });
 });

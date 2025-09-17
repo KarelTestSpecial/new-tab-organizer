@@ -9,11 +9,11 @@
     "tabs"
   ],
   "web_accessible_resources": [{
-    "resources": [ "panelB.html", "panelB-inner.html", "panelC.html", "panelC-inner.html" ],
+    "resources": [ "panelA.html", "panelB.html", "panelB-inner.html", "panelC.html", "panelC-inner.html" ],
     "matches": [ "<all_urls>" ]
   }],
   "chrome_url_overrides": {
-    "newtab": "startpage.html"
+    "newtab": "panelA.html"
   },
   "action": {
     "default_icon": {

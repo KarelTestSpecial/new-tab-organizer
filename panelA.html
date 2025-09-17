@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Organizer 2</title>
+    <title>Organizer A</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -17,15 +17,14 @@
                 <div class="sidebar-actions-group">
                     <button id="add-notes-panel-btn" title="Add Notes Panel">+ P</button>
                     <button id="add-bookmarks-panel-btn" title="Add Bookmarks Panel">+ L</button>
-
                     <button id="quick-backup-btn" title="Backup (Export Data)">&#11123;</button>
                 </div>
                 <div class="settings-and-views">
                     <a href="#" id="settings-btn">Settings</a>
                     <div class="sidebar-view-nav">
-                        <a href="#" id="nav-view-1">1</a>
-                        <a href="#" id="nav-view-2">2</a>
-                        <a href="#" id="nav-view-3">3</a>
+                        <a href="#" id="nav-view-1">A</a>
+                        <a href="#" id="nav-view-2">B</a>
+                        <a href="#" id="nav-view-3">C</a>
                     </div>
                 </div>
             </div>
@@ -74,6 +73,24 @@
                 </div>
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
+            <div class="settings-section">
+                <h3>Swap Organizer Content</h3>
+                <p>Swap the content between two organizers.</p>
+                <div class="swap-controls">
+                    <select id="swap-select-1">
+                        <option value="A">Organizer A</option>
+                        <option value="B">Organizer B</option>
+                        <option value="C">Organizer C</option>
+                    </select>
+                    <span>&harr;</span>
+                    <select id="swap-select-2">
+                        <option value="A">Organizer A</option>
+                        <option value="B">Organizer B</option>
+                        <option value="C">Organizer C</option>
+                    </select>
+                    <button id="swap-organizers-btn">Swap</button>
+                </div>
+            </div>
             <button id="save-settings-btn">Save and Close</button>
             <button id="close-settings-btn">Cancel</button>
         </div>
@@ -105,7 +122,7 @@
     </div>
     <script src="js/bookmarks.js"></script>
     <script src="js/panels.js"></script>
-    <script src="js/settingsB.js"></script>
-    <script src="js/mainB.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/settings_logic.js"></script>
 </body>
 </html>

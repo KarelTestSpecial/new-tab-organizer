@@ -1,6 +1,24 @@
 const undoStack = [];
 window.bookmarkRefreshCallbacks = [];
 
+// --- View Identification ---
+function getCurrentView() {
+    const filename = window.location.pathname.split('/').pop();
+    if (filename.startsWith('panelA')) return 'A';
+    if (filename.startsWith('panelB')) return 'B';
+    if (filename.startsWith('panelC')) return 'C';
+    return 'A'; // Default to A
+}
+
+function getStorageKey(view) {
+    if (view === 'B') return 'panelsState_B';
+    if (view === 'C') return 'panelsState_C';
+    return 'panelsState'; // Default for A
+}
+
+const CURRENT_VIEW = getCurrentView();
+const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
+
 document.addEventListener('DOMContentLoaded', () => {
     const panelsContainer = document.getElementById('panels-container');
 
@@ -8,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveState = () => {
         const panels = [];
         const imagesToSaveLocally = {};
-        const localImageKeysToRemove = [];
 
         document.querySelectorAll('.panel').forEach(panelEl => {
             const panel = {
@@ -28,12 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                     const img = cardEl.querySelector('img');
                     if (img && img.src.startsWith('data:image')) {
-                        // This is an image card with a data URL that needs to be stored locally
                         imagesToSaveLocally[cardData.id] = img.src;
-                        // In the sync data, we'll store a placeholder
                         cardData.imageUrl = 'local';
                     } else if (img) {
-                        // This might be an image with a 'local' placeholder already, keep it
                         cardData.imageUrl = 'local';
                     }
                     panel.cards.push(cardData);
@@ -42,31 +56,20 @@ document.addEventListener('DOMContentLoaded', () => {
             panels.push(panel);
         });
 
-        // Save image data to local storage
         if (Object.keys(imagesToSaveLocally).length > 0) {
             chrome.storage.local.set(imagesToSaveLocally);
         }
 
-        // Save panel structure to sync storage
-        chrome.storage.sync.set({ panelsState_B: panels });
+        chrome.storage.sync.set({ [STORAGE_KEY]: panels });
     };
 
     const loadState = () => {
-        chrome.storage.sync.get('panelsState_B', data => {
-            panelsContainer.innerHTML = ''; // Clear before loading
-            const panelsState = data.panelsState_B;
+        chrome.storage.sync.get(STORAGE_KEY, data => {
+            panelsContainer.innerHTML = '';
+            const panelsState = data[STORAGE_KEY];
 
             if (panelsState && panelsState.length > 0) {
-                const imageCardIds = [];
-                panelsState.forEach(panel => {
-                    if (panel.type === 'notes' && panel.cards) {
-                        panel.cards.forEach(card => {
-                            if (card.imageUrl === 'local') {
-                                imageCardIds.push(card.id);
-                            }
-                        });
-                    }
-                });
+                const imageCardIds = panelsState.flatMap(p => p.type === 'notes' && p.cards ? p.cards.filter(c => c.imageUrl === 'local').map(c => c.id) : []);
 
                 if (imageCardIds.length > 0) {
                     chrome.storage.local.get(imageCardIds, localImages => {
@@ -85,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderPanels(panelsState);
                 }
             } else {
-                // If no state, create a default "To-Do" list
                 const defaultPanelState = { id: `panel-${Date.now()}`, title: 'To-Do List', type: 'notes', cards: [] };
                 const panelEl = createPanel(defaultPanelState, saveState);
                 addPanelToContainer(panelEl);
@@ -149,17 +151,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('add-bookmarks-panel-btn').addEventListener('click', () => {
         addPanelModal.classList.add('bookmark-mode');
-        // Ensure the bookmarks radio is selected, which also shows the folder dropdown
         addPanelForm.elements['panel-type'].value = 'bookmarks';
-        // Manually trigger change event to update UI, targeting the bookmarks radio specifically
         addPanelForm.querySelector('input[name="panel-type"][value="bookmarks"]').dispatchEvent(new Event('change'));
         addPanelModal.classList.remove('hidden');
     });
 
     document.getElementById('quick-backup-btn').addEventListener('click', () => {
-        // This function is defined in settings.js
         if (window.handleExport) {
-            window.handleExport();
+            window.handleExport(STORAGE_KEY);
         } else {
             alert('Could not perform export. Function not found.');
         }
@@ -167,27 +166,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cancelAddPanelBtn.addEventListener('click', () => {
         addPanelModal.classList.add('hidden');
-        addPanelModal.classList.remove('bookmark-mode'); // Reset mode
+        addPanelModal.classList.remove('bookmark-mode');
     });
 
     addPanelForm.addEventListener('submit', (e) => {
         e.preventDefault();
         let title = e.target.elements['panel-title-input'].value;
-        // If in bookmark-mode, the type is always bookmarks. Otherwise, read from radio.
-        const type = addPanelModal.classList.contains('bookmark-mode')
-            ? 'bookmarks'
-            : e.target.elements['panel-type'].value;
+        const type = addPanelModal.classList.contains('bookmark-mode') ? 'bookmarks' : e.target.elements['panel-type'].value;
 
         if (!title) {
             if (type === 'bookmarks') {
                 const folderSelect = e.target.elements['panel-folder-select'];
-                if (folderSelect.value) { // Ensure a folder is selected
-                    title = folderSelect.options[folderSelect.selectedIndex].text;
-                } else {
-                    title = 'New Bookmarks'; // Fallback if no folder is chosen
-                }
+                title = folderSelect.value ? folderSelect.options[folderSelect.selectedIndex].text : 'New Bookmarks';
             } else {
-                    title = 'New Notes'; // Default for non-bookmark panels (e.g. notes)
+                title = 'New Notes';
             }
         }
 
@@ -210,18 +202,16 @@ document.addEventListener('DOMContentLoaded', () => {
         addPanelToContainer(panelEl);
 
         addPanelModal.classList.add('hidden');
-        addPanelModal.classList.remove('bookmark-mode'); // Reset mode
+        addPanelModal.classList.remove('bookmark-mode');
         addPanelForm.reset();
         bookmarkFolderGroup.classList.add('hidden');
     });
 
-    // Handle clicks on the sidebar title to open the bookmarks manager
     document.getElementById('bookmarks-title-link').addEventListener('click', (e) => {
         e.preventDefault();
         chrome.tabs.create({ url: 'chrome://bookmarks' });
     });
 
-    // Handle clicks on the history icon to open the history page
     document.getElementById('history-link').addEventListener('click', (e) => {
         e.preventDefault();
         chrome.tabs.create({ url: 'chrome://history' });
@@ -229,20 +219,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Panel Drag and Drop ---
     panelsContainer.addEventListener('dragstart', e => {
-        // This listener is on the container to handle panel dragging.
-        // It must NOT interfere with drag events from children (e.g., cards).
-        // We only act if the drag's target is a .panel element itself.
-        if (!e.target.classList.contains('panel')) {
-            return; // Exit for card drags, etc.
-        }
-
-        const panel = e.target; // The target is the panel itself
-
-        // Use a timeout to avoid visual glitches when the class is added
-        setTimeout(() => {
-            panel.classList.add('dragging');
-        }, 0);
-
+        if (!e.target.classList.contains('panel')) return;
+        const panel = e.target;
+        setTimeout(() => panel.classList.add('dragging'), 0);
         e.dataTransfer.effectAllowed = 'move';
         e.dataTransfer.setData('text/plain', panel.dataset.id);
     });
@@ -258,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const draggingPanel = document.querySelector('.panel.dragging');
         if (!draggingPanel) return;
-
         const afterElement = getDragAfterElement(panelsContainer, e.clientX, e.clientY);
         if (afterElement == null) {
             panelsContainer.appendChild(draggingPanel);
@@ -272,106 +250,59 @@ document.addEventListener('DOMContentLoaded', () => {
         const draggingPanel = document.querySelector('.panel.dragging');
         if (draggingPanel) {
             draggingPanel.classList.remove('dragging');
-            saveState(); // Persist the new order
+            saveState();
         }
     });
 
     function getDragAfterElement(container, x, y) {
         const draggableElements = [...container.querySelectorAll('.panel:not(.dragging)')];
-
-        // Find the panel that is visually closest to the cursor's position
         const closest = draggableElements.reduce((acc, child) => {
             const box = child.getBoundingClientRect();
-            const offsetX = x - (box.left + box.width / 2);
-            const offsetY = y - (box.top + box.height / 2);
-            // Simple distance formula
-            const distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-
-            if (distance < acc.distance) {
-                return { distance: distance, element: child };
-            } else {
-                return acc;
-            }
+            const distance = Math.sqrt(Math.pow(x - (box.left + box.width / 2), 2) + Math.pow(y - (box.top + box.height / 2), 2));
+            return distance < acc.distance ? { distance: distance, element: child } : acc;
         }, { distance: Number.POSITIVE_INFINITY });
 
-        if (!closest.element) {
-            return null; // No other elements to compare against
-        }
+        if (!closest.element) return null;
 
         const closestBox = closest.element.getBoundingClientRect();
-        const offset = x - (closestBox.left + closestBox.width / 2);
-
-        if (offset < 0) {
-            // Cursor is to the left of the closest element's center, so insert before it
-            return closest.element;
-        } else {
-            // Cursor is to the right, so insert after it (by returning its next sibling)
-            return closest.element.nextElementSibling;
-        }
+        return x < closestBox.left + closestBox.width / 2 ? closest.element : closest.element.nextElementSibling;
     }
-
 
     // --- Undo Logic ---
     document.addEventListener('keydown', (e) => {
-        // We listen for both 'z' and 'Z' to account for Shift key.
         if (e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
-            e.preventDefault(); // Prevent the browser's default undo action.
-
+            e.preventDefault();
             if (undoStack.length > 0) {
                 const undoItem = undoStack.pop();
-
                 if (undoItem.itemType === 'panel') {
                     const newPanel = createPanel(undoItem.state, saveState);
                     const nextSibling = undoItem.nextSiblingId ? document.querySelector(`[data-id='${undoItem.nextSiblingId}']`) : null;
-                    panelsContainer.insertBefore(newPanel, nextSibling); // If nextSibling is null, it appends to the end.
+                    panelsContainer.insertBefore(newPanel, nextSibling);
                 } else if (undoItem.itemType === 'card') {
                     const parentPanel = document.querySelector(`[data-id='${undoItem.parentPanelId}']`);
                     if (parentPanel) {
                         const cardsContainer = parentPanel.querySelector('.cards-container');
                         if (cardsContainer) {
-                             // createCard appends the card to the container, so we create it first.
                             const newCard = createCard(cardsContainer, undoItem.state, saveState);
-                            // Then, we find its correct position and move it.
                             const nextSibling = undoItem.nextSiblingId ? document.getElementById(undoItem.nextSiblingId) : null;
                             cardsContainer.insertBefore(newCard, nextSibling);
                         }
                     }
                 }
-                // Save the state after restoring the item
                 saveState();
             }
         }
     });
 
-
     // --- Clock and Date ---
     function updateClock() {
         const now = new Date();
-        const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-        const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-
-        document.getElementById('clock').textContent = timeString;
-        document.getElementById('date').textContent = dateString;
+        document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        document.getElementById('date').textContent = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     }
 
     // --- View Navigation ---
-    function navigateToView(viewUrl, viewTitle) {
-        // For View 1 (the New Tab Page), we must query by title as the URL is masked.
-        if (viewUrl === 'startpage.html') {
-            chrome.tabs.query({ title: viewTitle }, (tabs) => {
-                if (tabs.length > 0) {
-                    // Tab exists, focus it
-                    chrome.tabs.update(tabs[0].id, { active: true });
-                    chrome.windows.update(tabs[0].windowId, { focused: true });
-                } else {
-                    // Create a new tab, which will be overridden by the extension
-                    chrome.tabs.create({});
-                }
-            });
-            return;
-        }
-
-        // For other views, we can query by their unique URL.
+    function navigateToView(viewUrl) {
         const targetUrl = chrome.runtime.getURL(viewUrl);
         chrome.tabs.query({ url: targetUrl }, (tabs) => {
             if (tabs.length > 0) {
@@ -385,37 +316,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('nav-view-1').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('startpage.html', 'Organizer 1');
+        navigateToView('panelA.html');
     });
     document.getElementById('nav-view-2').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelB.html', 'Organizer 2');
+        navigateToView('panelB.html');
     });
     document.getElementById('nav-view-3').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelC.html', 'Organizer 3');
+        navigateToView('panelC.html');
     });
 
     // Highlight the active view link
-    document.getElementById('nav-view-2').classList.add('active-view-link');
-
+    document.getElementById(`nav-view-${CURRENT_VIEW === 'A' ? 1 : CURRENT_VIEW === 'B' ? 2 : 3}`).classList.add('active-view-link');
 
     // --- Initialization ---
     loadState();
     updateClock();
-    setInterval(updateClock, 1000); // Update every second
+    setInterval(updateClock, 1000);
 });
 
-// --- Functions called by settings.js ---
+// --- Functions called by settings_logic.js ---
 function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
-    element.innerHTML = ''; // Clear existing bookmarks
-    const fragment = document.createDocumentFragment();
-
+    element.innerHTML = '';
     if (!bookmarks || bookmarks.length === 0) {
         element.innerHTML = '<p class="empty-folder-message">This folder is empty.</p>';
         return;
     }
-
+    const fragment = document.createDocumentFragment();
     bookmarks.forEach(bookmark => {
         if (bookmark.url) {
             const item = document.createElement('div');
@@ -428,10 +356,7 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                 e.dataTransfer.effectAllowed = 'move';
                 setTimeout(() => item.classList.add('dragging'), 0);
             });
-
-            item.addEventListener('dragend', () => {
-                item.classList.remove('dragging');
-            });
+            item.addEventListener('dragend', () => item.classList.remove('dragging'));
 
             const link = document.createElement('a');
             link.href = bookmark.url;
@@ -453,10 +378,8 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             editButton.addEventListener('click', () => {
                 const parentPanel = item.closest('.panel');
                 parentPanel.classList.add('editing');
-
                 const currentTitle = link.textContent;
                 const currentUrl = link.href;
-
                 item.innerHTML = `
                     <div class="edit-form">
                         <input type="text" class="edit-title" value="${currentTitle}">
@@ -465,7 +388,6 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                         <button class="cancel-edit-btn">Cancel</button>
                     </div>
                 `;
-
                 item.querySelector('.save-bookmark-btn').addEventListener('click', () => {
                     const newTitle = item.querySelector('.edit-title').value.trim();
                     const newUrl = item.querySelector('.edit-url').value.trim();
@@ -479,7 +401,6 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                         if (refreshCallback) refreshCallback();
                     }
                 });
-
                 item.querySelector('.cancel-edit-btn').addEventListener('click', () => {
                     parentPanel.classList.remove('editing');
                     if (refreshCallback) refreshCallback();
@@ -492,14 +413,13 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             deleteButton.className = 'delete-bookmark-btn';
             deleteButton.title = 'Delete bookmark';
             deleteButton.addEventListener('click', () => {
-                if (window.confirm(`Are you sure you want to delete "${bookmark.title}"?`)) {
+                if (confirm(`Are you sure you want to delete "${bookmark.title}"?`)) {
                     deleteBookmark(bookmark.id, () => {
                         if (refreshCallback) refreshCallback();
                     });
                 }
             });
             actions.appendChild(deleteButton);
-
             item.appendChild(actions);
             fragment.appendChild(item);
         }
@@ -509,44 +429,28 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
 
 function applySettings(settings) {
     if (!settings) return;
-
-    // Theme
     document.documentElement.setAttribute('data-theme', settings.theme || 'light');
-
-    // Clock and Date Visibility
     const clockElement = document.getElementById('clock');
     const dateElement = document.getElementById('date');
-    if (clockElement) {
-        clockElement.style.display = settings.showClock ? 'block' : 'none';
-    }
-    if (dateElement) {
-        dateElement.style.display = settings.showDate ? 'block' : 'none';
-    }
+    if (clockElement) clockElement.style.display = settings.showClock ? 'block' : 'none';
+    if (dateElement) dateElement.style.display = settings.showDate ? 'block' : 'none';
 
-    // Sidebar Bookmarks
     const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
     sidebarBookmarks.addEventListener('dragover', e => {
         e.preventDefault();
         sidebarBookmarks.classList.add('drag-over');
     });
-    sidebarBookmarks.addEventListener('dragleave', () => {
-        sidebarBookmarks.classList.remove('drag-over');
-    });
+    sidebarBookmarks.addEventListener('dragleave', () => sidebarBookmarks.classList.remove('drag-over'));
     sidebarBookmarks.addEventListener('drop', e => {
         e.preventDefault();
         sidebarBookmarks.classList.remove('drag-over');
         const bookmarkId = e.dataTransfer.getData('text/plain');
         const destinationFolderId = sidebarBookmarks.dataset.folderId;
-
         if (!bookmarkId || !destinationFolderId) return;
-
-        // Find the drop index
         const afterElement = getBookmarkDragAfterElement(sidebarBookmarks, e.clientY);
         const children = [...sidebarBookmarks.querySelectorAll('.bookmark-item')];
         const dropIndex = afterElement ? children.indexOf(afterElement) : children.length;
-
         moveBookmark(bookmarkId, { parentId: destinationFolderId, index: dropIndex }, () => {
-            // Refresh all bookmark panels/sidebar
             window.bookmarkRefreshCallbacks.forEach(cb => cb());
         });
     });
@@ -558,7 +462,6 @@ function applySettings(settings) {
                 renderBookmarks(sidebarBookmarks, bookmarks, settings.sidebarFolderId, refreshSidebar);
             });
         };
-        // Register this refresh function globally
         window.bookmarkRefreshCallbacks.push(refreshSidebar);
         refreshSidebar();
     } else {
