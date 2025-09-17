@@ -214,7 +214,8 @@ function createCard(cardsContainer, cardState, onStateChange) {
     cardText.addEventListener('blur', onStateChange);
 
     cardText.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
+        // For Enter (but not Shift+Enter), and Escape
+        if ((e.key === 'Enter' && !e.shiftKey) || e.key === 'Escape') {
             e.preventDefault();
             e.target.blur();
         }

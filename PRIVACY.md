@@ -1,8 +1,8 @@
-# Privacy Policy for Custom Startpage
+# Privacy Policy for New Tab Organizer
 
-**Last updated:** 2025-08-24
+**Last updated:** 2025-09-17
 
-This Privacy Policy describes how the "Custom Startpage" browser extension handles your data.
+This Privacy Policy describes how the "New Tab Organizer" browser extension handles your data.
 
 ## 1. Data Collection and Usage
 
