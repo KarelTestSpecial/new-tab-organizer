@@ -244,8 +244,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error(chrome.runtime.lastError);
                     alert('An error occurred while swapping the organizers. Please try again.');
                 } else {
-                    alert('Organizers have been swapped successfully! The page will now reload.');
-                    location.reload();
+                    // --- New, robust refresh logic ---
+                    const viewsToReload = [view1, view2];
+
+                    viewsToReload.forEach(view => {
+                        // If the view to reload is the current one, we'll handle it last.
+                        if (view === CURRENT_VIEW) {
+                            return;
+                        }
+
+                        // Find and reload the other tab(s).
+                        const urlToReload = chrome.runtime.getURL(`panel${view}.html`);
+                        chrome.tabs.query({ url: urlToReload }, (tabs) => {
+                            if (tabs.length > 0) {
+                                chrome.tabs.reload(tabs[0].id);
+                            }
+                        });
+                    });
+
+                    alert('Organizers have been swapped successfully! Pages will now reload to reflect changes.');
+
+                    // If the current view was part of the swap, reload it now.
+                    if (viewsToReload.includes(CURRENT_VIEW)) {
+                        setTimeout(() => location.reload(), 150); // Delay to give other tabs time to process reload
+                    }
                 }
             });
         });
