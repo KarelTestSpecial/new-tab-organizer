@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1] - 2025-09-17
+
+### Added
+- **Enter to Save Note:** When editing a note card, pressing `Enter` (without `Shift`) will now save the changes and remove focus, similar to the `Escape` key. `Shift+Enter` still creates a new line.
+
 ## [1.5.0] - 2025-09-17
 
 ### Added
