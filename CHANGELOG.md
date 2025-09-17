@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2025-09-17
+
+### Added
+- **Undo Functionality:** Press `Ctrl+Z` to undo the last panel or card deletion, restoring the item to its previous position.
+- **Paste Images:** Paste images directly from the clipboard into a notes panel to instantly create a new image card.
+- **Swap Organizers:** A new tool in the Settings panel allows you to swap the entire content of two organizers (e.g., swap View A and View B).
+- **Move Panels:** A new tool in the Settings panel allows you to move a single panel from one organizer to another.
+
+### Changed
+- **Project Name:** Updated the project name in `manifest.json` to "New Tab Organizer" for clarity.
+- **README:** Overhauled the `README.md` to be more comprehensive, accurate, and reflect all current features.
+
+### Fixed
+- Ensured that when a bookmark panel's title is edited, the underlying bookmark folder is also renamed.
+
 ## [1.4.0] - 2025-09-10
 
 ### Added
