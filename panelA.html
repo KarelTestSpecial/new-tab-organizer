@@ -91,6 +91,26 @@
                     <button id="swap-organizers-btn">Swap</button>
                 </div>
             </div>
+            <div class="settings-section">
+                <h3>Move a Panel</h3>
+                <p>Move a single panel to a different organizer.</p>
+                <div class="move-controls">
+                    <label>From: <select id="move-source-organizer">
+                        <option value="A">Organizer A</option>
+                        <option value="B">Organizer B</option>
+                        <option value="C">Organizer C</option>
+                    </select></label>
+                    <label>Panel: <select id="move-panel-select">
+                        <option value="">--Select Source First--</option>
+                    </select></label>
+                    <label>To: <select id="move-destination-organizer">
+                        <option value="A">Organizer A</option>
+                        <option value="B">Organizer B</option>
+                        <option value="C">Organizer C</option>
+                    </select></label>
+                    <button id="move-panel-btn">Move</button>
+                </div>
+            </div>
             <button id="save-settings-btn">Save and Close</button>
             <button id="close-settings-btn">Cancel</button>
         </div>

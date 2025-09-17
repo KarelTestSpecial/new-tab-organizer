@@ -272,4 +272,99 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
+
+    // --- Move Panel Logic ---
+    const moveSourceSelect = document.getElementById('move-source-organizer');
+    const movePanelSelect = document.getElementById('move-panel-select');
+
+    const updatePanelSelectionDropdown = () => {
+        const sourceView = moveSourceSelect.value;
+        const sourceKey = getStorageKey(sourceView);
+
+        movePanelSelect.innerHTML = ''; // Clear existing options
+
+        chrome.storage.sync.get(sourceKey, (data) => {
+            const panels = data[sourceKey] || [];
+            if (panels.length === 0) {
+                const option = document.createElement('option');
+                option.value = "";
+                option.textContent = "--No panels in this organizer--";
+                movePanelSelect.appendChild(option);
+            } else {
+                panels.forEach(panel => {
+                    const option = document.createElement('option');
+                    option.value = panel.id;
+                    option.textContent = panel.title;
+                    movePanelSelect.appendChild(option);
+                });
+            }
+        });
+    };
+
+    moveSourceSelect.addEventListener('change', updatePanelSelectionDropdown);
+
+    const moveDestinationSelect = document.getElementById('move-destination-organizer');
+    const movePanelBtn = document.getElementById('move-panel-btn');
+
+    movePanelBtn.addEventListener('click', () => {
+        const sourceView = moveSourceSelect.value;
+        const panelId = movePanelSelect.value;
+        const destinationView = moveDestinationSelect.value;
+
+        if (!panelId) {
+            alert('Please select a panel to move.');
+            return;
+        }
+        if (sourceView === destinationView) {
+            alert('Source and destination organizers cannot be the same.');
+            return;
+        }
+
+        const sourceKey = getStorageKey(sourceView);
+        const destinationKey = getStorageKey(destinationView);
+        let panelToMove;
+
+        // Get both states, remove from source, add to destination, then set both back
+        chrome.storage.sync.get([sourceKey, destinationKey], (data) => {
+            let sourcePanels = data[sourceKey] || [];
+            let destinationPanels = data[destinationKey] || [];
+
+            const panelIndex = sourcePanels.findIndex(p => p.id === panelId);
+            if (panelIndex > -1) {
+                panelToMove = sourcePanels.splice(panelIndex, 1)[0];
+                destinationPanels.push(panelToMove);
+
+                chrome.storage.sync.set({
+                    [sourceKey]: sourcePanels,
+                    [destinationKey]: destinationPanels
+                }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error(chrome.runtime.lastError);
+                        alert('An error occurred while moving the panel.');
+                    } else {
+                        alert('Panel moved successfully. Pages will now reload.');
+
+                        // --- Refresh affected tabs ---
+                        const viewsToReload = [sourceView, destinationView];
+                        viewsToReload.forEach(view => {
+                            if (view === CURRENT_VIEW) return;
+                            const urlToReload = chrome.runtime.getURL(`panel${view}.html`);
+                            chrome.tabs.query({ url: urlToReload }, (tabs) => {
+                                if (tabs.length > 0) chrome.tabs.reload(tabs[0].id);
+                            });
+                        });
+
+                        if (viewsToReload.includes(CURRENT_VIEW)) {
+                            setTimeout(() => location.reload(), 150);
+                        }
+                    }
+                });
+            } else {
+                alert('Could not find the panel to move. It might have been deleted.');
+            }
+        });
+    });
+
+    // Also populate it on initial load
+    updatePanelSelectionDropdown();
 });
