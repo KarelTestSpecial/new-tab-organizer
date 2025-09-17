@@ -44,27 +44,20 @@
         <div id="settings-panel" class="hidden">
             <h2>Settings</h2>
             <div class="settings-section">
-                <h3>General</h3>
                 <div class="settings-buttons">
                     <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
                     <button type="button" id="panel-position-toggle-btn" class="settings-btn-item">Add New Panels: Bottom</button>
-                </div>
-            </div>
-            <div class="settings-section">
-                <h3>Display</h3>
-                <div class="settings-buttons">
                     <button type="button" id="clock-toggle-btn" class="settings-btn-item">Show Clock</button>
                     <button type="button" id="date-toggle-btn" class="settings-btn-item">Show Date</button>
                 </div>
             </div>
-            <div class="settings-section">
-                <h3>Sidebar Folder</h3>
+            <div class="settings-section inline-section">
+                <h3>Sidebar</h3>
                 <select id="sidebar-folder-select">
                     <option value="">--Select a folder--</option>
                 </select>
             </div>
             <div class="settings-section">
-                <h3>Data Management</h3>
                 <p>Save your current setup to a file or load a setup from a backup file.</p>
                 <div class="data-buttons">
                     <button type="button" id="export-data-btn">Export Data</button>
@@ -74,7 +67,6 @@
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
             <div class="settings-section">
-                <h3>Swap Organizer Content</h3>
                 <p>Swap the content between two organizers.</p>
                 <div class="swap-controls">
                     <select id="swap-select-1">
@@ -92,7 +84,6 @@
                 </div>
             </div>
             <div class="settings-section">
-                <h3>Move a Panel</h3>
                 <p>Move a single panel to a different organizer.</p>
                 <div class="move-controls">
                     <label>From: <select id="move-source-organizer">

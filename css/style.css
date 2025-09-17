@@ -627,3 +627,13 @@ body {
 .sidebar-view-nav a.active-view-link {
     text-decoration: underline;
 }
+
+.inline-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.inline-section h3 {
+    margin-bottom: 0; /* Remove default bottom margin from h3 */
+}
