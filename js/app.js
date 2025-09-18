@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetUrl = chrome.runtime.getURL(viewUrl);
         chrome.tabs.query({ url: targetUrl }, (tabs) => {
             if (tabs.length > 0) {
+                chrome.tabs.reload(tabs[0].id);
                 chrome.tabs.update(tabs[0].id, { active: true });
                 chrome.windows.update(tabs[0].windowId, { focused: true });
             } else {
