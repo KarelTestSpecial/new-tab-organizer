@@ -303,6 +303,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- View Navigation ---
     function navigateToView(viewUrl) {
+        let targetView = 'A'; // Default
+        if (viewUrl.includes('panelB')) {
+            targetView = 'B';
+        } else if (viewUrl.includes('panelC')) {
+            targetView = 'C';
+        }
+
+        if (targetView === CURRENT_VIEW) {
+            window.location.reload();
+            return;
+        }
+
         const targetUrl = chrome.runtime.getURL(viewUrl);
         chrome.tabs.query({ url: targetUrl }, (tabs) => {
             if (tabs.length > 0) {
