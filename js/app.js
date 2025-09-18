@@ -398,7 +398,9 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             editButton.title = 'Edit bookmark';
             editButton.addEventListener('click', () => {
                 const parentPanel = item.closest('.panel');
-                parentPanel.classList.add('editing');
+                if (parentPanel) {
+                    parentPanel.classList.add('editing');
+                }
                 const currentTitle = link.textContent;
                 const currentUrl = link.href;
                 item.innerHTML = `
@@ -414,16 +416,22 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                     const newUrl = item.querySelector('.edit-url').value.trim();
                     if (newTitle && newUrl) {
                         updateBookmark(bookmark.id, { title: newTitle, url: newUrl }, () => {
-                            parentPanel.classList.remove('editing');
+                            if (parentPanel) {
+                                parentPanel.classList.remove('editing');
+                            }
                             if (refreshCallback) refreshCallback();
                         });
                     } else {
-                        parentPanel.classList.remove('editing');
+                        if (parentPanel) {
+                            parentPanel.classList.remove('editing');
+                        }
                         if (refreshCallback) refreshCallback();
                     }
                 });
                 item.querySelector('.cancel-edit-btn').addEventListener('click', () => {
-                    parentPanel.classList.remove('editing');
+                    if (parentPanel) {
+                        parentPanel.classList.remove('editing');
+                    }
                     if (refreshCallback) refreshCallback();
                 });
             });
