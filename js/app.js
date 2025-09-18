@@ -400,6 +400,8 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                 const parentPanel = item.closest('.panel');
                 if (parentPanel) {
                     parentPanel.classList.add('editing');
+                } else {
+                    item.classList.add('sidebar-editing');
                 }
                 const currentTitle = link.textContent;
                 const currentUrl = link.href;
@@ -418,12 +420,16 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                         updateBookmark(bookmark.id, { title: newTitle, url: newUrl }, () => {
                             if (parentPanel) {
                                 parentPanel.classList.remove('editing');
+                            } else {
+                                item.classList.remove('sidebar-editing');
                             }
                             if (refreshCallback) refreshCallback();
                         });
                     } else {
                         if (parentPanel) {
                             parentPanel.classList.remove('editing');
+                        } else {
+                            item.classList.remove('sidebar-editing');
                         }
                         if (refreshCallback) refreshCallback();
                     }
@@ -431,6 +437,8 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                 item.querySelector('.cancel-edit-btn').addEventListener('click', () => {
                     if (parentPanel) {
                         parentPanel.classList.remove('editing');
+                    } else {
+                        item.classList.remove('sidebar-editing');
                     }
                     if (refreshCallback) refreshCallback();
                 });
