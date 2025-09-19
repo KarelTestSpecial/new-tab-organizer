@@ -637,3 +637,15 @@ body {
 .inline-section h3 {
     margin-bottom: 0; /* Remove default bottom margin from h3 */
 }
+
+/* Make edit form stack vertically in the sidebar */
+.bookmark-item.sidebar-editing .edit-form {
+    flex-wrap: wrap;
+    gap: 4px; /* A smaller gap for the vertical layout */
+}
+
+.bookmark-item.sidebar-editing .edit-form input {
+    flex-basis: 100%;
+    min-width: 0;
+    box-sizing: border-box; /* Ensure padding is included in the width */
+}

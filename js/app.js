@@ -304,12 +304,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- View Navigation ---
     function navigateToView(viewUrl) {
         const targetUrl = chrome.runtime.getURL(viewUrl);
+
+        // First, query for the specific extension URL.
         chrome.tabs.query({ url: targetUrl }, (tabs) => {
             if (tabs.length > 0) {
-                chrome.tabs.update(tabs[0].id, { active: true });
-                chrome.windows.update(tabs[0].windowId, { focused: true });
+                // Found the specific tab. Reload and focus it.
+                const tabToFocus = tabs[0];
+                chrome.tabs.reload(tabToFocus.id);
+                chrome.tabs.update(tabToFocus.id, { active: true });
+                chrome.windows.update(tabToFocus.windowId, { focused: true });
             } else {
-                chrome.tabs.create({ url: targetUrl });
+                // If not found, and we are trying to open Panel A, check for a 'newtab' page to reuse.
+                if (viewUrl.includes('panelA')) {
+                    chrome.tabs.query({ url: 'chrome://newtab/' }, (newTabs) => {
+                        if (newTabs.length > 0) {
+                            // Found a 'newtab' page, so update it to become our Panel A.
+                            const tabToUpdate = newTabs[0];
+                            chrome.tabs.update(tabToUpdate.id, { url: targetUrl, active: true });
+                            chrome.windows.update(tabToUpdate.windowId, { focused: true });
+                        } else {
+                            // No specific Panel A tab and no 'newtab' to reuse. Create a new one.
+                            chrome.tabs.create({ url: targetUrl });
+                        }
+                    });
+                } else {
+                    // For Panel B or C, if they don't exist, just create them.
+                    chrome.tabs.create({ url: targetUrl });
+                }
             }
         });
     }
@@ -391,7 +412,11 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
             editButton.title = 'Edit bookmark';
             editButton.addEventListener('click', () => {
                 const parentPanel = item.closest('.panel');
-                parentPanel.classList.add('editing');
+                if (parentPanel) {
+                    parentPanel.classList.add('editing');
+                } else {
+                    item.classList.add('sidebar-editing');
+                }
                 const currentTitle = link.textContent;
                 const currentUrl = link.href;
                 item.innerHTML = `
@@ -407,16 +432,28 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                     const newUrl = item.querySelector('.edit-url').value.trim();
                     if (newTitle && newUrl) {
                         updateBookmark(bookmark.id, { title: newTitle, url: newUrl }, () => {
-                            parentPanel.classList.remove('editing');
+                            if (parentPanel) {
+                                parentPanel.classList.remove('editing');
+                            } else {
+                                item.classList.remove('sidebar-editing');
+                            }
                             if (refreshCallback) refreshCallback();
                         });
                     } else {
-                        parentPanel.classList.remove('editing');
+                        if (parentPanel) {
+                            parentPanel.classList.remove('editing');
+                        } else {
+                            item.classList.remove('sidebar-editing');
+                        }
                         if (refreshCallback) refreshCallback();
                     }
                 });
                 item.querySelector('.cancel-edit-btn').addEventListener('click', () => {
-                    parentPanel.classList.remove('editing');
+                    if (parentPanel) {
+                        parentPanel.classList.remove('editing');
+                    } else {
+                        item.classList.remove('sidebar-editing');
+                    }
                     if (refreshCallback) refreshCallback();
                 });
             });
