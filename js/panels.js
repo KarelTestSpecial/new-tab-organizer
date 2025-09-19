@@ -41,6 +41,13 @@ function createPanel(panelState, onStateChange) {
             onStateChange();
         }
     });
+
+    titleElement.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            titleElement.blur();
+        }
+    });
     panelHeader.appendChild(titleElement);
 
     const panelActions = document.createElement('div');
