@@ -17,17 +17,35 @@ function createPanel(panelState, onStateChange) {
     const titleElement = document.createElement('h3');
     titleElement.textContent = title;
     titleElement.contentEditable = true;
+
+    let originalTitle = title;
+    titleElement.addEventListener('focus', () => {
+        originalTitle = titleElement.textContent;
+    });
+
     titleElement.addEventListener('blur', () => {
-        if (panel.dataset.type === 'bookmarks' && panel.dataset.folderId) {
-            const newTitle = titleElement.textContent;
-            chrome.bookmarks.update(panel.dataset.folderId, { title: newTitle }, () => {
-                if (chrome.runtime.lastError) {
-                    console.error(`Error updating bookmark folder: ${chrome.runtime.lastError.message}`);
-                }
-                onStateChange();
-            });
-        } else {
+        const newTitle = titleElement.textContent;
+        if (panel.dataset.type === 'bookmarks' && panel.dataset.folderId && newTitle !== originalTitle) {
+            if (confirm(`Do you want to rename the bookmark folder from "${originalTitle}" to "${newTitle}"?`)) {
+                chrome.bookmarks.update(panel.dataset.folderId, { title: newTitle }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error(`Error updating bookmark folder: ${chrome.runtime.lastError.message}`);
+                        titleElement.textContent = originalTitle; // Revert on error
+                    }
+                    onStateChange();
+                });
+            } else {
+                titleElement.textContent = originalTitle; // Revert on cancel
+            }
+        } else if (newTitle !== originalTitle) {
             onStateChange();
+        }
+    });
+
+    titleElement.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            titleElement.blur();
         }
     });
     panelHeader.appendChild(titleElement);
