@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "New Tab Organizer",
-  "version": "1.5.1",
+  "version": "1.5.5",
   "description": "A customizable startpage with bookmarks and notes.",
   "permissions": [
     "bookmarks",
