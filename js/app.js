@@ -330,6 +330,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Highlight the active view link
     document.getElementById(`nav-view-${CURRENT_VIEW === 'A' ? 1 : CURRENT_VIEW === 'B' ? 2 : 3}`).classList.add('active-view-link');
 
+    // --- Bookmark Change Listener ---
+    chrome.bookmarks.onChanged.addListener((id, changeInfo) => {
+        if (changeInfo.title) {
+            const panel = document.querySelector(`.panel[data-folder-id='${id}']`);
+            if (panel) {
+                const titleElement = panel.querySelector('h3');
+                if (titleElement) {
+                    titleElement.textContent = changeInfo.title;
+                }
+                saveState();
+            }
+        }
+    });
+
     // --- Initialization ---
     loadState();
     updateClock();
