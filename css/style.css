@@ -104,6 +104,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
+    margin-top: 4px;
 }
 
 #settings-btn {
