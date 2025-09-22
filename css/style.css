@@ -103,7 +103,7 @@ body {
 .settings-and-views {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
 }
 
 #settings-btn {
@@ -112,6 +112,7 @@ body {
     padding: 4px;
     border-radius: 4px;
     flex-shrink: 0;
+    font-size: 14px;
 }
 
 #settings-btn:hover {
@@ -603,9 +604,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
-    gap: 5px;
-    margin-bottom: 8px;
-
+    gap: 2px;
 }
 
 .sidebar-view-nav a {
