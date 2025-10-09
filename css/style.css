@@ -205,7 +205,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
+    padding: 9px 15px;
     border-bottom: 1px solid #dddfe2;
     gap: 10px;
 }
@@ -223,7 +223,7 @@ body {
 .panel-actions {
     display: flex;
     gap: 4px;
-    margin-right: -12px; /* Move buttons closer to the edge */
+    margin-right: -11px; /* Move buttons closer to the edge */
 }
 
 .add-card-btn {
