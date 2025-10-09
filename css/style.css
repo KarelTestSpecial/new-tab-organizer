@@ -208,6 +208,7 @@ body {
     padding: 10px 15px;
     border-bottom: 1px solid #dddfe2;
     gap: 10px;
+    height: 26px; /* Set a fixed height for all panel headers */
 }
 
 .panel-header.drag-handle {
