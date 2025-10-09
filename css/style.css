@@ -221,18 +221,17 @@ body {
 }
 
 .add-card-btn {
+    background: none;
     border: none;
-    background-color: #42b72a;
-    color: white;
-    padding: 2px 10px;
-    border-radius: 4px;
+    color: #90949c;
     cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    padding: 0 5px;
 }
 
-/* Make the panel delete button match the add button's new slim profile */
-.panel-header .delete-btn {
-    font-size: 16px; /* Match h3 font-size */
-    padding: 2px 5px; /* Match add button vertical padding */
+.add-card-btn:hover {
+    color: #333;
 }
 
 .cards-container {
