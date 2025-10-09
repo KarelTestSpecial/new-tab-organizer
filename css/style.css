@@ -223,7 +223,7 @@ body {
 .panel-actions {
     display: flex;
     gap: 4px;
-    margin-right: -15px; /* Move buttons closer to the edge */
+    margin-right: -12px; /* Move buttons closer to the edge */
 }
 
 .add-card-btn {
