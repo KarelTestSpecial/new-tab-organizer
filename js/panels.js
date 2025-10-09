@@ -52,7 +52,6 @@ function createPanel(panelState, onStateChange) {
 
     const panelActions = document.createElement('div');
     panelActions.className = 'panel-actions';
-    panelHeader.appendChild(panelActions);
 
     const deletePanelButton = document.createElement('button');
     deletePanelButton.innerHTML = '&times;'; // A simple 'x'
@@ -70,6 +69,7 @@ function createPanel(panelState, onStateChange) {
         panel.remove();
         onStateChange();
     });
+
     const contentContainer = document.createElement('div');
 
     if (type === 'notes') {
@@ -78,12 +78,11 @@ function createPanel(panelState, onStateChange) {
         const addCardButton = document.createElement('button');
         addCardButton.textContent = '+';
         addCardButton.className = 'add-card-btn';
-        panelActions.appendChild(addCardButton);
-
         addCardButton.addEventListener('click', () => {
             createCard(contentContainer, { id: `card-${Date.now()}`, text: 'New Card' }, onStateChange);
             onStateChange();
         });
+        panelActions.appendChild(addCardButton);
 
         // Drag and drop listeners for the notes panel
         contentContainer.addEventListener('dragover', e => {
@@ -135,9 +134,7 @@ function createPanel(panelState, onStateChange) {
         if (cards) {
             cards.forEach(cardState => createCard(contentContainer, cardState, onStateChange));
         }
-        panelActions.appendChild(deletePanelButton);
     } else if (type === 'bookmarks') {
-        panelActions.appendChild(deletePanelButton);
         contentContainer.className = 'bookmark-panel-container';
 
         contentContainer.addEventListener('dragover', e => {
@@ -178,6 +175,8 @@ function createPanel(panelState, onStateChange) {
         }
     }
 
+    panelActions.appendChild(deletePanelButton);
+    panelHeader.appendChild(panelActions);
     panel.appendChild(panelHeader);
     panel.appendChild(contentContainer);
 
