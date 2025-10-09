@@ -437,9 +437,11 @@ body {
 }
 
 [data-theme="dark"] .add-card-btn {
-    background-color: #3a3b3c;
-    color: #e4e6eb;
-    border: 1px solid #555;
+    color: #8a8d91; /* Match dark mode delete button */
+}
+
+[data-theme="dark"] .add-card-btn:hover {
+    color: #e4e6eb; /* Match dark mode delete button hover */
 }
 
 [data-theme="dark"] #add-notes-panel-btn,
