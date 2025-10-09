@@ -220,6 +220,11 @@ body {
     font-size: 16px;
 }
 
+.panel-actions {
+    display: flex;
+    gap: 4px;
+}
+
 .add-card-btn {
     background: none;
     border: none;
