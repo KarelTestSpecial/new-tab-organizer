@@ -205,7 +205,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 10px 15px;
+    padding: 9px 15px;
     border-bottom: 1px solid #dddfe2;
     gap: 10px;
 }
@@ -220,13 +220,24 @@ body {
     font-size: 16px;
 }
 
+.panel-actions {
+    display: flex;
+    gap: 4px;
+    margin-right: -11px; /* Move buttons closer to the edge */
+}
+
 .add-card-btn {
+    background: none;
     border: none;
-    background-color: #42b72a;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
+    color: #90949c;
     cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.add-card-btn:hover {
+    color: #333;
 }
 
 .cards-container {
