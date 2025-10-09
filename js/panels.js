@@ -82,9 +82,7 @@ function createPanel(panelState, onStateChange) {
             createCard(contentContainer, { id: `card-${Date.now()}`, text: 'New Card' }, onStateChange);
             onStateChange();
         });
-
         panelActions.appendChild(addCardButton);
-        panelActions.appendChild(deletePanelButton);
 
         // Drag and drop listeners for the notes panel
         contentContainer.addEventListener('dragover', e => {
@@ -138,7 +136,6 @@ function createPanel(panelState, onStateChange) {
         }
     } else if (type === 'bookmarks') {
         contentContainer.className = 'bookmark-panel-container';
-        panelActions.appendChild(deletePanelButton);
 
         contentContainer.addEventListener('dragover', e => {
             e.preventDefault();
@@ -178,6 +175,7 @@ function createPanel(panelState, onStateChange) {
         }
     }
 
+    panelActions.appendChild(deletePanelButton);
     panelHeader.appendChild(panelActions);
     panel.appendChild(panelHeader);
     panel.appendChild(contentContainer);
