@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function saveSettings() {
         const settingsToSave = { ...tempSettings, sidebarFolderId: sidebarFolderSelect.value };
-        chrome.storage.sync.set({ settings: settingsToSave }, () => {
+        chrome.storage.local.set({ settings: settingsToSave }, () => {
             console.log('Settings saved');
             settingsPanel.classList.add('hidden');
             applySettings(settingsToSave);
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadSettings() {
-        chrome.storage.sync.get('settings', data => {
+        chrome.storage.local.get('settings', data => {
             const currentSettings = data.settings || {};
             tempSettings = {
                 theme: currentSettings.theme || 'light',
@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Data Management ---
     window.handleExport = (storageKey) => {
-        chrome.storage.sync.get([storageKey, 'settings'], (data) => {
+        chrome.storage.local.get([storageKey, 'settings'], (data) => {
             if (chrome.runtime.lastError) {
                 console.error(chrome.runtime.lastError);
                 alert(`Error exporting data for ${storageKey}.`);
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             [STORAGE_KEY]: data[STORAGE_KEY],
                             settings: data.settings
                         };
-                        chrome.storage.sync.set(dataToImport, () => {
+                        chrome.storage.local.set(dataToImport, () => {
                             if (chrome.runtime.lastError) {
                                 console.error(chrome.runtime.lastError);
                                 alert(`Error importing data for ${CURRENT_VIEW}.`);
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             findFolders(tree[0]);
-            chrome.storage.sync.get(STORAGE_KEY, (data) => {
+            chrome.storage.local.get(STORAGE_KEY, (data) => {
                 const currentPanels = data[STORAGE_KEY] || [];
                 const existingFolderIds = new Set(currentPanels.map(p => p.folderId));
                 let newPanelsAdded = 0;
@@ -200,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 });
                 if (newPanelsAdded > 0) {
-                    chrome.storage.sync.set({ [STORAGE_KEY]: currentPanels }, () => {
+                    chrome.storage.local.set({ [STORAGE_KEY]: currentPanels }, () => {
                         alert(`${newPanelsAdded} new bookmark panels have been added to ${CURRENT_VIEW}. The page will now reload.`);
                         location.reload();
                     });
@@ -235,11 +235,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const key1 = getStorageKey(view1);
         const key2 = getStorageKey(view2);
 
-        chrome.storage.sync.get([key1, key2], data => {
+        chrome.storage.local.get([key1, key2], data => {
             const data1 = data[key1] || [];
             const data2 = data[key2] || [];
 
-            chrome.storage.sync.set({ [key1]: data2, [key2]: data1 }, () => {
+            chrome.storage.local.set({ [key1]: data2, [key2]: data1 }, () => {
                 if (chrome.runtime.lastError) {
                     console.error(chrome.runtime.lastError);
                     alert('An error occurred while swapping the organizers. Please try again.');
@@ -283,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         movePanelSelect.innerHTML = ''; // Clear existing options
 
-        chrome.storage.sync.get(sourceKey, (data) => {
+        chrome.storage.local.get(sourceKey, (data) => {
             const panels = data[sourceKey] || [];
             if (panels.length === 0) {
                 const option = document.createElement('option');
@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let panelToMove;
 
         // Get both states, remove from source, add to destination, then set both back
-        chrome.storage.sync.get([sourceKey, destinationKey], (data) => {
+        chrome.storage.local.get([sourceKey, destinationKey], (data) => {
             let sourcePanels = data[sourceKey] || [];
             let destinationPanels = data[destinationKey] || [];
 
@@ -334,7 +334,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 panelToMove = sourcePanels.splice(panelIndex, 1)[0];
                 destinationPanels.push(panelToMove);
 
-                chrome.storage.sync.set({
+                chrome.storage.local.set({
                     [sourceKey]: sourcePanels,
                     [destinationKey]: destinationPanels
                 }, () => {

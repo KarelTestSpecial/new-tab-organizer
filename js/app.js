@@ -60,11 +60,11 @@ document.addEventListener('DOMContentLoaded', () => {
             chrome.storage.local.set(imagesToSaveLocally);
         }
 
-        chrome.storage.sync.set({ [STORAGE_KEY]: panels });
+        chrome.storage.local.set({ [STORAGE_KEY]: panels });
     };
 
     const loadState = () => {
-        chrome.storage.sync.get(STORAGE_KEY, data => {
+        chrome.storage.local.get(STORAGE_KEY, data => {
             panelsContainer.innerHTML = '';
             const panelsState = data[STORAGE_KEY];
 
@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
     const addPanelToContainer = (panelEl) => {
-        chrome.storage.sync.get('settings', (data) => {
+        chrome.storage.local.get('settings', (data) => {
             const position = data.settings?.newPanelPosition || 'bottom';
             if (position === 'top') {
                 panelsContainer.prepend(panelEl);
