@@ -324,7 +324,11 @@ document.addEventListener('DOMContentLoaded', () => {
         handle: '.drag-handle',
         ghostClass: 'sortable-ghost',
         forceFallback: true,
-        onEnd: function (/**Event*/evt) {
+        onStart: function () {
+            document.body.classList.add('no-select');
+        },
+        onEnd: function () {
+            document.body.classList.remove('no-select');
             saveState();
         },
     });

@@ -670,3 +670,8 @@ body {
     min-width: 0;
     box-sizing: border-box; /* Ensure padding is included in the width */
 }
+
+.no-select {
+    user-select: none;
+    -webkit-user-select: none;
+}
