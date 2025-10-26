@@ -196,6 +196,15 @@ body {
     opacity: 0.5;
 }
 
+.sortable-ghost {
+    opacity: 0.4;
+    background: #f0f2f5;
+}
+
+.sortable-chosen {
+    cursor: grabbing;
+}
+
 .panel.editing {
     position: relative;
     z-index: 10;

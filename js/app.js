@@ -323,6 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
         animation: 150,
         handle: '.drag-handle',
         ghostClass: 'sortable-ghost',
+        forceFallback: true,
         onEnd: function (/**Event*/evt) {
             saveState();
         },
