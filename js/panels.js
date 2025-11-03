@@ -5,7 +5,6 @@ function createPanel(panelState, onStateChange) {
 
     const panel = document.createElement('div');
     panel.className = 'panel';
-    panel.draggable = true;
     panel.dataset.id = id;
     panel.dataset.type = type;
     if (folderId) {

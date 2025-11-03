@@ -217,57 +217,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.tabs.create({ url: 'chrome://history' });
     });
 
-    // --- Panel Drag and Drop ---
-    panelsContainer.addEventListener('dragstart', e => {
-        if (!e.target.classList.contains('panel')) return;
-        const panel = e.target;
-        setTimeout(() => panel.classList.add('dragging'), 0);
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', panel.dataset.id);
-    });
-
-    panelsContainer.addEventListener('dragend', e => {
-        const draggingPanel = document.querySelector('.panel.dragging');
-        if (draggingPanel) {
-            draggingPanel.classList.remove('dragging');
-        }
-    });
-
-    panelsContainer.addEventListener('dragover', e => {
-        e.preventDefault();
-        const draggingPanel = document.querySelector('.panel.dragging');
-        if (!draggingPanel) return;
-        const afterElement = getDragAfterElement(panelsContainer, e.clientX, e.clientY);
-        if (afterElement == null) {
-            panelsContainer.appendChild(draggingPanel);
-        } else {
-            panelsContainer.insertBefore(draggingPanel, afterElement);
-        }
-    });
-
-    panelsContainer.addEventListener('drop', e => {
-        e.preventDefault();
-        const draggingPanel = document.querySelector('.panel.dragging');
-        if (draggingPanel) {
-            draggingPanel.classList.remove('dragging');
-            saveState();
-        }
-    });
-
-    function getDragAfterElement(container, x, y) {
-        const draggableElements = [...container.querySelectorAll('.panel:not(.dragging)')];
-        const closest = draggableElements.reduce((acc, child) => {
-            const box = child.getBoundingClientRect();
-            const distance = Math.sqrt(Math.pow(x - (box.left + box.width / 2), 2) + Math.pow(y - (box.top + box.height / 2), 2));
-            return distance < acc.distance ? { distance: distance, element: child } : acc;
-        }, { distance: Number.POSITIVE_INFINITY });
-
-        if (!closest.element) return null;
-
-        const closestBox = closest.element.getBoundingClientRect();
-        return x < closestBox.left + closestBox.width / 2 ? closest.element : closest.element.nextElementSibling;
-    }
-
     // --- Undo Logic ---
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
@@ -369,6 +318,20 @@ document.addEventListener('DOMContentLoaded', () => {
     loadState();
     updateClock();
     setInterval(updateClock, 1000);
+
+    new Sortable(panelsContainer, {
+        animation: 150,
+        handle: '.drag-handle',
+        ghostClass: 'sortable-ghost',
+        forceFallback: true,
+        onStart: function () {
+            document.body.classList.add('no-select');
+        },
+        onEnd: function () {
+            document.body.classList.remove('no-select');
+            saveState();
+        },
+    });
 });
 
 // --- Functions called by settings_logic.js ---

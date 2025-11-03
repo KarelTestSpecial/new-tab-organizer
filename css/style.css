@@ -196,6 +196,15 @@ body {
     opacity: 0.5;
 }
 
+.sortable-ghost {
+    opacity: 0.4;
+    background: #f0f2f5;
+}
+
+.sortable-chosen {
+    cursor: grabbing;
+}
+
 .panel.editing {
     position: relative;
     z-index: 10;
@@ -215,7 +224,6 @@ body {
 }
 
 .panel-header h3 {
-    flex-grow: 1;
     margin: 0;
     font-size: 16px;
 }
@@ -661,4 +669,9 @@ body {
     flex-basis: 100%;
     min-width: 0;
     box-sizing: border-box; /* Ensure padding is included in the width */
+}
+
+.no-select {
+    user-select: none;
+    -webkit-user-select: none;
 }
