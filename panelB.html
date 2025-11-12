@@ -16,9 +16,8 @@
             </div>
             <div class="sidebar-actions">
                 <div class="sidebar-actions-group">
-                    <button id="add-notes-panel-btn" title="Add Notes Panel">+ P</button>
+                    <button id="add-notes-panel-btn" title="Add Notes Panel">+ N</button>
                     <button id="add-bookmarks-panel-btn" title="Add Bookmarks Panel">+ L</button>
-
                     <button id="quick-backup-btn" title="Backup (Export Data)">&#11123;</button>
                 </div>
                 <div class="settings-and-views">
@@ -108,29 +107,44 @@
             <button id="close-settings-btn">Cancel</button>
         </div>
 
-        <div id="add-panel-modal" class="hidden">
-            <h2>Add New Panel</h2>
-            <form id="add-panel-form">
-                <div class="form-group">
-                    <label for="panel-title-input">Title</label>
-                    <input type="text" id="panel-title-input">
-                </div>
-                <div class="form-group" id="panel-type-selector">
-                    <label>Panel Type</label>
-                    <label><input type="radio" name="panel-type" value="notes" checked> Notes</label>
-                    <label><input type="radio" name="panel-type" value="bookmarks"> Bookmarks</label>
-                </div>
-                <div class="form-group" id="bookmark-folder-group" class="hidden">
-                    <label for="panel-folder-select">Bookmark Folder</label>
-                    <select id="panel-folder-select">
-                        <option value="">--Select a folder--</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" id="create-panel-btn">Create</button>
-                    <button type="button" id="cancel-add-panel-btn">Cancel</button>
-                </div>
-            </form>
+        <div id="add-notes-panel-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Add New Notes Panel</h2>
+                <form id="add-notes-panel-form">
+                    <div class="form-group">
+                        <label>Position</label>
+                        <label><input type="radio" name="notes-position" value="top"> Top</label>
+                        <label><input type="radio" name="notes-position" value="bottom" checked> Bottom</label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit">Create</button>
+                        <button type="button" class="cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="add-bookmarks-panel-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Add New Bookmark Panel</h2>
+                <form id="add-bookmarks-panel-form">
+                    <div class="form-group">
+                        <label>Position</label>
+                        <label><input type="radio" name="bookmarks-position" value="top"> Top</label>
+                        <label><input type="radio" name="bookmarks-position" value="bottom" checked> Bottom</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="panel-folder-select">Bookmark Folder</label>
+                        <select id="panel-folder-select">
+                            <option value="">--Select a folder--</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit">Create</button>
+                        <button type="button" class="cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     <script src="js/bookmarks.js"></script>

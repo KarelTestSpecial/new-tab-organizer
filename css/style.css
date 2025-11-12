@@ -354,8 +354,7 @@ body {
     gap: 10px;
 }
 
-/* Modal Styles (shared between Settings and Add Panel) */
-#settings-panel, #add-panel-modal {
+.modal {
     position: fixed;
     top: 50%;
     left: 50%;
@@ -370,7 +369,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-#settings-panel h2, #add-panel-modal h2 {
+.modal h2 {
     margin-top: 0;
 }
 
@@ -394,13 +393,10 @@ body {
     margin-top: 20px;
 }
 
-
-/* Hidden Class */
 .hidden {
     display: none;
 }
 
-/* --- Dark Theme --- */
 [data-theme="dark"] body {
     background-color: #18191a;
     color: #e4e6eb;
@@ -408,7 +404,7 @@ body {
 
 [data-theme="dark"] #sidebar,
 [data-theme="dark"] .panel,
-[data-theme="dark"] #add-panel-modal {
+[data-theme="dark"] .modal {
     background-color: #242526;
     border-color: #3a3b3c;
 }
@@ -445,11 +441,11 @@ body {
 }
 
 [data-theme="dark"] .add-card-btn {
-    color: #8a8d91; /* Match dark mode delete button */
+    color: #8a8d91;
 }
 
 [data-theme="dark"] .add-card-btn:hover {
-    color: #e4e6eb; /* Match dark mode delete button hover */
+    color: #e4e6eb;
 }
 
 [data-theme="dark"] #add-notes-panel-btn,
@@ -474,11 +470,10 @@ body {
 }
 
 #sidebar-bookmarks {
-    flex-grow: 1; /* Allows this area to fill remaining space */
-    overflow-y: auto; /* Add scroll if content overflows */
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
-/* Bookmark Item specific styles */
 .bookmark-item {
     display: flex;
     justify-content: space-between;
@@ -548,7 +543,6 @@ body {
     background-color: #4a4a4a;
 }
 
-/* Edit form styling */
 .edit-form {
     display: flex;
     align-items: center;
@@ -583,7 +577,6 @@ body {
     background-color: #90949c;
 }
 
-/* Delete Buttons */
 .delete-btn {
     background: none;
     border: none;
@@ -614,14 +607,13 @@ body {
     position: absolute;
     top: 5px;
     right: 5px;
-    display: none; /* Hidden by default */
+    display: none;
 }
 
 .card:hover .card-delete-btn {
-    display: block; /* Show on hover */
+    display: block;
 }
 
-/* --- View Navigation --- */
 .sidebar-view-nav {
     display: flex;
     flex-direction: row;
@@ -656,19 +648,18 @@ body {
 }
 
 .inline-section h3 {
-    margin-bottom: 0; /* Remove default bottom margin from h3 */
+    margin-bottom: 0;
 }
 
-/* Make edit form stack vertically in the sidebar */
 .bookmark-item.sidebar-editing .edit-form {
     flex-wrap: wrap;
-    gap: 4px; /* A smaller gap for the vertical layout */
+    gap: 4px;
 }
 
 .bookmark-item.sidebar-editing .edit-form input {
     flex-basis: 100%;
     min-width: 0;
-    box-sizing: border-box; /* Ensure padding is included in the width */
+    box-sizing: border-box;
 }
 
 .no-select {
