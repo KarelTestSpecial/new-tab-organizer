@@ -129,10 +129,18 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     document.getElementById('add-notes-panel-btn').addEventListener('click', () => {
+        chrome.storage.local.get('notesPanelPosition', (data) => {
+            const position = data.notesPanelPosition || 'bottom';
+            notesForm.elements['notes-position'].value = position;
+        });
         addNotesModal.classList.remove('hidden');
     });
 
     document.getElementById('add-bookmarks-panel-btn').addEventListener('click', () => {
+        chrome.storage.local.get('bookmarksPanelPosition', (data) => {
+            const position = data.bookmarksPanelPosition || 'bottom';
+            bookmarksForm.elements['bookmarks-position'].value = position;
+        });
         addBookmarksModal.classList.remove('hidden');
     });
 
@@ -155,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     notesForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const position = notesForm.elements['notes-position'].value;
+        chrome.storage.local.set({ notesPanelPosition: position });
         const newPanelState = {
             id: `panel-${Date.now()}`,
             title: 'New Notes',
@@ -164,12 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const panelEl = createPanel(newPanelState, saveState);
         addPanelToContainer(panelEl, position);
         addNotesModal.classList.add('hidden');
-        notesForm.reset();
     });
 
     bookmarksForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const position = bookmarksForm.elements['bookmarks-position'].value;
+        chrome.storage.local.set({ bookmarksPanelPosition: position });
         const folderId = panelFolderSelect.value;
         if (!folderId) {
             alert('Please select a bookmark folder.');
@@ -186,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const panelEl = createPanel(newPanelState, saveState);
         addPanelToContainer(panelEl, position);
         addBookmarksModal.classList.add('hidden');
-        bookmarksForm.reset();
     });
 
     document.getElementById('bookmarks-title-link').addEventListener('click', (e) => {
