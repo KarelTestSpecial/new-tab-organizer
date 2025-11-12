@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 const defaultPanelState = { id: `panel-${Date.now()}`, title: 'To-Do List', type: 'notes', cards: [] };
                 const panelEl = createPanel(defaultPanelState, saveState);
-                addPanelToContainer(panelEl);
+                addPanelToContainer(panelEl, 'bottom');
             }
         });
     };
@@ -103,17 +103,11 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Modal Logic ---
-    const addPanelModal = document.getElementById('add-panel-modal');
-    const addPanelForm = document.getElementById('add-panel-form');
-    const cancelAddPanelBtn = document.getElementById('cancel-add-panel-btn');
-    const bookmarkFolderGroup = document.getElementById('bookmark-folder-group');
+    const addNotesModal = document.getElementById('add-notes-panel-modal');
+    const addBookmarksModal = document.getElementById('add-bookmarks-panel-modal');
+    const notesForm = document.getElementById('add-notes-panel-form');
+    const bookmarksForm = document.getElementById('add-bookmarks-panel-form');
     const panelFolderSelect = document.getElementById('panel-folder-select');
-
-    addPanelForm.elements['panel-type'].forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            bookmarkFolderGroup.classList.toggle('hidden', e.target.value !== 'bookmarks');
-        });
-    });
 
     getBookmarkFolders(folders => {
         folders.forEach(folder => {
@@ -121,39 +115,25 @@ document.addEventListener('DOMContentLoaded', () => {
             const option = document.createElement('option');
             option.value = folder.id;
             option.textContent = folder.title;
-            panelFolderSelect.appendChild(option);
+            panelFolderSelect.appendChild(option.cloneNode(true));
         });
     });
 
-    // --- Event Listeners ---
-    const addPanelToContainer = (panelEl) => {
-        chrome.storage.local.get('settings', (data) => {
-            const position = data.settings?.newPanelPosition || 'bottom';
-            if (position === 'top') {
-                panelsContainer.prepend(panelEl);
-            } else {
-                panelsContainer.appendChild(panelEl);
-            }
-            saveState();
-        });
+    const addPanelToContainer = (panelEl, position) => {
+        if (position === 'top') {
+            panelsContainer.prepend(panelEl);
+        } else {
+            panelsContainer.appendChild(panelEl);
+        }
+        saveState();
     };
 
     document.getElementById('add-notes-panel-btn').addEventListener('click', () => {
-        const newPanelState = {
-            id: `panel-${Date.now()}`,
-            title: 'New Notes',
-            type: 'notes',
-            cards: []
-        };
-        const panelEl = createPanel(newPanelState, saveState);
-        addPanelToContainer(panelEl);
+        addNotesModal.classList.remove('hidden');
     });
 
     document.getElementById('add-bookmarks-panel-btn').addEventListener('click', () => {
-        addPanelModal.classList.add('bookmark-mode');
-        addPanelForm.elements['panel-type'].value = 'bookmarks';
-        addPanelForm.querySelector('input[name="panel-type"][value="bookmarks"]').dispatchEvent(new Event('change'));
-        addPanelModal.classList.remove('hidden');
+        addBookmarksModal.classList.remove('hidden');
     });
 
     document.getElementById('quick-backup-btn').addEventListener('click', () => {
@@ -164,47 +144,49 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    cancelAddPanelBtn.addEventListener('click', () => {
-        addPanelModal.classList.add('hidden');
-        addPanelModal.classList.remove('bookmark-mode');
+    addNotesModal.querySelector('.cancel-btn').addEventListener('click', () => {
+        addNotesModal.classList.add('hidden');
     });
 
-    addPanelForm.addEventListener('submit', (e) => {
+    addBookmarksModal.querySelector('.cancel-btn').addEventListener('click', () => {
+        addBookmarksModal.classList.add('hidden');
+    });
+
+    notesForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        let title = e.target.elements['panel-title-input'].value;
-        const type = addPanelModal.classList.contains('bookmark-mode') ? 'bookmarks' : e.target.elements['panel-type'].value;
+        const position = notesForm.elements['notes-position'].value;
+        const newPanelState = {
+            id: `panel-${Date.now()}`,
+            title: 'New Notes',
+            type: 'notes',
+            cards: []
+        };
+        const panelEl = createPanel(newPanelState, saveState);
+        addPanelToContainer(panelEl, position);
+        addNotesModal.classList.add('hidden');
+        notesForm.reset();
+    });
 
-        if (!title) {
-            if (type === 'bookmarks') {
-                const folderSelect = e.target.elements['panel-folder-select'];
-                title = folderSelect.value ? folderSelect.options[folderSelect.selectedIndex].text : 'New Bookmarks';
-            } else {
-                title = 'New Notes';
-            }
+    bookmarksForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const position = bookmarksForm.elements['bookmarks-position'].value;
+        const folderId = panelFolderSelect.value;
+        if (!folderId) {
+            alert('Please select a bookmark folder.');
+            return;
         }
-
+        const title = panelFolderSelect.options[panelFolderSelect.selectedIndex].text;
         const newPanelState = {
             id: `panel-${Date.now()}`,
             title: title,
-            type: type,
+            type: 'bookmarks',
+            folderId: folderId,
             cards: []
         };
-
-        if (type === 'bookmarks') {
-            newPanelState.folderId = e.target.elements['panel-folder-select'].value;
-            if (!newPanelState.folderId) {
-                alert('Please select a bookmark folder.');
-                return;
-            }
-        }
-
         const panelEl = createPanel(newPanelState, saveState);
-        addPanelToContainer(panelEl);
-
-        addPanelModal.classList.add('hidden');
-        addPanelModal.classList.remove('bookmark-mode');
-        addPanelForm.reset();
-        bookmarkFolderGroup.classList.add('hidden');
+        addPanelToContainer(panelEl, position);
+        addBookmarksModal.classList.add('hidden');
+        bookmarksForm.reset();
     });
 
     document.getElementById('bookmarks-title-link').addEventListener('click', (e) => {
