@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.6] - 2025-11-15
+
+### Changed
+- The height of note panels now dynamically adjusts to fit their content. Newly created note panels will start with the height of a single card.
+
 ## [1.5.1] - 2025-09-17
 
 ### Added

@@ -253,6 +253,7 @@ body {
     transition: background-color 0.2s;
 }
 
+
 .cards-container.drag-over,
 .bookmark-panel-container.drag-over {
     background-color: #e7f3ff; /* Highlight drop zone */
