@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
             id: `panel-${Date.now()}`,
             title: 'New Notes',
             type: 'notes',
-            cards: []
+            cards: [{ id: `card-${Date.now()}`, text: 'New Card' }]
         };
         const panelEl = createPanel(newPanelState, saveState);
         addPanelToContainer(panelEl, position);

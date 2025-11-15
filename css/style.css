@@ -250,9 +250,9 @@ body {
 
 .cards-container {
     padding: 10px;
-    min-height: 100px; /* So empty panels have a drop zone */
     transition: background-color 0.2s;
 }
+
 
 .cards-container.drag-over,
 .bookmark-panel-container.drag-over {
