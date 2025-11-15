@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "New Tab Organizer",
     "version": "1.6.5",
-  "description": "A customizable startpage with your bookmarks, notes, todo lists, kanban board and more.",
+  "description": "A customizable startpage with your bookmarks, notes, todo lists, kanban boards and more.",
   "permissions": [
     "bookmarks",
     "storage",
