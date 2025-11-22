@@ -2,7 +2,7 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width">
     <title>Organizer A</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="js/Sortable.min.js"></script>
@@ -86,8 +86,13 @@
             </div>
             <div class="settings-section">
                 <p>Move a single panel to a different organizer.</p>
-                <div class="move-controls">
+                <div class="move-controls-grid">
                     <label>From: <select id="move-source-organizer">
+                        <option value="A">Organizer A</option>
+                        <option value="B">Organizer B</option>
+                        <option value="C">Organizer C</option>
+                    </select></label>
+                    <label>To: <select id="move-destination-organizer">
                         <option value="A">Organizer A</option>
                         <option value="B">Organizer B</option>
                         <option value="C">Organizer C</option>
@@ -95,13 +100,12 @@
                     <label>Panel: <select id="move-panel-select">
                         <option value="">--Select Source First--</option>
                     </select></label>
-                    <label>To: <select id="move-destination-organizer">
-                        <option value="A">Organizer A</option>
-                        <option value="B">Organizer B</option>
-                        <option value="C">Organizer C</option>
+                    <label>At: <select id="move-position-select">
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
                     </select></label>
-                    <button id="move-panel-btn">Move</button>
                 </div>
+                <button id="move-panel-btn" style="margin-top: 10px;">Move</button>
             </div>
             <button id="save-settings-btn">Save and Close</button>
             <button id="close-settings-btn">Cancel</button>

@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.7] - 2025-11-22
+
+### Added
+- "Move to Panel" feature now includes an "at top" / "at bottom" selector to specify the panel's destination position.
+- The "from" organizer in "Move to Panel" now defaults to the current view.
+
+### Changed
+- The layout of the "Move to Panel" settings has been improved to a 2x2 grid for better usability.
+
+### Fixed
+- Removed a harmless but unprofessional console warning related to the viewport meta tag in the HTML files.
+
 ## [1.6.6] - 2025-11-15
 
 ### Changed
