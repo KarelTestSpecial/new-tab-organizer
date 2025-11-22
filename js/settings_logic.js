@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     settingsBtn.addEventListener('click', () => {
         if (settingsPanel.classList.contains('hidden')) {
+            document.getElementById('move-source-organizer').value = CURRENT_VIEW;
+            document.getElementById('move-position-select').value = 'top';
+            updatePanelSelectionDropdown();
             settingsPanel.classList.remove('hidden');
         } else {
             saveSettings();
@@ -310,9 +313,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const sourceView = moveSourceSelect.value;
         const panelId = movePanelSelect.value;
         const destinationView = moveDestinationSelect.value;
+        const movePosition = document.getElementById('move-position-select').value;
 
-        if (!panelId) {
-            alert('Please select a panel to move.');
+        if (!panelId || panelId === '--No panels in this organizer--') {
+            alert('Please select a valid panel to move.');
             return;
         }
         if (sourceView === destinationView) {
@@ -324,7 +328,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const destinationKey = getStorageKey(destinationView);
         let panelToMove;
 
-        // Get both states, remove from source, add to destination, then set both back
         chrome.storage.local.get([sourceKey, destinationKey], (data) => {
             let sourcePanels = data[sourceKey] || [];
             let destinationPanels = data[destinationKey] || [];
@@ -332,7 +335,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const panelIndex = sourcePanels.findIndex(p => p.id === panelId);
             if (panelIndex > -1) {
                 panelToMove = sourcePanels.splice(panelIndex, 1)[0];
-                destinationPanels.push(panelToMove);
+
+                if (movePosition === 'top') {
+                    destinationPanels.unshift(panelToMove);
+                } else {
+                    destinationPanels.push(panelToMove);
+                }
 
                 chrome.storage.local.set({
                     [sourceKey]: sourcePanels,
