@@ -1,17 +1,27 @@
 {
   "manifest_version": 3,
-  "name": "New Tab Organizer",
-    "version": "1.6.7",
+  "name": "Startpage NewTab Organizer Dashboard",
+  "version": "1.6.7",
   "description": "A customizable startpage with your bookmarks, notes, todo lists, kanban boards and more.",
   "permissions": [
     "bookmarks",
     "storage",
     "tabs"
   ],
-  "web_accessible_resources": [{
-    "resources": [ "panelA.html", "panelB.html", "panelB-inner.html", "panelC.html", "panelC-inner.html" ],
-    "matches": [ "<all_urls>" ]
-  }],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "panelA.html",
+        "panelB.html",
+        "panelB-inner.html",
+        "panelC.html",
+        "panelC-inner.html"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "chrome_url_overrides": {
     "newtab": "panelA.html"
   },
