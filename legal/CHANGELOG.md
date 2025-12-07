@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.8] - 2025-12-07
+
+### Added
+- **Date Display Settings:** Added granular controls to toggle "Show Year" and "Show Day of Week" independently.
+- **Date Font Size:** Added a slider in the settings panel to customize the font size of the date display.
+- Added GEMINI.md for AI agent context.
+
 ## [1.6.7] - 2025-11-22
 
 ### Added

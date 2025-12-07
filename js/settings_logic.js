@@ -12,9 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     settingsBtn.addEventListener('click', () => {
         if (settingsPanel.classList.contains('hidden')) {
-            document.getElementById('move-source-organizer').value = CURRENT_VIEW;
-            document.getElementById('move-position-select').value = 'top';
-            updatePanelSelectionDropdown();
             settingsPanel.classList.remove('hidden');
         } else {
             saveSettings();
@@ -27,6 +24,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const sidebarFolderSelect = document.getElementById('sidebar-folder-select');
+
+    sidebarFolderSelect.addEventListener('change', () => {
+        tempSettings.sidebarFolderId = sidebarFolderSelect.value;
+        const currentFontSize = dateFontSizeSlider ? `${dateFontSizeSlider.value}px` : '11px';
+        applySettings({ ...tempSettings, dateFontSize: currentFontSize });
+    });
 
     function populateFolderDropdowns() {
         getBookmarkFolders(folders => {
@@ -42,44 +45,87 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const themeBtn = document.getElementById('theme-toggle-btn');
-    const panelPositionBtn = document.getElementById('panel-position-toggle-btn');
     const clockToggleBtn = document.getElementById('clock-toggle-btn');
     const dateToggleBtn = document.getElementById('date-toggle-btn');
+    // New Buttons
+    const yearToggleBtn = document.getElementById('year-toggle-btn');
+    const dayToggleBtn = document.getElementById('day-toggle-btn');
+
+    // Date Settings Elements
+    const dateFontSizeSlider = document.getElementById('date-font-size-slider');
+    const dateFontSizeValue = document.getElementById('date-font-size-value');
 
     let tempSettings = {};
 
     function updateButtonText() {
         themeBtn.textContent = `Theme: ${tempSettings.theme === 'dark' ? 'Dark' : 'Light'}`;
-        panelPositionBtn.textContent = `Add New Panels: ${tempSettings.newPanelPosition === 'top' ? 'Top' : 'Bottom'}`;
         clockToggleBtn.textContent = `${tempSettings.showClock ? 'Hide' : 'Show'} Clock`;
         dateToggleBtn.textContent = `${tempSettings.showDate ? 'Hide' : 'Show'} Date`;
+
+        // Year/Day logic
+        yearToggleBtn.textContent = `${tempSettings.showYear ? 'Hide' : 'Show'} Year`;
+        dayToggleBtn.textContent = `${tempSettings.showDayOfWeek ? 'Hide' : 'Show'} Day`;
+
+        if (!tempSettings.showDate) {
+            yearToggleBtn.disabled = true;
+            yearToggleBtn.style.opacity = '0.5';
+            dayToggleBtn.disabled = true;
+            dayToggleBtn.style.opacity = '0.5';
+        } else {
+            yearToggleBtn.disabled = false;
+            yearToggleBtn.style.opacity = '1';
+            dayToggleBtn.disabled = false;
+            dayToggleBtn.style.opacity = '1';
+        }
     }
 
     themeBtn.addEventListener('click', () => {
         tempSettings.theme = tempSettings.theme === 'dark' ? 'light' : 'dark';
         updateButtonText();
-        applySettings(tempSettings);
-    });
-
-    panelPositionBtn.addEventListener('click', () => {
-        tempSettings.newPanelPosition = tempSettings.newPanelPosition === 'top' ? 'bottom' : 'top';
-        updateButtonText();
+        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
     });
 
     clockToggleBtn.addEventListener('click', () => {
         tempSettings.showClock = !tempSettings.showClock;
         updateButtonText();
-        applySettings(tempSettings);
+        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
     });
 
     dateToggleBtn.addEventListener('click', () => {
         tempSettings.showDate = !tempSettings.showDate;
         updateButtonText();
-        applySettings(tempSettings);
+        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+    });
+
+    yearToggleBtn.addEventListener('click', () => {
+        tempSettings.showYear = !tempSettings.showYear;
+        updateButtonText();
+        // Ensure we pass the current font size from the slider/tempSettings
+        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+    });
+
+    dayToggleBtn.addEventListener('click', () => {
+        tempSettings.showDayOfWeek = !tempSettings.showDayOfWeek;
+        updateButtonText();
+        // Ensure we pass the current font size from the slider/tempSettings
+        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+    });
+
+    // Slider logic
+    dateFontSizeSlider.addEventListener('input', () => {
+        const size = dateFontSizeSlider.value;
+        dateFontSizeValue.textContent = `${size}px`;
+        // Apply immediately
+        applySettings({ ...tempSettings, dateFontSize: `${size}px` });
     });
 
     function saveSettings() {
-        const settingsToSave = { ...tempSettings, sidebarFolderId: sidebarFolderSelect.value };
+        const settingsToSave = {
+            ...tempSettings,
+            sidebarFolderId: sidebarFolderSelect.value,
+            // Date Settings
+            dateFontSize: `${dateFontSizeSlider.value}px`
+        };
         chrome.storage.local.set({ settings: settingsToSave }, () => {
             console.log('Settings saved');
             settingsPanel.classList.add('hidden');
@@ -96,10 +142,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 sidebarFolderId: currentSettings.sidebarFolderId || '',
                 showClock: typeof currentSettings.showClock === 'boolean' ? currentSettings.showClock : true,
                 showDate: typeof currentSettings.showDate === 'boolean' ? currentSettings.showDate : true,
+                showYear: typeof currentSettings.showYear === 'boolean' ? currentSettings.showYear : true,
+                showDayOfWeek: typeof currentSettings.showDayOfWeek === 'boolean' ? currentSettings.showDayOfWeek : true,
             };
+
             updateButtonText();
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
-            applySettings(tempSettings);
+
+            // Handle slider default
+            let fontSize = currentSettings.dateFontSize || '11px';
+            let numericSize = parseInt(fontSize.replace('px', '').replace('rem', '')); // basic parsing
+            if (isNaN(numericSize)) numericSize = 11;
+
+            dateFontSizeSlider.value = numericSize;
+            dateFontSizeValue.textContent = `${numericSize}px`;
+
+            applySettings({ ...tempSettings, dateFontSize: `${numericSize}px` });
         });
     }
 
@@ -275,104 +333,4 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     });
-
-    // --- Move Panel Logic ---
-    const moveSourceSelect = document.getElementById('move-source-organizer');
-    const movePanelSelect = document.getElementById('move-panel-select');
-
-    const updatePanelSelectionDropdown = () => {
-        const sourceView = moveSourceSelect.value;
-        const sourceKey = getStorageKey(sourceView);
-
-        movePanelSelect.innerHTML = ''; // Clear existing options
-
-        chrome.storage.local.get(sourceKey, (data) => {
-            const panels = data[sourceKey] || [];
-            if (panels.length === 0) {
-                const option = document.createElement('option');
-                option.value = "";
-                option.textContent = "--No panels in this organizer--";
-                movePanelSelect.appendChild(option);
-            } else {
-                panels.forEach(panel => {
-                    const option = document.createElement('option');
-                    option.value = panel.id;
-                    option.textContent = panel.title;
-                    movePanelSelect.appendChild(option);
-                });
-            }
-        });
-    };
-
-    moveSourceSelect.addEventListener('change', updatePanelSelectionDropdown);
-
-    const moveDestinationSelect = document.getElementById('move-destination-organizer');
-    const movePanelBtn = document.getElementById('move-panel-btn');
-
-    movePanelBtn.addEventListener('click', () => {
-        const sourceView = moveSourceSelect.value;
-        const panelId = movePanelSelect.value;
-        const destinationView = moveDestinationSelect.value;
-        const movePosition = document.getElementById('move-position-select').value;
-
-        if (!panelId || panelId === '--No panels in this organizer--') {
-            alert('Please select a valid panel to move.');
-            return;
-        }
-        if (sourceView === destinationView) {
-            alert('Source and destination organizers cannot be the same.');
-            return;
-        }
-
-        const sourceKey = getStorageKey(sourceView);
-        const destinationKey = getStorageKey(destinationView);
-        let panelToMove;
-
-        chrome.storage.local.get([sourceKey, destinationKey], (data) => {
-            let sourcePanels = data[sourceKey] || [];
-            let destinationPanels = data[destinationKey] || [];
-
-            const panelIndex = sourcePanels.findIndex(p => p.id === panelId);
-            if (panelIndex > -1) {
-                panelToMove = sourcePanels.splice(panelIndex, 1)[0];
-
-                if (movePosition === 'top') {
-                    destinationPanels.unshift(panelToMove);
-                } else {
-                    destinationPanels.push(panelToMove);
-                }
-
-                chrome.storage.local.set({
-                    [sourceKey]: sourcePanels,
-                    [destinationKey]: destinationPanels
-                }, () => {
-                    if (chrome.runtime.lastError) {
-                        console.error(chrome.runtime.lastError);
-                        alert('An error occurred while moving the panel.');
-                    } else {
-                        alert('Panel moved successfully. Pages will now reload.');
-
-                        // --- Refresh affected tabs ---
-                        const viewsToReload = [sourceView, destinationView];
-                        viewsToReload.forEach(view => {
-                            if (view === CURRENT_VIEW) return;
-                            const urlToReload = chrome.runtime.getURL(`panel${view}.html`);
-                            chrome.tabs.query({ url: urlToReload }, (tabs) => {
-                                if (tabs.length > 0) chrome.tabs.reload(tabs[0].id);
-                            });
-                        });
-
-                        if (viewsToReload.includes(CURRENT_VIEW)) {
-                            setTimeout(() => location.reload(), 150);
-                        }
-                    }
-                });
-            } else {
-                alert('Could not find the panel to move. It might have been deleted.');
-            }
-        });
-    });
-
-    // Also populate it on initial load
-    updatePanelSelectionDropdown();
 });

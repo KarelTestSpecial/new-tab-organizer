@@ -1,5 +1,11 @@
 const undoStack = [];
 window.bookmarkRefreshCallbacks = [];
+// Global settings for the date, defaults
+window.currentDateSettings = {
+    showYear: true,
+    showDayOfWeek: true,
+    fontSize: '11px'
+};
 
 // --- View Identification ---
 function getCurrentView() {
@@ -202,6 +208,53 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.tabs.create({ url: 'chrome://bookmarks' });
     });
 
+    // --- Move Panel Modal Logic ---
+    const movePanelModal = document.getElementById('move-panel-modal');
+    const movePanelForm = document.getElementById('move-panel-form');
+    const movePanelTargetName = document.getElementById('move-panel-target-name');
+    let movePanelId = null;
+    let moveTargetView = null;
+
+    window.showMovePanelModal = (panelId, targetView) => {
+        movePanelId = panelId;
+        moveTargetView = targetView;
+        movePanelTargetName.textContent = targetView;
+
+        // Load default preference (remembered choice)
+        chrome.storage.local.get('settings', (data) => {
+            const settings = data.settings || {};
+            const position = settings.newPanelPosition || 'bottom'; // Default to bottom
+            if (position === 'top') {
+                movePanelForm.querySelector('input[value="top"]').checked = true;
+            } else {
+                movePanelForm.querySelector('input[value="bottom"]').checked = true;
+            }
+            movePanelModal.classList.remove('hidden');
+        });
+    };
+
+    movePanelForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const selectedPosition = movePanelForm.querySelector('input[name="move-position"]:checked').value;
+
+        // Save the choice as the new preference ("remember it")
+        chrome.storage.local.get('settings', (data) => {
+            const currentSettings = data.settings || {};
+            currentSettings.newPanelPosition = selectedPosition;
+            chrome.storage.local.set({ settings: currentSettings }, () => {
+                // Perform the move
+                if (window.movePanelToOrganizer) {
+                    window.movePanelToOrganizer(movePanelId, CURRENT_VIEW, moveTargetView, selectedPosition);
+                }
+                movePanelModal.classList.add('hidden');
+            });
+        });
+    });
+
+    movePanelModal.querySelector('.cancel-btn').addEventListener('click', () => {
+        movePanelModal.classList.add('hidden');
+    });
+
     document.getElementById('history-link').addEventListener('click', (e) => {
         e.preventDefault();
         chrome.tabs.create({ url: 'chrome://history' });
@@ -237,7 +290,18 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateClock() {
         const now = new Date();
         document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
-        document.getElementById('date').textContent = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        const dateOptions = { month: 'long', day: 'numeric' };
+        if (window.currentDateSettings.showDayOfWeek) {
+            dateOptions.weekday = 'long';
+        }
+        if (window.currentDateSettings.showYear) {
+            dateOptions.year = 'numeric';
+        }
+
+        const dateElement = document.getElementById('date');
+        dateElement.textContent = now.toLocaleDateString([], dateOptions);
+        dateElement.style.fontSize = window.currentDateSettings.fontSize;
     }
 
     // --- View Navigation ---
@@ -306,6 +370,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initialization ---
     loadState();
+
+    // Initial clock update is called by loadSettings in settings_logic.js potentially, 
+    // or we just call it. But applySettings will also be called.
+    // We'll trust applySettings to set the initial values properly before this runs 
+    // repeatedly, but calling it once to show something is fine.
     updateClock();
     setInterval(updateClock, 1000);
 
@@ -438,6 +507,32 @@ function applySettings(settings) {
     const dateElement = document.getElementById('date');
     if (clockElement) clockElement.style.display = settings.showClock ? 'block' : 'none';
     if (dateElement) dateElement.style.display = settings.showDate ? 'block' : 'none';
+
+    // Update global date settings
+    window.currentDateSettings = {
+        showYear: typeof settings.showYear === 'boolean' ? settings.showYear : true,
+        showDayOfWeek: typeof settings.showDayOfWeek === 'boolean' ? settings.showDayOfWeek : true,
+        fontSize: settings.dateFontSize || '11px'
+    };
+
+    // Force clock update to apply new formats immediately
+    if (dateElement) {
+        // We need to call updateClock, but it's inside DOMContentLoaded closure.
+        // However, we can duplicate the date update logic briefly here or expose updateClock.
+        // Easier: Since updateClock relies on `window.currentDateSettings`, 
+        // and it runs every second, it will update shortly.
+        // To make it instant, we can try to re-run the logic if elements exist
+        const now = new Date();
+        const dateOptions = { month: 'long', day: 'numeric' };
+        if (window.currentDateSettings.showDayOfWeek) {
+            dateOptions.weekday = 'long';
+        }
+        if (window.currentDateSettings.showYear) {
+            dateOptions.year = 'numeric';
+        }
+        dateElement.textContent = now.toLocaleDateString([], dateOptions);
+        dateElement.style.fontSize = window.currentDateSettings.fontSize;
+    }
 
     const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
     sidebarBookmarks.addEventListener('dragover', e => {

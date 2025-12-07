@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="css/style.css">
     <script src="js/Sortable.min.js"></script>
 </head>
+
 <body>
     <div id="app">
         <aside id="sidebar">
@@ -17,8 +19,8 @@
             <div class="sidebar-actions">
                 <div class="sidebar-actions-group">
                     <button id="add-notes-panel-btn" title="Add Notes Panel">+ N</button>
-                    <button id="add-bookmarks-panel-btn" title="Add Bookmarks Panel">+ L</button>
-                    <button id="quick-backup-btn" title="Backup (Export Data)">&#11123;</button>
+                    <button id="add-bookmarks-panel-btn" title="Add Bookmarks Panel">+ B</button>
+                    <button id="quick-backup-btn" title="Backup (Export Data)">&#129035;</button>
                 </div>
                 <div class="settings-and-views">
                     <a href="#" id="settings-btn">Settings</a>
@@ -32,7 +34,13 @@
             <div class="sidebar-links">
                 <h2><a href="#" id="bookmarks-title-link">Bookmarks</a></h2>
                 <a href="#" id="history-link" title="History">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 8l0 4l2 2" /><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" /></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 8l0 4l2 2" />
+                        <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                    </svg>
                 </a>
             </div>
             <div id="sidebar-bookmarks"></div>
@@ -43,72 +51,108 @@
             </div>
         </main>
         <div id="settings-panel" class="hidden">
-            <h2>Settings</h2>
+
+            <!-- Section 1: Toggles (Sidebar Label) & Date Font Size/Sidebar Folder -->
             <div class="settings-section">
-                <div class="settings-buttons">
-                    <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
-                    <button type="button" id="panel-position-toggle-btn" class="settings-btn-item">Add New Panels: Bottom</button>
-                    <button type="button" id="clock-toggle-btn" class="settings-btn-item">Show Clock</button>
-                    <button type="button" id="date-toggle-btn" class="settings-btn-item">Show Date</button>
+                <!-- Row 1: Sidebar Label + Toggles -->
+                <div class="settings-buttons"
+                    style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
+                    <span style="font-weight: bold; margin-right: 10px; font-size: 1rem;">Sidebar</span>
+                    <button type="button" id="clock-toggle-btn" class="settings-btn-item" style="flex: 1;">Show
+                        Clock</button>
+                    <button type="button" id="date-toggle-btn" class="settings-btn-item" style="flex: 1;">Show
+                        Date</button>
+                    <button type="button" id="day-toggle-btn" class="settings-btn-item" style="flex: 1;">Show
+                        Day</button>
+                    <button type="button" id="year-toggle-btn" class="settings-btn-item" style="flex: 1;">Show
+                        Year</button>
+                </div>
+                <!-- Row 2: Date Font Size + Sidebar Folder -->
+                <div class="form-group inline-section"
+                    style="display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%;">
+                    <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
+                        <label for="date-font-size-slider" style="margin:0; font-weight:bold; white-space: nowrap;">Date
+                            Font Size:</label>
+                        <input type="range" id="date-font-size-slider" min="8" max="18" step="1"
+                            style="flex-grow: 1; cursor: pointer;">
+                        <span id="date-font-size-value" style="min-width: 35px; text-align: right;">11px</span>
+                    </div>
+                    <div class="sidebar-selector"
+                        style="display: flex; align-items: center; gap: 10px; margin-left: 20px;">
+                        <select id="sidebar-folder-select" style="min-width: 150px;">
+                            <option value="">--Select a folder--</option>
+                        </select>
+                    </div>
                 </div>
             </div>
-            <div class="settings-section inline-section">
-                <h3>Sidebar</h3>
-                <select id="sidebar-folder-select">
-                    <option value="">--Select a folder--</option>
-                </select>
-            </div>
+
+            <!-- Section 2: Import Bookmarks & Theme -->
             <div class="settings-section">
-                <p>Save your current setup to a file or load a setup from a backup file.</p>
-                <div class="data-buttons">
-                    <button type="button" id="export-data-btn">Export Data</button>
-                    <button type="button" id="import-data-btn">Import Data</button>
-                    <button type="button" id="import-all-bookmarks-btn">Import All Bookmarks</button>
+                <div class="inline-section"
+                    style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
+                    <button type="button" id="import-all-bookmarks-btn" class="settings-btn-item">Import All
+                        Bookmarks into Organizer B</button>
+                </div>
+            </div>
+
+            <!-- Section 3: Data Management -->
+            <div class="settings-section">
+                <div class="data-controls"
+                    style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
+                    <p style="margin: 0;">Save your current setup / Load setup:</p>
+                    <div class="data-buttons" style="display: flex; gap: 10px;">
+                        <button type="button" id="export-data-btn" class="settings-btn-item">Export Data</button>
+                        <button type="button" id="import-data-btn" class="settings-btn-item">Import Data</button>
+                    </div>
                 </div>
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
+
+            <!-- Section 4: Swap Content (Reduced Padding) -->
             <div class="settings-section">
-                <p>Swap the content between two organizers.</p>
-                <div class="swap-controls">
-                    <select id="swap-select-1">
+                <div class="swap-controls" style="display: flex; align-items: center; gap: 5px; width: 100%;">
+                    <select id="swap-select-1" style="min-width: 95px;">
                         <option value="A">Organizer A</option>
                         <option value="B">Organizer B</option>
                         <option value="C">Organizer C</option>
                     </select>
                     <span>&harr;</span>
-                    <select id="swap-select-2">
+                    <select id="swap-select-2" style="min-width: 95px;">
                         <option value="A">Organizer A</option>
                         <option value="B">Organizer B</option>
                         <option value="C">Organizer C</option>
                     </select>
-                    <button id="swap-organizers-btn">Swap</button>
+                    <button id="swap-organizers-btn" class="settings-btn-item" style="flex-grow: 1;">Swap content
+                        between organizers</button>
+                </div>
+                <p style="margin-top: 8px; font-style: italic; font-size: 1rem; opacity: 0.8;">Klik met de
+                    rechtermuisknop op een paneel om deze naar een andere organizer te verplaatsen.</p>
+                <div style="border-bottom: 1px solid currentColor; opacity: 0.2; margin-top: 15px; margin-bottom: 5px;">
                 </div>
             </div>
-            <div class="settings-section">
-                <p>Move a single panel to a different organizer.</p>
-                <div class="move-controls-grid">
-                    <label>From: <select id="move-source-organizer">
-                        <option value="A">Organizer A</option>
-                        <option value="B">Organizer B</option>
-                        <option value="C">Organizer C</option>
-                    </select></label>
-                    <label>To: <select id="move-destination-organizer">
-                        <option value="A">Organizer A</option>
-                        <option value="B">Organizer B</option>
-                        <option value="C">Organizer C</option>
-                    </select></label>
-                    <label>Panel: <select id="move-panel-select">
-                        <option value="">--Select Source First--</option>
-                    </select></label>
-                    <label>At: <select id="move-position-select">
-                        <option value="top">Top</option>
-                        <option value="bottom">Bottom</option>
-                    </select></label>
-                </div>
-                <button id="move-panel-btn" style="margin-top: 10px;">Move</button>
-            </div>
+
             <button id="save-settings-btn">Save and Close</button>
             <button id="close-settings-btn">Cancel</button>
+        </div>
+
+        <div id="move-panel-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Move Panel</h2>
+                <p>Move panel to <strong>Organizer <span id="move-panel-target-name"></span></strong></p>
+                <form id="move-panel-form">
+                    <div class="form-group">
+                        <label style="margin-bottom: 10px;">Position:</label>
+                        <label style="cursor:pointer;"><input type="radio" name="move-position" value="top"> Top</label>
+                        <label style="cursor:pointer;"><input type="radio" name="move-position" value="bottom">
+                            Bottom</label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit">Move Panel</button>
+                        <button type="button" class="cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <div id="add-notes-panel-modal" class="modal hidden">
@@ -156,4 +200,5 @@
     <script src="js/app.js"></script>
     <script src="js/settings_logic.js"></script>
 </body>
+
 </html>

@@ -1,5 +1,72 @@
 // This file will handle the logic for creating and managing panels and cards.
 
+// Helper to get storage key (duplicated here to ensure availability)
+function getStorageKeyForMove(view) {
+    if (view === 'B') return 'panelsState_B';
+    if (view === 'C') return 'panelsState_C';
+    return 'panelsState'; // Default for A
+}
+
+// Global function to move panel
+window.movePanelToOrganizer = function (panelId, sourceView, destinationView, position = 'bottom') {
+    if (!panelId) {
+        alert('Invalid panel ID.');
+        return;
+    }
+    if (sourceView === destinationView) {
+        alert('Source and destination organizers cannot be the same.');
+        return;
+    }
+
+    const sourceKey = getStorageKeyForMove(sourceView);
+    const destinationKey = getStorageKeyForMove(destinationView);
+    let panelToMove;
+
+    chrome.storage.local.get([sourceKey, destinationKey], (data) => {
+        let sourcePanels = data[sourceKey] || [];
+        let destinationPanels = data[destinationKey] || [];
+
+        const panelIndex = sourcePanels.findIndex(p => p.id === panelId);
+        if (panelIndex > -1) {
+            panelToMove = sourcePanels.splice(panelIndex, 1)[0];
+
+            if (position === 'top') {
+                destinationPanels.unshift(panelToMove);
+            } else {
+                destinationPanels.push(panelToMove);
+            }
+
+            chrome.storage.local.set({
+                [sourceKey]: sourcePanels,
+                [destinationKey]: destinationPanels
+            }, () => {
+                if (chrome.runtime.lastError) {
+                    console.error(chrome.runtime.lastError);
+                    alert('An error occurred while moving the panel.');
+                } else {
+                    // --- Refresh affected tabs ---
+                    const viewsToReload = [sourceView, destinationView];
+                    viewsToReload.forEach(view => {
+                        // CURRENT_VIEW is available globally from app.js by the time this runs
+                        if (typeof CURRENT_VIEW !== 'undefined' && view === CURRENT_VIEW) return;
+
+                        const urlToReload = chrome.runtime.getURL(`panel${view}.html`);
+                        chrome.tabs.query({ url: urlToReload }, (tabs) => {
+                            if (tabs.length > 0) chrome.tabs.reload(tabs[0].id);
+                        });
+                    });
+
+                    if (typeof CURRENT_VIEW !== 'undefined' && viewsToReload.includes(CURRENT_VIEW)) {
+                        setTimeout(() => location.reload(), 150);
+                    }
+                }
+            });
+        } else {
+            alert('Could not find the panel to move. It might have been deleted.');
+        }
+    });
+};
+
 function createPanel(panelState, onStateChange) {
     const { id, title, type, folderId, cards } = panelState;
 
@@ -13,6 +80,67 @@ function createPanel(panelState, onStateChange) {
 
     const panelHeader = document.createElement('div');
     panelHeader.className = 'panel-header drag-handle';
+
+    // --- Context Menu for Moving Panels ---
+    panelHeader.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+
+        // Remove any existing context menu
+        const existingMenu = document.getElementById('panel-context-menu');
+        if (existingMenu) existingMenu.remove();
+
+        const menu = document.createElement('div');
+        menu.id = 'panel-context-menu';
+        menu.className = 'context-menu';
+
+        // Determine available views
+        // Relying on CURRENT_VIEW global from app.js
+        if (typeof CURRENT_VIEW === 'undefined') return;
+
+        const views = ['A', 'B', 'C'];
+        const otherViews = views.filter(v => v !== CURRENT_VIEW);
+
+        otherViews.forEach(targetView => {
+            const item = document.createElement('div');
+            item.className = 'context-menu-item';
+            item.textContent = `Move to Organizer ${targetView}`;
+            item.addEventListener('click', () => {
+                // Open modal instead of moving immediately
+                if (window.showMovePanelModal) {
+                    window.showMovePanelModal(id, targetView);
+                }
+                menu.remove();
+            });
+            menu.appendChild(item);
+        });
+
+        // Position the menu
+        menu.style.top = `${e.clientY}px`;
+        menu.style.left = `${e.clientX}px`;
+
+        document.body.appendChild(menu);
+
+        // Close logic
+        const closeMenu = () => {
+            if (menu.parentNode) {
+                menu.remove();
+            }
+            document.removeEventListener('click', closeMenu);
+            document.removeEventListener('contextmenu', closeMenu);
+        };
+
+        // Add listener on next tick to avoid immediate closing
+        setTimeout(() => {
+            document.addEventListener('click', closeMenu);
+            // Also close if another context menu updates, but simpler to just listen for clicks
+            document.addEventListener('contextmenu', (e) => {
+                if (!menu.contains(e.target)) {
+                    closeMenu();
+                }
+            });
+        }, 0);
+    });
+
     const titleElement = document.createElement('h3');
     titleElement.textContent = title;
     titleElement.contentEditable = true;

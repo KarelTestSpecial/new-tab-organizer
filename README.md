@@ -42,6 +42,8 @@ A powerful and highly customizable startpage to replace your browser's default n
     - Switch between **light and dark themes**.
     - Choose whether new panels are added to the **top or bottom** of the page.
     - Show or hide the **clock and date** display.
+    - **Granular Date Control:** Toggle the display of the **Year** and **Day of Week** independently.
+    - **Date Font Size:** Adjust the size of the date text using a slider in Settings.
 
 ## How to Install and Use
 

@@ -667,9 +667,46 @@ body {
     -webkit-user-select: none;
 }
 
+
 .move-controls-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     align-items: center;
+}
+
+/* Context Menu */
+.context-menu {
+    position: fixed;
+    background-color: white;
+    border: 1px solid #ccd0d5;
+    border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 2000;
+    padding: 4px 0;
+    min-width: 150px;
+}
+
+.context-menu-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #1c1e21;
+}
+
+.context-menu-item:hover {
+    background-color: #f0f2f5;
+}
+
+[data-theme="dark"] .context-menu {
+    background-color: #242526;
+    border-color: #3a3b3c;
+}
+
+[data-theme="dark"] .context-menu-item {
+    color: #e4e6eb;
+}
+
+[data-theme="dark"] .context-menu-item:hover {
+    background-color: #3a3b3c;
 }
