@@ -36,6 +36,7 @@ A powerful and highly customizable startpage to replace your browser's default n
 - **Quick Actions:** Instantly create new notes (`+ P`) or bookmark (`+ L`) panels from the sidebar.
 - **Undo Deletions:** Accidentally deleted a panel or a card? Press `Ctrl+Z` to restore it instantly.
 - **Customizable Sidebar:** Choose a specific bookmark folder to display in the persistent sidebar via the Settings menu for quick access.
+- **Open on startup:** Choose which workspace (A, B, or C) opens automatically when you launch your browser.
 - **Data Portability:** Use the **Import** and **Export** buttons in Settings to save your entire layout and settings to a JSON file, or restore your setup from a backup.
 - **Bulk Bookmark Import:** Quickly populate a view by using the "Import All Bookmarks" button, which creates panels for all your bookmark folders that aren't already displayed.
 - **Customizable UI:**

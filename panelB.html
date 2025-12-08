@@ -126,14 +126,28 @@
                     <button id="swap-organizers-btn" class="settings-btn-item" style="flex-grow: 1;">Swap content
                         between organizers</button>
                 </div>
-                <p style="margin-top: 8px; font-style: italic; font-size: 1rem; opacity: 0.8;">Klik met de
-                    rechtermuisknop op een paneel om deze naar een andere organizer te verplaatsen.</p>
-                <div style="border-bottom: 1px solid currentColor; opacity: 0.2; margin-top: 15px; margin-bottom: 5px;">
-                </div>
+                <p style="margin-top: 8px; font-style: italic; font-size: 1rem; opacity: 0.8;">Rightclick on 
+                    a note or bookmark panel (title section) to move it to another organizer tab.</p>
             </div>
 
-            <button id="save-settings-btn">Save and Close</button>
-            <button id="close-settings-btn">Cancel</button>
+            <div class="settings-footer" style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-bottom: 10px;">
+                <div style="display: flex; gap: 10px;">
+                    <button id="save-settings-btn">Save and Close</button>
+                    <button id="close-settings-btn">Cancel</button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <span style="font-size: 0.9rem;">Open on startup:</span>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 3px; font-size: 0.9rem;">
+                        <input type="checkbox" id="startup-check-A"> A
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 3px; font-size: 0.9rem;">
+                        <input type="checkbox" id="startup-check-B"> B
+                    </label>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 3px; font-size: 0.9rem;">
+                        <input type="checkbox" id="startup-check-C"> C
+                    </label>
+                </div>
+            </div>
         </div>
 
         <div id="move-panel-modal" class="modal hidden">

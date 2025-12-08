@@ -55,6 +55,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateFontSizeSlider = document.getElementById('date-font-size-slider');
     const dateFontSizeValue = document.getElementById('date-font-size-value');
 
+    // Startup Checkboxes
+    const startupCheckA = document.getElementById('startup-check-A');
+    const startupCheckB = document.getElementById('startup-check-B');
+    const startupCheckC = document.getElementById('startup-check-C');
+
     let tempSettings = {};
 
     function updateButtonText() {
@@ -120,11 +125,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function saveSettings() {
+        // Validation: At least one startup checkbox must be checked.
+        let valA = startupCheckA.checked;
+        let valB = startupCheckB.checked;
+        let valC = startupCheckC.checked;
+
+        if (!valA && !valB && !valC) {
+            valA = true;
+            startupCheckA.checked = true; // Visual feedback
+        }
+
         const settingsToSave = {
             ...tempSettings,
             sidebarFolderId: sidebarFolderSelect.value,
             // Date Settings
-            dateFontSize: `${dateFontSizeSlider.value}px`
+            dateFontSize: `${dateFontSizeSlider.value}px`,
+            // Startup Settings
+            startupA: valA,
+            startupB: valB,
+            startupC: valC
         };
         chrome.storage.local.set({ settings: settingsToSave }, () => {
             console.log('Settings saved');
@@ -144,10 +163,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 showDate: typeof currentSettings.showDate === 'boolean' ? currentSettings.showDate : true,
                 showYear: typeof currentSettings.showYear === 'boolean' ? currentSettings.showYear : true,
                 showDayOfWeek: typeof currentSettings.showDayOfWeek === 'boolean' ? currentSettings.showDayOfWeek : true,
+                startupA: typeof currentSettings.startupA === 'boolean' ? currentSettings.startupA : true, // Default True
+                startupB: typeof currentSettings.startupB === 'boolean' ? currentSettings.startupB : false,
+                startupC: typeof currentSettings.startupC === 'boolean' ? currentSettings.startupC : false
             };
 
             updateButtonText();
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
+
+            // Startup Checkboxes
+            if (startupCheckA) startupCheckA.checked = tempSettings.startupA;
+            if (startupCheckB) startupCheckB.checked = tempSettings.startupB;
+            if (startupCheckC) startupCheckC.checked = tempSettings.startupC;
 
             // Handle slider default
             let fontSize = currentSettings.dateFontSize || '11px';

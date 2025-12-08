@@ -15,7 +15,7 @@ This project is a **Chrome Extension** (Manifest V3) that replaces the default "
     *   `panelA.html`: The default entry point (New Tab Page).
     *   `panelB.html`, `panelC.html`: Additional independent workspaces.
 *   **Logic (`js/`):**
-    *   `app.js`: Main entry point. Handles DOM initialization, state management (save/load), and view identification.
+    *   `app.js`: Main entry point. Handles DOM initialization, state management (save/load), view identification, and startup redirection logic.
     *   `panels.js`: Logic for panel creation, manipulation, and moving panels between views.
     *   `bookmarks.js`: Handles interactions with the Chrome Bookmarks API.
     *   `settings_logic.js`: Manages user preferences and import/export functionality.

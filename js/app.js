@@ -26,6 +26,38 @@ const CURRENT_VIEW = getCurrentView();
 const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
 
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Startup Logic ---
+    if (CURRENT_VIEW === 'A') {
+        if (!window.sessionStorage.getItem('startupHandled')) {
+            window.sessionStorage.setItem('startupHandled', 'true');
+            chrome.storage.local.get('settings', (localData) => {
+                const settings = localData.settings || {};
+                const startupA = typeof settings.startupA === 'boolean' ? settings.startupA : true;
+                const startupB = typeof settings.startupB === 'boolean' ? settings.startupB : false;
+                const startupC = typeof settings.startupC === 'boolean' ? settings.startupC : false;
+
+                if (!startupA) {
+                    // User doesn't want A on startup.
+                    if (startupB) {
+                        // Redirect current tab A to B
+                        window.location.replace('panelB.html');
+                        if (startupC) {
+                            chrome.tabs.create({ url: 'panelC.html', active: false });
+                        }
+                    } else if (startupC) {
+                        // Redirect current tab A to C
+                        window.location.replace('panelC.html');
+                    }
+                    // If all false, validation in settings should prevent this, but default A is fallback
+                } else {
+                    // A is wanted (and we are here). Open others if needed.
+                    if (startupB) chrome.tabs.create({ url: 'panelB.html', active: false });
+                    if (startupC) chrome.tabs.create({ url: 'panelC.html', active: false });
+                }
+            });
+        }
+    }
+
     const panelsContainer = document.getElementById('panels-container');
 
     // --- State Management ---
