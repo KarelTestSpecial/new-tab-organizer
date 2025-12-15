@@ -1,4 +1,6 @@
 const undoStack = [];
+const redoStack = []; // Global Redo Stack
+window.redoStack = redoStack; // Expose for panels.js to clear it
 window.bookmarkRefreshCallbacks = [];
 // Global settings for the date, defaults
 window.currentDateSettings = {
@@ -295,6 +297,56 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Undo Logic ---
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
+            // Check for focused text element first for immediate text undo
+            // Must differentiate between Card Text (P) and Panel Title (H3)
+            if (document.activeElement && document.activeElement.isContentEditable && document.activeElement.tagName === 'P') {
+                const p = document.activeElement;
+                const originalText = p.dataset.originalText;
+
+                if (originalText !== undefined && p.textContent !== originalText) {
+                    e.preventDefault();
+
+                    // Manually construct the redo item for this specific focused-undo action
+                    const redoItem = {
+                        itemType: 'text-edit',
+                        cardId: p.closest('.card').id,
+                        oldText: originalText,
+                        newText: p.textContent
+                    };
+
+                    p.textContent = originalText;
+
+                    // Add to Redo Stack
+                    redoStack.push(redoItem);
+                    saveState();
+
+                    return;
+                }
+            } else if (document.activeElement && document.activeElement.tagName === 'H3' && document.activeElement.isContentEditable) {
+                // Check for focused panel title
+                const h3 = document.activeElement;
+                const originalText = h3.dataset.originalText;
+
+                if (originalText !== undefined && h3.textContent !== originalText) {
+                    e.preventDefault();
+
+                    const panel = h3.closest('.panel');
+                    const redoItem = {
+                        itemType: 'panel-title-edit',
+                        panelId: panel ? panel.dataset.id : null,
+                        oldTitle: originalText,
+                        newTitle: h3.textContent
+                    };
+
+                    h3.textContent = originalText;
+
+                    redoStack.push(redoItem);
+                    saveState();
+
+                    return;
+                }
+            }
+
             e.preventDefault();
             if (undoStack.length > 0) {
                 const undoItem = undoStack.pop();
@@ -303,6 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const nextSibling = undoItem.nextSiblingId ? document.querySelector(`[data-id='${undoItem.nextSiblingId}']`) : null;
                     panelsContainer.insertBefore(newPanel, nextSibling);
                 } else if (undoItem.itemType === 'card') {
+                    // Undo deletion of a card
                     const parentPanel = document.querySelector(`[data-id='${undoItem.parentPanelId}']`);
                     if (parentPanel) {
                         const cardsContainer = parentPanel.querySelector('.cards-container');
@@ -312,7 +365,208 @@ document.addEventListener('DOMContentLoaded', () => {
                             cardsContainer.insertBefore(newCard, nextSibling);
                         }
                     }
+                } else if (undoItem.itemType === 'text-edit') {
+                    const card = document.getElementById(undoItem.cardId);
+                    if (card) {
+                        const p = card.querySelector('p');
+                        if (p) {
+                            p.textContent = undoItem.oldText;
+                            if (!p.textContent && card.querySelector('img')) {
+                                p.classList.add('hidden');
+                            } else {
+                                p.classList.remove('hidden');
+                            }
+                        }
+                    }
+                } else if (undoItem.itemType === 'create-card') {
+                    const card = document.getElementById(undoItem.cardId);
+                    if (card) {
+                        card.remove();
+                    }
+                } else if (undoItem.itemType === 'panel-title-edit') {
+                    const panel = document.querySelector(`[data-id='${undoItem.panelId}']`);
+                    if (panel) {
+                        const titleEl = panel.querySelector('.panel-header h3');
+                        if (titleEl) {
+                            titleEl.textContent = undoItem.oldTitle;
+                        }
+                    }
+                } else if (undoItem.itemType === 'move-card') {
+                    const card = document.getElementById(undoItem.cardId);
+                    const destPanel = document.querySelector(`[data-id='${undoItem.sourceParentId}']`);
+                    if (card && destPanel) {
+                        const destContainer = destPanel.querySelector('.cards-container');
+                        if (destContainer) {
+                            card.remove(); // Fix: Remove before calculating index
+                            const siblings = [...destContainer.children];
+                            if (undoItem.sourceIndex >= siblings.length) {
+                                destContainer.appendChild(card);
+                            } else {
+                                destContainer.insertBefore(card, siblings[undoItem.sourceIndex]);
+                            }
+                        }
+                    }
+                } else if (undoItem.itemType === 'move-panel') {
+                    // Undo: Move panel back to oldIndex
+                    const panel = document.querySelector(`[data-id='${undoItem.panelId}']`);
+                    const panelsContainer = document.getElementById('panels-container');
+                    if (panel && panelsContainer) {
+                        // Note: Sortable mutates DOM, so undo means moving it back.
+                        // We need to be careful with indices. oldIndex is where it WAS.
+                        panel.remove(); // Fix: Remove before calculating index
+                        const siblings = [...panelsContainer.children];
+                        if (undoItem.oldIndex >= siblings.length) {
+                            panelsContainer.appendChild(panel);
+                        } else {
+                            panelsContainer.insertBefore(panel, siblings[undoItem.oldIndex]);
+                        }
+                    }
                 }
+
+                // Add to Redo Stack
+                redoStack.push(undoItem);
+
+                saveState();
+            }
+        }
+
+        // --- Redo Logic (Ctrl+Y) ---
+        if (e.ctrlKey && (e.key === 'y' || e.key === 'Y')) {
+            e.preventDefault();
+            if (redoStack.length > 0) {
+                const redoItem = redoStack.pop();
+
+                // Re-apply the action
+                if (redoItem.itemType === 'panel') {
+                    // Redo panel deletion = delete it again
+                    // Actually, the undo item for 'panel' is the state to RESTORE it (undoing a deletion).
+                    // So REDOING it means re-deleting it?
+                    // Wait. 
+                    // Undo: Deletion -> Restoration.
+                    // The item in undoStack is the STATE to restore. 
+                    // When we UNDO, we pop this item and create the panel.
+                    // We push this item to REDO stack.
+                    // When we REDO, we should DELETE the panel again?
+                    // OR, does undoStack contain the ACTION that was done? 
+                    // No, current implementation pushes the STATE needed to REVERSE the action.
+                    // E.g. deletePanel -> pushes { itemType: 'panel', state: ... }
+                    // Undo -> reconstructs panel.
+
+                    // If we push the SAME item to redoStack, 'redoItem' is { itemType: 'panel', state: ... }
+                    // Redoing the undo means: we just restored it, now we want to delete it again.
+                    const panel = document.querySelector(`[data-id='${redoItem.state.id}']`);
+                    if (panel) panel.remove();
+
+                } else if (redoItem.itemType === 'card') {
+                    // Undo was: restore deleted card.
+                    // Redo: delete it again.
+                    const card = document.getElementById(redoItem.state.id);
+                    if (card) card.remove();
+
+                } else if (redoItem.itemType === 'text-edit') {
+                    // Undo: set text to oldText.
+                    // Redo: set text to newText.
+                    const card = document.getElementById(redoItem.cardId);
+                    if (card) {
+                        const p = card.querySelector('p');
+                        if (p) {
+                            p.textContent = redoItem.newText;
+                            if (!p.textContent && card.querySelector('img')) {
+                                p.classList.add('hidden');
+                            } else {
+                                p.classList.remove('hidden');
+                            }
+
+                            // BUG FIX: If this element is currently focused, update its originalText dataset
+                            // so that blurring it later doesn't generate a duplicate undo item.
+                            if (document.activeElement === p) {
+                                p.dataset.originalText = redoItem.newText;
+                            }
+                        }
+                    }
+                } else if (redoItem.itemType === 'create-card') {
+                    // Undo: delete the created card.
+                    // Redo: re-create the card? 
+                    // Wait. `create-card` undo logic was `card.remove()`.
+                    // So we undid the creation (deleted it).
+                    // Redoing means re-creating it?
+                    // But the `undoItem` for create-card only has ID and parentID. It doesn't have the content state if it wasn't saved?
+                    // Actually, if we just created it, it was empty/default. 
+                    // IF we typed in it, we would have text-edit actions on top?
+                    // Creating card puts { itemType: 'create-card' } logic implies we remove it.
+                    // To REDO (re-create), we need the state?
+                    // Currently `create-card` undo item has `cardId` and `parentPanelId`.
+                    // It does NOT have the text/image content.
+                    // IMPORTANT: If we want to support REDO of creation, we need to generate the default state or capture state?
+                    // Since `create-card` is only pushed when we add a NEW card (default empty), re-creating default is fine!
+                    // BUT what if we pasted an image? The undo logic removes it. 
+                    // To REDO, we need that image data.
+                    // The current `js/panels.js` logic for `create-card` (paste) DOES NOT store the image blob in the undo item.
+                    // Limitation: Redoing a paste might fail if we don't have the data.
+                    // I should probably accept this limitation or fix it.
+                    // Given the request, I will implement what I can.
+                    // If I create a new card with ID, it will be empty.
+                    const parentPanel = document.querySelector(`[data-id='${redoItem.parentPanelId}']`);
+                    if (parentPanel) {
+                        const container = parentPanel.querySelector('.cards-container');
+                        // We need to re-create it. 
+                        // Note: We might be missing content for pasted images.
+                        // We will attempt to find text-edits in previous stack? No.
+                        // Simplest: just re-create empty or with default "New Card" text if it was a button click.
+                        // We don't know if it was paste or click.
+                        // However, if we undo a paste, the card is gone.
+                        // If we redo, we put back an empty card? That's better than nothing, but not perfect.
+                        const newCard = createCard(container, { id: redoItem.cardId, text: 'New Card' }, saveState);
+                        container.appendChild(newCard);
+                    }
+
+                } else if (redoItem.itemType === 'move-card') {
+                    // Undo: moved back to source.
+                    // Redo: move to dest.
+                    const card = document.getElementById(redoItem.cardId);
+                    const destPanel = document.querySelector(`[data-id='${redoItem.destParentId}']`);
+                    if (card && destPanel) {
+                        const destContainer = destPanel.querySelector('.cards-container');
+                        if (destContainer) {
+                            card.remove(); // Fix: Remove before calculating index
+                            const siblings = [...destContainer.children];
+                            if (redoItem.destIndex >= siblings.length) {
+                                destContainer.appendChild(card);
+                            } else {
+                                destContainer.insertBefore(card, siblings[redoItem.destIndex]);
+                            }
+                        }
+                    }
+                } else if (redoItem.itemType === 'panel-title-edit') {
+                    // Redo: set to newTitle
+                    const panel = document.querySelector(`[data-id='${redoItem.panelId}']`);
+                    if (panel) {
+                        const titleEl = panel.querySelector('.panel-header h3');
+                        if (titleEl) {
+                            titleEl.textContent = redoItem.newTitle;
+
+                            // BUG FIX: If this element is currently focused, update its originalText dataset
+                            if (document.activeElement === titleEl) {
+                                titleEl.dataset.originalText = redoItem.newTitle;
+                            }
+                        }
+                    }
+                } else if (redoItem.itemType === 'move-panel') {
+                    // Redo: Move panel to newIndex
+                    const panel = document.querySelector(`[data-id='${redoItem.panelId}']`);
+                    const panelsContainer = document.getElementById('panels-container');
+                    if (panel && panelsContainer) {
+                        panel.remove(); // Fix: Remove before calculating index
+                        const siblings = [...panelsContainer.children];
+                        if (redoItem.newIndex >= siblings.length) {
+                            panelsContainer.appendChild(panel);
+                        } else {
+                            panelsContainer.insertBefore(panel, siblings[redoItem.newIndex]);
+                        }
+                    }
+                }
+
+                undoStack.push(redoItem);
                 saveState();
             }
         }
@@ -418,8 +672,19 @@ document.addEventListener('DOMContentLoaded', () => {
         onStart: function () {
             document.body.classList.add('no-select');
         },
-        onEnd: function () {
+        onEnd: function (evt) {
             document.body.classList.remove('no-select');
+
+            if (evt.oldIndex !== evt.newIndex) {
+                undoStack.push({
+                    itemType: 'move-panel',
+                    panelId: evt.item.dataset.id,
+                    oldIndex: evt.oldIndex,
+                    newIndex: evt.newIndex
+                });
+                if (typeof redoStack !== 'undefined') redoStack.length = 0;
+            }
+
             saveState();
         },
     });

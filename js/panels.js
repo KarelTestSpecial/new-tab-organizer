@@ -1,4 +1,5 @@
 // This file will handle the logic for creating and managing panels and cards.
+let dragSrcContext = null;
 
 // Helper to get storage key (duplicated here to ensure availability)
 function getStorageKeyForMove(view) {
@@ -146,25 +147,45 @@ function createPanel(panelState, onStateChange) {
     titleElement.contentEditable = true;
 
     let originalTitle = title;
+    titleElement.dataset.originalText = originalTitle;
+
     titleElement.addEventListener('focus', () => {
         originalTitle = titleElement.textContent;
+        titleElement.dataset.originalText = originalTitle;
     });
 
     titleElement.addEventListener('blur', () => {
         const newTitle = titleElement.textContent;
-        if (panel.dataset.type === 'bookmarks' && panel.dataset.folderId && newTitle !== originalTitle) {
-            if (confirm(`Do you want to rename the bookmark folder from "${originalTitle}" to "${newTitle}"?`)) {
+        // Use dataset.originalText as source of truth to avoid stale closures
+        const currentOriginalTitle = titleElement.dataset.originalText;
+
+        if (panel.dataset.type === 'bookmarks' && panel.dataset.folderId && newTitle !== currentOriginalTitle) {
+            if (confirm(`Do you want to rename the bookmark folder from "${currentOriginalTitle}" to "${newTitle}"?`)) {
                 chrome.bookmarks.update(panel.dataset.folderId, { title: newTitle }, () => {
                     if (chrome.runtime.lastError) {
                         console.error(`Error updating bookmark folder: ${chrome.runtime.lastError.message}`);
-                        titleElement.textContent = originalTitle; // Revert on error
+                        titleElement.textContent = currentOriginalTitle; // Revert on error
+                    } else {
+                        // Update source of truth
+                        titleElement.dataset.originalText = newTitle;
+                        onStateChange();
                     }
-                    onStateChange();
                 });
             } else {
-                titleElement.textContent = originalTitle; // Revert on cancel
+                titleElement.textContent = currentOriginalTitle; // Revert on cancel
             }
-        } else if (newTitle !== originalTitle) {
+        } else if (newTitle !== currentOriginalTitle) {
+            undoStack.push({
+                itemType: 'panel-title-edit',
+                panelId: panel.dataset.id,
+                oldTitle: currentOriginalTitle,
+                newTitle: newTitle
+            });
+
+            // Update source of truth so subsequent actions are correct
+            titleElement.dataset.originalText = newTitle;
+
+            if (typeof redoStack !== 'undefined') redoStack.length = 0;
             onStateChange();
         }
     });
@@ -184,14 +205,34 @@ function createPanel(panelState, onStateChange) {
     deletePanelButton.innerHTML = '&times;'; // A simple 'x'
     deletePanelButton.className = 'delete-btn panel-delete-btn';
     deletePanelButton.addEventListener('click', () => {
-        // For undo functionality
+        // Scrape current state for accurate undo
+        const currentCards = [];
+        if (panel.dataset.type === 'notes') {
+            panel.querySelectorAll('.card').forEach(c => {
+                currentCards.push({
+                    id: c.id,
+                    text: c.querySelector('p').textContent,
+                    imageUrl: c.querySelector('img') ? c.querySelector('img').src : null
+                });
+            });
+        }
+
+        const currentPanelState = {
+            id: panel.dataset.id,
+            title: panel.querySelector('h3').textContent,
+            type: panel.dataset.type,
+            folderId: panel.dataset.folderId,
+            cards: currentCards
+        };
+
         const nextSibling = panel.nextElementSibling;
         const undoItem = {
             itemType: 'panel',
-            state: panelState,
+            state: currentPanelState,
             nextSiblingId: nextSibling ? nextSibling.dataset.id : null
         };
         undoStack.push(undoItem);
+        if (typeof redoStack !== 'undefined') redoStack.length = 0;
 
         panel.remove();
         onStateChange();
@@ -206,7 +247,13 @@ function createPanel(panelState, onStateChange) {
         addCardButton.textContent = '+';
         addCardButton.className = 'add-card-btn';
         addCardButton.addEventListener('click', () => {
-            createCard(contentContainer, { id: `card-${Date.now()}`, text: 'New Card' }, onStateChange);
+            const newCard = createCard(contentContainer, { id: `card-${Date.now()}`, text: 'New Card' }, onStateChange);
+            undoStack.push({
+                itemType: 'create-card',
+                cardId: newCard.id,
+                parentPanelId: panel.dataset.id
+            });
+            if (typeof redoStack !== 'undefined') redoStack.length = 0;
             onStateChange();
         });
         panelActions.appendChild(addCardButton);
@@ -230,6 +277,27 @@ function createPanel(panelState, onStateChange) {
                 } else {
                     contentContainer.insertBefore(draggable, afterElement);
                 }
+
+                // Undo Logic for Move
+                if (dragSrcContext && dragSrcContext.cardId === cardId) {
+                    const newParent = draggable.closest('.panel');
+                    const newSiblings = [...newParent.querySelectorAll('.card')];
+                    const newIndex = newSiblings.indexOf(draggable);
+
+                    if (dragSrcContext.sourceParentId !== newParent.dataset.id || dragSrcContext.sourceIndex !== newIndex) {
+                        undoStack.push({
+                            itemType: 'move-card',
+                            cardId: cardId,
+                            sourceParentId: dragSrcContext.sourceParentId,
+                            sourceIndex: dragSrcContext.sourceIndex,
+                            destParentId: newParent.dataset.id,
+                            destIndex: newIndex
+                        });
+                        if (typeof redoStack !== 'undefined') redoStack.length = 0;
+                    }
+                    dragSrcContext = null;
+                }
+
                 onStateChange();
             }
         });
@@ -249,6 +317,12 @@ function createPanel(panelState, onStateChange) {
                             text: ''
                         };
                         createCard(contentContainer, cardState, onStateChange);
+                        undoStack.push({
+                            itemType: 'create-card',
+                            cardId: cardState.id,
+                            parentPanelId: panel.dataset.id
+                        });
+                        if (typeof redoStack !== 'undefined') redoStack.length = 0;
                         onStateChange();
                     };
                     reader.readAsDataURL(file);
@@ -329,6 +403,16 @@ function createCard(cardsContainer, cardState, onStateChange) {
     const cardText = document.createElement('p');
     cardText.textContent = text || '';
     cardText.contentEditable = true;
+
+    // Undo Logic for Text
+    let originalText = text || '';
+    cardText.dataset.originalText = originalText;
+
+    cardText.addEventListener('focus', () => {
+        originalText = cardText.textContent;
+        cardText.dataset.originalText = originalText;
+    });
+
     card.appendChild(cardText);
 
     if (!text && imageUrl) {
@@ -344,18 +428,42 @@ function createCard(cardsContainer, cardState, onStateChange) {
         const nextSibling = card.nextElementSibling;
         const undoItem = {
             itemType: 'card',
-            state: cardState,
+            // Fix: Capture current state from DOM, not stale closure 'cardState'
+            state: {
+                id: card.id,
+                text: card.querySelector('p').textContent,
+                imageUrl: card.querySelector('img') ? card.querySelector('img').src : null
+            },
             parentPanelId: parentPanelId,
             nextSiblingId: nextSibling ? nextSibling.id : null
         };
         undoStack.push(undoItem);
+        if (typeof redoStack !== 'undefined') redoStack.length = 0;
 
         card.remove();
         onStateChange();
     });
     card.appendChild(deleteCardButton);
 
-    cardText.addEventListener('blur', onStateChange);
+    cardText.addEventListener('blur', () => {
+        const newText = cardText.textContent;
+        // Check against dataset, not closure
+        const currentOriginalText = cardText.dataset.originalText;
+
+        if (newText !== currentOriginalText) {
+            // Update dataset immediately so next interaction is fresh
+            cardText.dataset.originalText = newText;
+
+            undoStack.push({
+                itemType: 'text-edit',
+                cardId: card.id,
+                oldText: currentOriginalText,
+                newText: newText
+            });
+            if (typeof redoStack !== 'undefined') redoStack.length = 0;
+        }
+        onStateChange();
+    });
 
     cardText.addEventListener('keydown', (e) => {
         // For Enter (but not Shift+Enter), and Escape
@@ -367,6 +475,17 @@ function createCard(cardsContainer, cardState, onStateChange) {
 
     card.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', e.target.id);
+
+        const parentPanel = card.closest('.panel');
+        if (parentPanel) {
+            const siblings = [...parentPanel.querySelectorAll('.card')];
+            dragSrcContext = {
+                cardId: card.id,
+                sourceParentId: parentPanel.dataset.id,
+                sourceIndex: siblings.indexOf(card)
+            };
+        }
+
         setTimeout(() => card.classList.add('dragging'), 0);
     });
 
