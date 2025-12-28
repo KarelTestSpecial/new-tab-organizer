@@ -51,7 +51,7 @@
             </div>
         </main>
         <div id="settings-panel" class="hidden">
-
+    <button id="settings-close-btn" class="settings-close-btn">&times;</button>
             <!-- Section 1: Toggles (Sidebar Label) & Date Font Size/Sidebar Folder -->
             <div class="settings-section">
                 <!-- Row 1: Sidebar Label + Toggles -->
@@ -96,7 +96,30 @@
                 </div>
             </div>
 
-            <!-- Section 3: Data Management -->
+            <!-- Section 3: Colors -->
+            <div class="settings-section">
+                <div class="color-picker-group">
+                    <label for="primary-color-picker">Primary Color:</label>
+                    <input type="color" id="primary-color-picker">
+                    <button id="advanced-color-toggle">Advanced</button>
+                </div>
+                <div id="advanced-color-pickers" class="hidden">
+                    <div class="color-picker-group">
+                        <label for="bg-color-picker">Background Color:</label>
+                        <input type="color" id="bg-color-picker">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="text-color-picker">Text Color:</label>
+                        <input type="color" id="text-color-picker">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="accent-color-picker">Accent Color:</label>
+                        <input type="color" id="accent-color-picker">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Data Management -->
             <div class="settings-section">
                 <div class="data-controls"
                     style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">

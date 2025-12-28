@@ -799,7 +799,26 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
 
 function applySettings(settings) {
     if (!settings) return;
+
+    // Handle theme and custom colors
+    if (settings.theme === 'custom') {
+        document.documentElement.style.setProperty('--bg-color', settings.bgColor);
+        document.documentElement.style.setProperty('--text-color', settings.textColor);
+        document.documentElement.style.setProperty('--sidebar-bg', settings.sidebarBg);
+        document.documentElement.style.setProperty('--panel-bg', settings.sidebarBg);
+        document.documentElement.style.setProperty('--border-color', settings.accentColor);
+        document.documentElement.style.setProperty('--accent-color', settings.accentColor);
+    } else {
+        // Clear custom styles when switching back to a predefined theme
+        document.documentElement.style.setProperty('--bg-color', '');
+        document.documentElement.style.setProperty('--text-color', '');
+        document.documentElement.style.setProperty('--sidebar-bg', '');
+        document.documentElement.style.setProperty('--panel-bg', '');
+        document.documentElement.style.setProperty('--border-color', '');
+        document.documentElement.style.setProperty('--accent-color', '');
+    }
     document.documentElement.setAttribute('data-theme', settings.theme || 'light');
+
     const clockElement = document.getElementById('clock');
     const dateElement = document.getElementById('date');
     if (clockElement) clockElement.style.display = settings.showClock ? 'block' : 'none';
