@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsBtn = document.getElementById('settings-btn');
     const closeBtn = document.getElementById('close-settings-btn');
     const saveBtn = document.getElementById('save-settings-btn');
+    const settingsCloseBtn = document.getElementById('settings-close-btn');
 
     settingsBtn.addEventListener('click', () => {
         if (settingsPanel.classList.contains('hidden')) {
@@ -18,10 +19,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    closeBtn.addEventListener('click', () => {
+    const closeSettingsPanel = () => {
         settingsPanel.classList.add('hidden');
         loadSettings();
-    });
+    };
+
+    closeBtn.addEventListener('click', closeSettingsPanel);
+    settingsCloseBtn.addEventListener('click', closeSettingsPanel);
 
     const sidebarFolderSelect = document.getElementById('sidebar-folder-select');
 
@@ -60,10 +64,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const startupCheckB = document.getElementById('startup-check-B');
     const startupCheckC = document.getElementById('startup-check-C');
 
+    // Color Pickers
+    const primaryColorPicker = document.getElementById('primary-color-picker');
+    const bgColorPicker = document.getElementById('bg-color-picker');
+    const textColorPicker = document.getElementById('text-color-picker');
+    const accentColorPicker = document.getElementById('accent-color-picker');
+    const advancedColorToggle = document.getElementById('advanced-color-toggle');
+    const advancedColorPickers = document.getElementById('advanced-color-pickers');
+
     let tempSettings = {};
 
     function updateButtonText() {
-        themeBtn.textContent = `Theme: ${tempSettings.theme === 'dark' ? 'Dark' : 'Light'}`;
+        let themeText = 'Light';
+        if (tempSettings.theme === 'dark') {
+            themeText = 'Dark';
+        } else if (tempSettings.theme === 'custom') {
+            themeText = 'Custom';
+        }
+        themeBtn.textContent = `Theme: ${themeText}`;
         clockToggleBtn.textContent = `${tempSettings.showClock ? 'Hide' : 'Show'} Clock`;
         dateToggleBtn.textContent = `${tempSettings.showDate ? 'Hide' : 'Show'} Date`;
 
@@ -124,6 +142,46 @@ document.addEventListener('DOMContentLoaded', () => {
         applySettings({ ...tempSettings, dateFontSize: `${size}px` });
     });
 
+    // Color Picker Logic
+    advancedColorToggle.addEventListener('click', () => {
+        advancedColorPickers.classList.toggle('hidden');
+    });
+
+    primaryColorPicker.addEventListener('input', () => {
+        const primaryColor = primaryColorPicker.value;
+        tempSettings.primaryColor = primaryColor;
+
+        // Generate a more nuanced theme
+        tempSettings.bgColor = adjustColor(primaryColor, 80); // Lighter background
+        tempSettings.sidebarBg = adjustColor(primaryColor, 60); // Slightly darker sidebar/panel
+        tempSettings.textColor = getContrastingTextColor(tempSettings.sidebarBg);
+        tempSettings.accentColor = adjustColor(primaryColor, -20);
+
+        // Update advanced pickers and apply
+        bgColorPicker.value = tempSettings.bgColor;
+        // We don't have a picker for sidebarBg, so we'll just use the main bg picker for it
+        textColorPicker.value = tempSettings.textColor;
+        accentColorPicker.value = tempSettings.accentColor;
+
+        tempSettings.theme = 'custom';
+        updateButtonText();
+        applySettings(tempSettings);
+    });
+
+    const advancedPickerListener = () => {
+        tempSettings.bgColor = bgColorPicker.value;
+        tempSettings.sidebarBg = bgColorPicker.value;
+        tempSettings.textColor = textColorPicker.value;
+        tempSettings.accentColor = accentColorPicker.value;
+        tempSettings.theme = 'custom';
+        updateButtonText();
+        applySettings(tempSettings);
+    };
+
+    bgColorPicker.addEventListener('input', advancedPickerListener);
+    textColorPicker.addEventListener('input', advancedPickerListener);
+    accentColorPicker.addEventListener('input', advancedPickerListener);
+
     function saveSettings() {
         // Validation: At least one startup checkbox must be checked.
         let valA = startupCheckA.checked;
@@ -138,12 +196,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const settingsToSave = {
             ...tempSettings,
             sidebarFolderId: sidebarFolderSelect.value,
-            // Date Settings
             dateFontSize: `${dateFontSizeSlider.value}px`,
-            // Startup Settings
             startupA: valA,
             startupB: valB,
-            startupC: valC
+            startupC: valC,
+            // Colors
+            primaryColor: primaryColorPicker.value,
+            bgColor: bgColorPicker.value,
+            sidebarBg: tempSettings.sidebarBg,
+            textColor: textColorPicker.value,
+            accentColor: accentColorPicker.value,
         };
         chrome.storage.local.set({ settings: settingsToSave }, () => {
             console.log('Settings saved');
@@ -163,26 +225,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 showDate: typeof currentSettings.showDate === 'boolean' ? currentSettings.showDate : true,
                 showYear: typeof currentSettings.showYear === 'boolean' ? currentSettings.showYear : true,
                 showDayOfWeek: typeof currentSettings.showDayOfWeek === 'boolean' ? currentSettings.showDayOfWeek : true,
-                startupA: typeof currentSettings.startupA === 'boolean' ? currentSettings.startupA : true, // Default True
+                startupA: typeof currentSettings.startupA === 'boolean' ? currentSettings.startupA : true,
                 startupB: typeof currentSettings.startupB === 'boolean' ? currentSettings.startupB : false,
-                startupC: typeof currentSettings.startupC === 'boolean' ? currentSettings.startupC : false
+                startupC: typeof currentSettings.startupC === 'boolean' ? currentSettings.startupC : false,
+                // Colors
+                primaryColor: currentSettings.primaryColor || '#4a90e2',
+                bgColor: currentSettings.bgColor || '#f0f2f5',
+                sidebarBg: currentSettings.sidebarBg || '#ffffff',
+                textColor: currentSettings.textColor || '#1c1e21',
+                accentColor: currentSettings.accentColor || '#e0e0e0',
             };
 
             updateButtonText();
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
 
-            // Startup Checkboxes
             if (startupCheckA) startupCheckA.checked = tempSettings.startupA;
             if (startupCheckB) startupCheckB.checked = tempSettings.startupB;
             if (startupCheckC) startupCheckC.checked = tempSettings.startupC;
 
-            // Handle slider default
             let fontSize = currentSettings.dateFontSize || '11px';
-            let numericSize = parseInt(fontSize.replace('px', '').replace('rem', '')); // basic parsing
+            let numericSize = parseInt(fontSize.replace('px', '').replace('rem', ''));
             if (isNaN(numericSize)) numericSize = 11;
 
             dateFontSizeSlider.value = numericSize;
             dateFontSizeValue.textContent = `${numericSize}px`;
+
+            // Set color pickers
+            primaryColorPicker.value = tempSettings.primaryColor;
+            bgColorPicker.value = tempSettings.bgColor;
+            textColorPicker.value = tempSettings.textColor;
+            accentColorPicker.value = tempSettings.accentColor;
 
             applySettings({ ...tempSettings, dateFontSize: `${numericSize}px` });
         });
@@ -301,6 +373,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
     populateFolderDropdowns();
     loadSettings();
+
+    // --- Color Helper Functions ---
+    function adjustColor(hex, amount) {
+        let color = hex.startsWith('#') ? hex.slice(1) : hex;
+        let r = parseInt(color.substring(0, 2), 16);
+        let g = parseInt(color.substring(2, 4), 16);
+        let b = parseInt(color.substring(4, 6), 16);
+
+        r = Math.max(0, Math.min(255, r + amount));
+        g = Math.max(0, Math.min(255, g + amount));
+        b = Math.max(0, Math.min(255, b + amount));
+
+        return `#${(r).toString(16).padStart(2, '0')}${(g).toString(16).padStart(2, '0')}${(b).toString(16).padStart(2, '0')}`;
+    }
+
+    function getContrastingTextColor(hex) {
+        let r = parseInt(hex.substring(1, 3), 16);
+        let g = parseInt(hex.substring(3, 5), 16);
+        let b = parseInt(hex.substring(5, 7), 16);
+        const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+        return (yiq >= 128) ? '#000000' : '#ffffff';
+    }
 
     // --- Swap Logic ---
     const swapBtn = document.getElementById('swap-organizers-btn');
