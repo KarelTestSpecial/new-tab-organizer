@@ -52,12 +52,13 @@
         </main>
         <div id="settings-panel" class="hidden">
     <button id="settings-close-btn" class="settings-close-btn">&times;</button>
+
             <!-- Section 1: Toggles (Sidebar Label) & Date Font Size/Sidebar Folder -->
             <div class="settings-section">
                 <!-- Row 1: Sidebar Label + Toggles -->
                 <div class="settings-buttons"
                     style="margin-bottom: 10px; display: flex; align-items: center; gap: 5px;">
-                    <span style="font-weight: bold; margin-right: 10px; font-size: 1rem;">Sidebar</span>
+                    
                     <button type="button" id="clock-toggle-btn" class="settings-btn-item" style="flex: 1;">Show
                         Clock</button>
                     <button type="button" id="date-toggle-btn" class="settings-btn-item" style="flex: 1;">Show
@@ -67,45 +68,28 @@
                     <button type="button" id="year-toggle-btn" class="settings-btn-item" style="flex: 1;">Show
                         Year</button>
                 </div>
-                <!-- Row 2: Date Font Size + Sidebar Folder -->
+                <!-- Row 2: Sidebar Folder + Date Font Size -->
                 <div class="form-group inline-section"
                     style="display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%;">
-                    <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
-                        <label for="date-font-size-slider" style="margin:0; font-weight:bold; white-space: nowrap;">Date
-                            Font Size:</label>
-                        <input type="range" id="date-font-size-slider" min="8" max="18" step="1"
-                            style="flex-grow: 1; cursor: pointer;">
-                        <span id="date-font-size-value" style="min-width: 35px; text-align: right;">11px</span>
-                    </div>
-                    <div class="sidebar-selector"
-                        style="display: flex; align-items: center; gap: 10px; margin-left: 20px;">
+                    <div class="sidebar-selector" style="display: flex; align-items: center; gap: 10px;">
                         <select id="sidebar-folder-select" style="min-width: 150px;">
-                            <option value="">--Select a folder--</option>
+                            <option value="">Select a Sidebar Folder</option>
                         </select>
                     </div>
+                    <div style="flex: 1; display: flex; align-items: center; gap: 10px; margin-left: 25px;">
+                        <label for="date-font-size-slider" style="margin:0; white-space: nowrap;">Date Font Size:</label>
+                        <input type="range" id="date-font-size-slider" min="8" max="18" step="1"
+                            style="flex-grow: 1; cursor: pointer;">
+                        <span id="date-font-size-value" style="min-width: 30px; text-align: right;">11px</span>
+                    </div>
                 </div>
             </div>
-
-            <!-- Section 2: Import Bookmarks & Theme -->
+            <!-- Section 2: Colors -->
             <div class="settings-section">
-                <div class="inline-section"
-                    style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
-                    <button type="button" id="import-all-bookmarks-btn" class="settings-btn-item">Import All
-                        Bookmarks into Organizer B</button>
-                </div>
-            </div>
-
-            <!-- Section 3: Colors -->
-            <div class="settings-section">
-                <div style="display: flex; justify-content: space-around; align-items: center; gap: 15px;">
+                <div style="display: flex; justify-content: space-around; align-items: center; gap: 12px;">
                     <div class="color-picker-group" style="gap: 5px; margin-bottom: 0;">
                         <label for="primary-color-picker" style="margin-bottom: 0;">Primary:</label>
                         <input type="color" id="primary-color-picker">
-                    </div>
-                    <div class="color-picker-group" style="gap: 5px; margin-bottom: 0;">
-                        <label for="bg-color-picker" style="margin-bottom: 0;">Background:</label>
-                        <input type="color" id="bg-color-picker">
                     </div>
                     <div class="color-picker-group" style="gap: 5px; margin-bottom: 0;">
                         <label for="text-color-picker" style="margin-bottom: 0;">Text:</label>
@@ -115,55 +99,29 @@
                         <label for="accent-color-picker" style="margin-bottom: 0;">Accent:</label>
                         <input type="color" id="accent-color-picker">
                     </div>
-                </div>
-            </div>
-
-            <!-- Section 4: Data Management -->
-            <div class="settings-section">
-                <div class="data-controls"
-                    style="display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%;">
-                    <p style="margin: 0;">Save your current setup / Load setup:</p>
-                    <div class="data-buttons" style="display: flex; gap: 10px;">
-                        <button type="button" id="export-data-btn" class="settings-btn-item">Export Data</button>
-                        <button type="button" id="import-data-btn" class="settings-btn-item">Import Data</button>
+                    <div class="color-picker-group" style="gap: 5px; margin-bottom: 0;">
+                        <label for="bg-color-picker" style="margin-bottom: 0;">Background:</label>
+                        <input type="color" id="bg-color-picker">
                     </div>
                 </div>
-                <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
 
-            <!-- Section 4: Swap Content (Reduced Padding) -->
+            <!-- Section 3: Import Bookmarks & Theme -->
             <div class="settings-section">
-                <div style="display: flex; align-items: stretch; gap: 10px;">
-                    <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
-                        <div class="swap-controls" style="display: flex; align-items: center; gap: 5px;">
-                            <select id="swap-select-1" style="min-width: 95px;">
-                                <option value="A">Organizer A</option>
-                                <option value="B">Organizer B</option>
-                                <option value="C">Organizer C</option>
-                            </select>
-                            <span>&harr;</span>
-                            <select id="swap-select-2" style="min-width: 95px;">
-                                <option value="A">Organizer A</option>
-                                <option value="B">Organizer B</option>
-                                <option value="C">Organizer C</option>
-                            </select>
-                        </div>
-                        <p style="margin: 5px 0 0 0; font-style: italic; font-size: 0.9rem; opacity: 0.8;">Rightclick a panel title to move it.</p>
-                    </div>
-                    <button id="swap-organizers-btn" class="settings-btn-item" style="align-self: stretch; min-height: 50px;">Swap content</button>
+                <div class="inline-section"
+                    style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
+                    <button type="button" id="import-all-bookmarks-btn" class="settings-btn-item">Import All
+                        Bookmarks into Organizer A</button>
                 </div>
             </div>
 
-            <!-- Section 5: Bookmark Sorting -->
+            <!-- Section 4: Bookmark Sorting -->
             <div class="settings-section">
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
                     <button type="button" id="sort-bookmarks-btn" class="settings-btn-item" style="flex-shrink: 0;">Sort Bookmark Bar</button>
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 0; flex-grow: 1;">
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
-                            <input type="checkbox" id="sort-recursively-checkbox">
-                            Sort content of subfolders as well
-                        </label>
-                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                    <div class="form-group" style="display: flex; flex-direction: row; gap: 40px; margin-bottom: 0; flex-grow: 1;">
+                        <div style="display: flex; flex-direction: column; gap: 5px;">
                             <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
                                 <input type="radio" name="sort-order" value="mixed" checked>
                                 Mixed sort
@@ -173,8 +131,48 @@
                                 Folders first
                             </label>
                         </div>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
+                            <input type="checkbox" id="sort-recursively-checkbox">
+                            Sort content of subfolders as well
+                        </label>
                     </div>
                 </div>
+            </div>
+
+            <!-- Section 5: Swap Content (Reduced Padding) -->
+            <div class="settings-section">
+                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <button id="swap-organizers-btn" class="settings-btn-item">Swap content between</button>
+                        <div class="swap-controls" style="display: flex; align-items: center; gap: 5px;">
+                            <select id="swap-select-1" style="min-width: 140px;">
+                                <option value="A">Organizer A</option>
+                                <option value="B">Organizer B</option>
+                                <option value="C">Organizer C</option>
+                            </select>
+                            <span>><</span>
+                            <select id="swap-select-2" style="min-width: 140px;">
+                                <option value="A">Organizer A</option>
+                                <option value="B">Organizer B</option>
+                                <option value="C">Organizer C</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p style="text-align: right; ">Move Individual Panels by Rightclicking Panel Header&nbsp;&nbsp;&nbsp;&nbsp;</p>
+                </div>
+            </div>
+
+            <!-- Section 6: Data Management -->
+            <div class="settings-section">
+                <div class="data-controls"
+                    style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
+                    <p style="margin: 0;">&nbsp;Save your current setup / Load setup:</p>
+                    <div class="data-buttons" style="display: flex; gap: 10px;">
+                        <button type="button" id="export-data-btn" class="settings-btn-item">Export Data</button>
+                        <button type="button" id="import-data-btn" class="settings-btn-item">Import Data</button>
+                    </div>
+                </div>
+                <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
 
             <div class="settings-footer" style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-bottom: 10px;">
