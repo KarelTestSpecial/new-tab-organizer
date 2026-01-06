@@ -327,6 +327,16 @@ body {
 #settings-panel select {
     width: 100%;
     padding: 8px;
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+}
+
+[data-theme="dark"] #settings-panel select {
+    background-color: #444 !important;
+    color: #eee !important;
+    border-color: #666 !important;
 }
 
 /* Settings Button Styles */
@@ -336,6 +346,29 @@ body {
     justify-content: flex-start;
 }
 
+#save-settings-btn,
+#close-settings-btn {
+    background-color: var(--accent-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+[data-theme="dark"] #save-settings-btn,
+[data-theme="dark"] #close-settings-btn {
+    background-color: #444 !important;
+    color: #eee !important;
+    border-color: #666 !important;
+}
+
+#save-settings-btn:hover,
+#close-settings-btn:hover {
+    filter: brightness(90%);
+}
+
 .settings-btn-item {
     background-color: var(--accent-color);
     border: 1px solid #ccc;
@@ -343,6 +376,12 @@ body {
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
+}
+
+[data-theme="dark"] .settings-btn-item {
+    background-color: #444 !important;
+    color: #eee !important;
+    border-color: #666 !important;
 }
 
 .settings-btn-item:hover {
