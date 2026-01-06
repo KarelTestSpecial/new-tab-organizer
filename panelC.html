@@ -67,21 +67,19 @@
                     <button type="button" id="year-toggle-btn" class="settings-btn-item" style="flex: 1;">Show
                         Year</button>
                 </div>
-                <!-- Row 2: Date Font Size + Sidebar Folder -->
+                <!-- Row 2: Sidebar Folder + Date Font Size -->
                 <div class="form-group inline-section"
                     style="display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%;">
-                    <div style="flex: 1; display: flex; align-items: center; gap: 10px;">
-                        <label for="date-font-size-slider" style="margin:0; font-weight:bold; white-space: nowrap;">Date
-                            Font Size:</label>
-                        <input type="range" id="date-font-size-slider" min="8" max="18" step="1"
-                            style="flex-grow: 1; cursor: pointer;">
-                        <span id="date-font-size-value" style="min-width: 35px; text-align: right;">11px</span>
-                    </div>
-                    <div class="sidebar-selector"
-                        style="display: flex; align-items: center; gap: 10px; margin-left: 20px;">
+                    <div class="sidebar-selector" style="display: flex; align-items: center; gap: 10px;">
                         <select id="sidebar-folder-select" style="min-width: 150px;">
                             <option value="">--Select a folder--</option>
                         </select>
+                    </div>
+                    <div style="flex: 1; display: flex; align-items: center; gap: 10px; margin-left: 20px;">
+                        <label for="date-font-size-slider" style="margin:0; font-weight:bold; white-space: nowrap;">Date Font Size:</label>
+                        <input type="range" id="date-font-size-slider" min="8" max="18" step="1"
+                            style="flex-grow: 1; cursor: pointer;">
+                        <span id="date-font-size-value" style="min-width: 35px; text-align: right;">11px</span>
                     </div>
                 </div>
             </div>
