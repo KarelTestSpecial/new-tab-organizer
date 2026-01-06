@@ -331,6 +331,56 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.tabs.create({ url: 'chrome://history' });
     });
 
+    // --- Delete Folder Modal Logic ---
+    const deleteFolderModal = document.getElementById('delete-folder-modal');
+    const deleteFolderForm = document.getElementById('delete-folder-form');
+    const deleteFolderName = document.getElementById('delete-folder-name');
+    const deleteConfirmInput = document.getElementById('delete-folder-confirmation-input');
+    const confirmDeleteBtn = document.getElementById('confirm-delete-folder-btn');
+    let panelIdToDelete = null;
+    let folderNameToConfirm = '';
+
+    window.showDeleteFolderModal = (panelId, folderName) => {
+        panelIdToDelete = panelId;
+        folderNameToConfirm = folderName;
+        deleteFolderName.textContent = folderName;
+        deleteConfirmInput.value = '';
+        confirmDeleteBtn.disabled = true;
+        deleteFolderModal.classList.remove('hidden');
+        deleteConfirmInput.focus();
+    };
+
+    deleteConfirmInput.addEventListener('input', () => {
+        confirmDeleteBtn.disabled = deleteConfirmInput.value.trim() !== folderNameToConfirm;
+    });
+
+    deleteFolderModal.querySelector('.cancel-btn').addEventListener('click', () => {
+        deleteFolderModal.classList.add('hidden');
+    });
+
+    deleteFolderForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (deleteConfirmInput.value.trim() !== folderNameToConfirm) {
+            alert('The folder name does not match. Deletion cancelled.');
+            return;
+        }
+
+        const panelEl = document.querySelector(`.panel[data-id='${panelIdToDelete}']`);
+        if (panelEl && panelEl.dataset.folderId) {
+            chrome.bookmarks.removeTree(panelEl.dataset.folderId, () => {
+                if (chrome.runtime.lastError) {
+                    console.error(chrome.runtime.lastError);
+                    alert(`Error deleting bookmark folder: ${chrome.runtime.lastError.message}`);
+                } else {
+                    panelEl.remove();
+                    saveState();
+                    alert(`Folder "${folderNameToConfirm}" has been deleted.`);
+                }
+            });
+        }
+        deleteFolderModal.classList.add('hidden');
+    });
+
     // --- Undo Logic ---
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
