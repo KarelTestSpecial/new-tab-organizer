@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function populateFolderDropdowns() {
         getBookmarkFolders(folders => {
-            sidebarFolderSelect.innerHTML = '<option value="">--Select a folder--</option>';
+            sidebarFolderSelect.innerHTML = '<option value="">Select a Sidebar Folder</option>';
             folders.forEach(folder => {
                 if (folder.id === '0') return;
                 const option = document.createElement('option');
