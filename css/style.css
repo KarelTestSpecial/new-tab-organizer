@@ -315,6 +315,10 @@ body {
     border-bottom: none;
 }
 
+.settings-section:first-of-type {
+    margin-top: 15px;
+}
+
 #settings-panel label {
     display: block;
     margin-bottom: 5px;
