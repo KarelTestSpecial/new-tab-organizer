@@ -64,13 +64,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const startupCheckB = document.getElementById('startup-check-B');
     const startupCheckC = document.getElementById('startup-check-C');
 
+    // Bookmark Sorting Elements
+    const sortRecursivelyCheckbox = document.getElementById('sort-recursively-checkbox');
+    const sortOrderRadios = document.querySelectorAll('input[name="sort-order"]');
+    const sortBookmarksBtn = document.getElementById('sort-bookmarks-btn');
+
     // Color Pickers
     const primaryColorPicker = document.getElementById('primary-color-picker');
     const bgColorPicker = document.getElementById('bg-color-picker');
     const textColorPicker = document.getElementById('text-color-picker');
     const accentColorPicker = document.getElementById('accent-color-picker');
-    const advancedColorToggle = document.getElementById('advanced-color-toggle');
-    const advancedColorPickers = document.getElementById('advanced-color-pickers');
 
     let tempSettings = {};
 
@@ -143,10 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Color Picker Logic
-    advancedColorToggle.addEventListener('click', () => {
-        advancedColorPickers.classList.toggle('hidden');
-    });
-
     primaryColorPicker.addEventListener('input', () => {
         const primaryColor = primaryColorPicker.value;
         tempSettings.primaryColor = primaryColor;
@@ -206,6 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebarBg: tempSettings.sidebarBg,
             textColor: textColorPicker.value,
             accentColor: accentColorPicker.value,
+            sortRecursively: sortRecursivelyCheckbox.checked,
+            sortOrder: document.querySelector('input[name="sort-order"]:checked').value,
         };
         chrome.storage.local.set({ settings: settingsToSave }, () => {
             console.log('Settings saved');
@@ -213,6 +214,22 @@ document.addEventListener('DOMContentLoaded', () => {
             applySettings(settingsToSave);
         });
     }
+
+    sortBookmarksBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to sort the bookmarks on your bookmark bar? This action cannot be undone.')) {
+            const sortOptions = {
+                recursive: sortRecursivelyCheckbox.checked,
+                sortOrder: document.querySelector('input[name="sort-order"]:checked').value,
+            };
+            sortBookmarksOnBookmarkBar(sortOptions, () => {
+                alert('Bookmark bar has been sorted!');
+                // Optionally, refresh sidebar bookmarks if they are from the bookmark bar
+                if (tempSettings.sidebarFolderId === '1') {
+                    loadSidebarBookmarks(tempSettings.sidebarFolderId);
+                }
+            });
+        }
+    });
 
     function loadSettings() {
         chrome.storage.local.get('settings', data => {
@@ -234,6 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 sidebarBg: currentSettings.sidebarBg || '#ffffff',
                 textColor: currentSettings.textColor || '#1c1e21',
                 accentColor: currentSettings.accentColor || '#e0e0e0',
+                sortRecursively: typeof currentSettings.sortRecursively === 'boolean' ? currentSettings.sortRecursively : false,
+                sortOrder: currentSettings.sortOrder || 'mixed',
             };
 
             updateButtonText();
@@ -255,6 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
             bgColorPicker.value = tempSettings.bgColor;
             textColorPicker.value = tempSettings.textColor;
             accentColorPicker.value = tempSettings.accentColor;
+
+            // Set bookmark sorting controls
+            sortRecursivelyCheckbox.checked = tempSettings.sortRecursively;
+            document.querySelector(`input[name="sort-order"][value="${tempSettings.sortOrder}"]`).checked = true;
 
             applySettings({ ...tempSettings, dateFontSize: `${numericSize}px` });
         });

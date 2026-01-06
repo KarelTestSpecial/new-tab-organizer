@@ -115,6 +115,20 @@ function createPanel(panelState, onStateChange) {
             menu.appendChild(item);
         });
 
+        if (panel.dataset.type === 'bookmarks') {
+            const deleteItem = document.createElement('div');
+            deleteItem.className = 'context-menu-item';
+            deleteItem.textContent = 'Delete Folder...';
+            deleteItem.addEventListener('click', () => {
+                // This function will be created in the next step
+                if (window.showDeleteFolderModal) {
+                    window.showDeleteFolderModal(id, title);
+                }
+                menu.remove();
+            });
+            menu.appendChild(deleteItem);
+        }
+
         // Position the menu
         menu.style.top = `${e.clientY}px`;
         menu.style.left = `${e.clientX}px`;
