@@ -149,15 +149,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const bookmarksForm = document.getElementById('add-bookmarks-panel-form');
     const panelFolderSelect = document.getElementById('panel-folder-select');
 
-    getBookmarkFolders(folders => {
-        folders.forEach(folder => {
-            if (folder.id === '0') return;
-            const option = document.createElement('option');
-            option.value = folder.id;
-            option.textContent = folder.title;
-            panelFolderSelect.appendChild(option.cloneNode(true));
+    function populateBookmarkFolderDropdown() {
+        const currentFolder = panelFolderSelect.value;
+        getBookmarkFolders(folders => {
+            panelFolderSelect.innerHTML = '<option value="">--Select a folder--</option>';
+            folders.forEach(folder => {
+                if (folder.id === '0') return;
+                const option = document.createElement('option');
+                option.value = folder.id;
+                option.textContent = folder.title;
+                panelFolderSelect.appendChild(option);
+            });
+            panelFolderSelect.value = currentFolder;
         });
-    });
+    }
+
+    populateBookmarkFolderDropdown();
+
+    // --- Bookmark Change Listener for Auto-Refresh ---
+    const bookmarkChangeListener = () => {
+        // This is a simple way to refresh. It could be more targeted.
+        // For example, check if the changed node is a folder.
+        populateBookmarkFolderDropdown();
+    };
+
+    chrome.bookmarks.onCreated.addListener(bookmarkChangeListener);
+    chrome.bookmarks.onRemoved.addListener(bookmarkChangeListener);
+    chrome.bookmarks.onChanged.addListener(bookmarkChangeListener);
+    chrome.bookmarks.onMoved.addListener(bookmarkChangeListener);
+
 
     const addPanelToContainer = (panelEl, position) => {
         if (position === 'top') {
@@ -198,6 +218,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     addBookmarksModal.querySelector('.cancel-btn').addEventListener('click', () => {
         addBookmarksModal.classList.add('hidden');
+    });
+
+    document.getElementById('sort-bookmarks-popup-btn').addEventListener('click', () => {
+        if (confirm('Are you sure you want to sort the bookmarks on your bookmark bar? This action cannot be undone.')) {
+            chrome.storage.local.get('settings', (data) => {
+                const settings = data.settings || {};
+                const sortOptions = {
+                    recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
+                    sortOrder: settings.sortOrder || 'mixed',
+                };
+                sortBookmarksOnBookmarkBar(sortOptions, () => {
+                    alert('Bookmark bar has been sorted!');
+                    // Also refresh the folder dropdown in case folder names were sorted
+                    populateBookmarkFolderDropdown();
+                });
+            });
+        }
     });
 
     notesForm.addEventListener('submit', (e) => {
