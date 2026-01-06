@@ -74,8 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const bgColorPicker = document.getElementById('bg-color-picker');
     const textColorPicker = document.getElementById('text-color-picker');
     const accentColorPicker = document.getElementById('accent-color-picker');
-    const advancedColorToggle = document.getElementById('advanced-color-toggle');
-    const advancedColorPickers = document.getElementById('advanced-color-pickers');
 
     let tempSettings = {};
 
@@ -148,10 +146,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Color Picker Logic
-    advancedColorToggle.addEventListener('click', () => {
-        advancedColorPickers.classList.toggle('hidden');
-    });
-
     primaryColorPicker.addEventListener('input', () => {
         const primaryColor = primaryColorPicker.value;
         tempSettings.primaryColor = primaryColor;

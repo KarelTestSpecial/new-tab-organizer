@@ -98,22 +98,21 @@
 
             <!-- Section 3: Colors -->
             <div class="settings-section">
-                <div class="color-picker-group">
-                    <label for="primary-color-picker">Primary Color:</label>
-                    <input type="color" id="primary-color-picker">
-                    <button id="advanced-color-toggle">Advanced</button>
-                </div>
-                <div id="advanced-color-pickers" class="hidden">
+                <div class="move-controls-grid">
                     <div class="color-picker-group">
-                        <label for="bg-color-picker">Background Color:</label>
+                        <label for="primary-color-picker" style="margin-bottom: 0;">Primary Color:</label>
+                        <input type="color" id="primary-color-picker">
+                    </div>
+                    <div class="color-picker-group">
+                        <label for="bg-color-picker" style="margin-bottom: 0;">Background Color:</label>
                         <input type="color" id="bg-color-picker">
                     </div>
                     <div class="color-picker-group">
-                        <label for="text-color-picker">Text Color:</label>
+                        <label for="text-color-picker" style="margin-bottom: 0;">Text Color:</label>
                         <input type="color" id="text-color-picker">
                     </div>
                     <div class="color-picker-group">
-                        <label for="accent-color-picker">Accent Color:</label>
+                        <label for="accent-color-picker" style="margin-bottom: 0;">Accent Color:</label>
                         <input type="color" id="accent-color-picker">
                     </div>
                 </div>
@@ -155,25 +154,24 @@
 
             <!-- Section 5: Bookmark Sorting -->
             <div class="settings-section">
-                <div style="display: flex; flex-direction: column; gap: 10px;">
-                    <h2 style="margin-bottom: 5px;">Sort Bookmarks on Bookmark Bar</h2>
-                    <div class="form-group" style="display: flex; flex-direction: column; gap: 8px; margin-left: 10px;">
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
+                    <button type="button" id="sort-bookmarks-btn" class="settings-btn-item" style="flex-shrink: 0;">Sort Bookmark Bar</button>
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 0; flex-grow: 1;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
                             <input type="checkbox" id="sort-recursively-checkbox">
                             Sort content of subfolders as well
                         </label>
-                        <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 5px;">
-                            <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
                                 <input type="radio" name="sort-order" value="mixed" checked>
-                                Sort folders and bookmarks alphabetically mixed
+                                Mixed sort
                             </label>
-                            <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
                                 <input type="radio" name="sort-order" value="foldersFirst">
-                                Sort folders first (alphabetically), then bookmarks (alphabetically)
+                                Folders first
                             </label>
                         </div>
                     </div>
-                    <button type="button" id="sort-bookmarks-btn" class="settings-btn-item" style="align-self: flex-start; margin-top: 5px;">Sort Bookmark Bar</button>
                 </div>
             </div>
 
