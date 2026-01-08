@@ -564,10 +564,6 @@ body {
     padding: 0 5px;
 }
 
-.delete-btn:hover {
-    color: #333;
-}
-
 .card {
     position: relative;
 }
