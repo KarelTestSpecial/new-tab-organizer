@@ -775,6 +775,98 @@ document.addEventListener('DOMContentLoaded', () => {
             saveState();
         },
     });
+
+    // --- Dynamic Sidebar Adjustment ---
+    function adjustSidebarWidth() {
+        requestAnimationFrame(() => {
+            const sidebar = document.getElementById('sidebar');
+            const panelsContainer = document.getElementById('panels-container');
+            if (!sidebar || !panelsContainer) return;
+
+            // Updated User Constraints
+            const minSidebar = 142; // User set this manually
+            const maxSidebar = 225; // Soft target
+            const absoluteMaxSidebar = 280; // Hard cap
+
+            const panelWidth = 300;
+            const gap = 10;
+            const basePadding = 10; // CSS default padding
+            const scrollbarBuffer = 12;
+
+            const windowWidth = window.innerWidth;
+
+            // 1. Calculate MAX columns possible with the NARROWEST sidebar
+            // Available = Total - MinSidebar - (LeftPad + RightPad) - Scrollbar
+            const availableForContentAtMin = windowWidth - minSidebar - (basePadding * 2) - scrollbarBuffer;
+            
+            let cols = Math.floor((availableForContentAtMin + gap) / (panelWidth + gap));
+            cols = Math.max(1, cols);
+
+            // 2. Calculate the exact width strictly needed for these columns
+            const requiredPanelWidth = cols * panelWidth + (cols - 1) * gap;
+
+            // 3. Calculate TOTAL remaining space
+            // This is the pool of pixels we can distribute
+            let totalExcessSpace = windowWidth - requiredPanelWidth - minSidebar - (basePadding * 2) - scrollbarBuffer;
+
+            if (totalExcessSpace < 0) totalExcessSpace = 0;
+
+            // 4. Distribute space logic (4-way split)
+            // Weights:
+            // Sidebar: 40%
+            // Gap Left (Padding Left): 16%
+            // Gap between panels: 10%
+            // Right Margin: 34% (implicit via paddingRight)
+            
+            let sidebarExtra = totalExcessSpace * 0.40;
+            let paddingLeftExtra = totalExcessSpace * 0.16;
+            let gapExtraPool = totalExcessSpace * 0.10;
+            let paddingRightExtra = totalExcessSpace * 0.34;
+
+            // Calculate new Sidebar Width
+            let targetSidebarWidth = minSidebar + sidebarExtra;
+
+            // Soft Limit Logic for Sidebar
+            if (targetSidebarWidth > maxSidebar) {
+                const excess = targetSidebarWidth - maxSidebar;
+                targetSidebarWidth = maxSidebar + (excess * 0.3);
+            }
+            if (targetSidebarWidth > absoluteMaxSidebar) {
+                targetSidebarWidth = absoluteMaxSidebar;
+            }
+
+            // Calculate new Padding Left
+            const targetPaddingLeft = basePadding + paddingLeftExtra;
+
+            // Calculate new Gap between panels
+            let targetGap = gap;
+            if (cols > 1) {
+                targetGap = gap + (gapExtraPool / (cols - 1));
+            }
+
+            // Calculate Padding Right
+            const targetPaddingRight = basePadding + paddingRightExtra;
+
+            // Apply styles
+            sidebar.style.width = `${targetSidebarWidth}px`;
+            sidebar.style.minWidth = `${targetSidebarWidth}px`;
+            sidebar.style.flexBasis = `${targetSidebarWidth}px`;
+            sidebar.style.maxWidth = 'none';
+
+            panelsContainer.style.paddingLeft = `${targetPaddingLeft}px`;
+            panelsContainer.style.paddingRight = `${targetPaddingRight}px`;
+            panelsContainer.style.columnGap = `${targetGap}px`;
+            panelsContainer.style.rowGap = `${gap}px`; // Keep vertical gap constant
+        });
+    }
+
+    // Initialize and Listen
+    // Run immediately and on resize
+    adjustSidebarWidth();
+    window.addEventListener('resize', adjustSidebarWidth);
+    
+    // Also run after a short delay to catch any layout shifts after CSS load
+    setTimeout(adjustSidebarWidth, 100);
 });
 
 // --- Functions called by settings_logic.js ---

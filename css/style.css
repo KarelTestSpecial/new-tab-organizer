@@ -8,6 +8,11 @@
     --button-text-color: #1c1e21;
 }
 
+/* Global Box Sizing Reset */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 /* General Body Styling */
 body {
     font-family: sans-serif;
@@ -62,7 +67,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 8px;
+    padding: 0 0 0 8px; /* No right padding */
     margin-bottom: 10px;
 }
 
@@ -184,8 +189,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     align-items: flex-start; /* Align panels to the top */
-    padding: 15px;
-    gap: 15px;
+    padding: 10px;
+    gap: 10px;
 }
 
 .panel {
@@ -222,7 +227,7 @@ body {
     align-items: center;
     padding: 9px 15px;
     border-bottom: 1px solid var(--border-color);
-    gap: 10px;
+    gap: 8px;
 }
 
 .panel-header.drag-handle {
@@ -231,7 +236,7 @@ body {
 
 .panel-header h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
 }
 
 .panel-actions {
@@ -254,8 +259,9 @@ body {
     color: #333;
 }
 
-.cards-container {
-    padding: 10px;
+.cards-container,
+.bookmark-panel-container {
+    padding: 8px;
     transition: background-color 0.2s;
 }
 
@@ -265,23 +271,65 @@ body {
     background-color: #e7f3ff; /* Highlight drop zone */
 }
 
-/* Cards */
-.card {
+/* Cards & Bookmarks Shared Styles */
+.card,
+.bookmark-item {
+    display: flex;
+    align-items: center;
     background-color: var(--panel-bg);
-    border: 1px solid #ccd0d5;
-    border-radius: 4px;
-    padding: 10px;
-    margin-bottom: 8px;
+    border-radius: 2px;
+    margin: 0px;
+    min-height: 18px; /* Consistent height */
+    position: relative;
+}
+
+.card {
+    border: none;
+    padding: 0; /* Inner p handles padding */
     cursor: grab;
 }
 
-.card p {
+.card p,
+.bookmark-item .bookmark-link {
+    flex-grow: 1;
     margin: 0;
-    font-size: 11px;
+    padding: 4px 2px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: var(--text-color);
+    text-decoration: none;
+    display: block;
+    word-break: break-word; /* Prevent overflow */
 }
 
 .card.dragging {
     opacity: 0.5;
+}
+
+/* Fix: Bring focused or hovered card to front so outline isn't hidden by neighbors */
+.card:hover,
+.card:focus-within {
+    z-index: 10;
+    outline: 2px solid white;
+    outline-offset: -1px; /* Slight inset to ensure it's within bounds */
+    border-radius: 2px;
+}
+
+/* Image Card Specifics */
+.card.image-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding-bottom: 4px; /* Add a little bottom spacing */
+}
+
+.card.image-card img {
+    max-width: 100%;
+    display: block;
+    border-radius: 4px 4px 0 0;
+}
+
+.card.image-card p {
+    flex-grow: 0; /* Text doesn't need to grow in column mode */
 }
 
 
@@ -474,11 +522,8 @@ body {
 }
 
 .bookmark-item {
-    display: flex;
     justify-content: space-between;
-    align-items: center;
-    border-radius: 4px;
-    margin: 2px 0;
+    /* margin, border-radius, align-items handled in shared block */
 }
 
 .bookmark-item:hover {
@@ -486,11 +531,7 @@ body {
 }
 
 .bookmark-item .bookmark-link {
-    flex-grow: 1;
-    text-decoration: none;
-    color: var(--text-color);
-    padding: 6px 8px;
-    border-radius: 4px;
+    /* padding, color, flex-grow handled in shared block */
 }
 
 .bookmark-actions {
@@ -589,7 +630,8 @@ body {
 .sidebar-view-nav a {
     color: inherit;
     text-decoration: none;
-    padding: 4px 8px;
+    padding: 4px 0; /* Original height */
+    min-width: 20px; /* Narrower width */
     border-radius: 4px;
     text-align: center;
 }
