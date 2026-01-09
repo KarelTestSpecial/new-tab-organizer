@@ -150,19 +150,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const panelFolderSelect = document.getElementById('panel-folder-select');
 
     function populateBookmarkFolderDropdown() {
-        const currentFolder = panelFolderSelect.value;
-        getBookmarkFolders(folders => {
-            panelFolderSelect.innerHTML = '<option value="">--Select a folder--</option>';
-            folders.forEach(folder => {
-                if (folder.id === '0') return;
-                const option = document.createElement('option');
-                option.value = folder.id;
-                option.textContent = folder.title;
-                panelFolderSelect.appendChild(option);
+        chrome.storage.local.get('settings', (data) => {
+            const settings = data.settings || {};
+            // Default to '1' (Bookmark Bar) if not set
+            const targetRootId = settings.rootFolderId || '1';
+            
+            getSubFolders(targetRootId, folders => {
+                panelFolderSelect.innerHTML = '<option value="">--Select folders (Ctrl+Click)--</option>';
+                folders.forEach(folder => {
+                    const option = document.createElement('option');
+                    option.value = folder.id;
+                    option.textContent = folder.title;
+                    panelFolderSelect.appendChild(option);
+                });
             });
-            panelFolderSelect.value = currentFolder;
         });
     }
+    window.populateBookmarkFolderDropdown = populateBookmarkFolderDropdown;
 
     populateBookmarkFolderDropdown();
 
@@ -225,20 +229,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('sort-bookmarks-popup-btn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to sort the bookmarks on your ACTUAL bookmark bar? This action cannot be undone.')) {
-            chrome.storage.local.get('settings', (data) => {
-                const settings = data.settings || {};
+        chrome.storage.local.get('settings', (data) => {
+            const settings = data.settings || {};
+            const rootId = settings.rootFolderId || '1';
+            
+            if (confirm('Are you sure you want to sort the bookmarks in your selected Root folder? This action cannot be undone.')) {
                 const sortOptions = {
                     recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
                     sortOrder: settings.sortOrder || 'mixed',
                 };
-                sortBookmarksOnBookmarkBar(sortOptions, () => {
-                    alert('Bookmark bar has been sorted!');
+                sortBookmarksInFolder(rootId, sortOptions, () => {
+                    alert('Root folder has been sorted!');
                     // Also refresh the folder dropdown in case folder names were sorted
                     populateBookmarkFolderDropdown();
                 });
-            });
-        }
+            }
+        });
     });
 
     notesForm.addEventListener('submit', (e) => {
@@ -260,21 +266,30 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const position = bookmarksForm.elements['bookmarks-position'].value;
         chrome.storage.local.set({ bookmarksPanelPosition: position });
-        const folderId = panelFolderSelect.value;
-        if (!folderId) {
-            alert('Please select a bookmark folder.');
+        
+        const selectedOptions = Array.from(panelFolderSelect.selectedOptions);
+        const folderIds = selectedOptions.map(opt => opt.value).filter(val => val !== "");
+
+        if (folderIds.length === 0) {
+            alert('Please select at least one bookmark folder.');
             return;
         }
-        const title = panelFolderSelect.options[panelFolderSelect.selectedIndex].text;
-        const newPanelState = {
-            id: `panel-${Date.now()}`,
-            title: title,
-            type: 'bookmarks',
-            folderId: folderId,
-            cards: []
-        };
-        const panelEl = createPanel(newPanelState, saveState);
-        addPanelToContainer(panelEl, position);
+
+        folderIds.forEach((fId, index) => {
+            const title = selectedOptions.find(o => o.value === fId).text;
+            // Add a slight delay to ensure unique IDs if processing is super fast, though Date.now() usually suffices.
+            // Or just append index to ID.
+            const newPanelState = {
+                id: `panel-${Date.now()}-${index}`,
+                title: title,
+                type: 'bookmarks',
+                folderId: fId,
+                cards: []
+            };
+            const panelEl = createPanel(newPanelState, saveState);
+            addPanelToContainer(panelEl, position);
+        });
+
         addBookmarksModal.classList.add('hidden');
     });
 
@@ -663,7 +678,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Clock and Date ---
+    // --- Clock, Date and Battery ---
+    function updateBattery() {
+        const batteryElement = document.getElementById('battery');
+        if (navigator.getBattery) {
+            navigator.getBattery().then(battery => {
+                function displayBattery() {
+                    const level = Math.round(battery.level * 100);
+                    const isCharging = battery.charging;
+                    batteryElement.textContent = `${level}%${isCharging ? ' ⚡' : ''}`;
+                }
+                displayBattery();
+                battery.addEventListener('levelchange', displayBattery);
+                battery.addEventListener('chargingchange', displayBattery);
+            });
+        } else {
+            batteryElement.style.display = 'none';
+        }
+    }
+
     function updateClock() {
         const now = new Date();
         document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -679,6 +712,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateElement = document.getElementById('date');
         dateElement.textContent = now.toLocaleDateString([], dateOptions);
         dateElement.style.fontSize = window.currentDateSettings.fontSize;
+        
+        const batteryElement = document.getElementById('battery');
+        if (batteryElement) {
+            batteryElement.style.fontSize = window.currentDateSettings.fontSize;
+        }
+        
+        updateBattery();
     }
 
     // --- View Navigation ---
@@ -1004,8 +1044,13 @@ function applySettings(settings) {
 
     const clockElement = document.getElementById('clock');
     const dateElement = document.getElementById('date');
+    const batteryElement = document.getElementById('battery');
     if (clockElement) clockElement.style.display = settings.showClock ? 'block' : 'none';
     if (dateElement) dateElement.style.display = settings.showDate ? 'block' : 'none';
+    if (batteryElement) {
+        batteryElement.style.display = settings.showBattery ? 'block' : 'none';
+        batteryElement.style.fontSize = settings.dateFontSize || '11px';
+    }
 
     // Update global date settings
     window.currentDateSettings = {

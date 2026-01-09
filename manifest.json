@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NewTab Startpage Organizer Dashboard",
-  "version": "2.5.1",
+  "version": "2.7",
   "description": "A customizable startpage with your bookmarks, notes, todo lists, kanban boards and more.",
   "permissions": [
     "bookmarks",

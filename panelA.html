@@ -15,6 +15,7 @@
             <div id="sidebar-header">
                 <div id="clock"></div>
                 <div id="date"></div>
+                <div id="battery"></div>
             </div>
             <div class="sidebar-actions">
                 <div class="sidebar-actions-group">
@@ -68,19 +69,18 @@
                     <button type="button" id="year-toggle-btn" class="settings-btn-item" style="flex: 1;">Show
                         Year</button>
                 </div>
-                <!-- Row 2: Sidebar Folder + Date Font Size -->
                 <div class="form-group inline-section"
-                    style="display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%; margin-bottom: 0;">
-                    <div class="sidebar-selector" style="display: flex; align-items: center; gap: 10px;">
-                        <select id="sidebar-folder-select" style="min-width: 150px;">
+                    style="display: flex; align-items: center; justify-content: flex-start; gap: 15px; width: 100%; margin-bottom: 0;">
+                    <div class="sidebar-selector" style="display: flex; align-items: center; gap: 5px;">
+                        <select id="sidebar-folder-select" style="min-width: 180px;">
                             <option value="">Select a Sidebar Folder</option>
                         </select>
                     </div>
-                    <div style="flex: 1; display: flex; align-items: center; gap: 10px; margin-left: 25px;">
-                        <label for="date-font-size-slider" style="margin:0; white-space: nowrap;">Date Font Size:</label>
+                    <div style="display: flex; align-items: center; gap: 8px; width: 190px;">
+                        <label for="date-font-size-slider" style="margin:0; white-space: nowrap; font-size: 0.8rem;">Date Size:</label>
                         <input type="range" id="date-font-size-slider" min="8" max="18" step="1"
                             style="flex-grow: 1; cursor: pointer;">
-                        <span id="date-font-size-value" style="min-width: 30px; text-align: right;">11px</span>
+                        <span id="date-font-size-value" style="min-width: 25px; text-align: right; font-size: 0.8rem;">11px</span>
                     </div>
                 </div>
             </div>
@@ -106,36 +106,38 @@
                 </div>
             </div>
 
-            <!-- Section 3: Import Bookmarks & Theme -->
+            <!-- Section 3: Bookmarks -->
             <div class="settings-section">
-                <div class="inline-section"
-                    style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
-                    <button type="button" id="import-all-bookmarks-btn" class="settings-btn-item">Import All
-                        Bookmarks into Organizer A</button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="font-size: 0.8rem; color: var(--text-color); opacity: 0.9;">
+                        Select the bookmark root folder
+                    </div>
+                    <div class="root-folder-selector" style="display: flex; align-items: center; gap: 5px;">
+                        <label for="extension-root-folder-select" style="margin:0; font-size: 0.8rem;">Root:</label>
+                        <select id="extension-root-folder-select" style="min-width: 120px;">
+                            <option value="1">Bookmark Bar</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
+                
+                <div style="display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px;">
+                    <button type="button" id="sort-bookmarks-btn" class="settings-btn-item" style="font-size: 0.8rem;">Sort Root</button>
+                    <button type="button" id="import-all-bookmarks-btn" class="settings-btn-item" style="font-size: 0.8rem;">Import All Bookmark Folders from Root</button>
+                </div>
 
-            <!-- Section 4: Bookmark Sorting -->
-            <div class="settings-section">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px;">
-                    <button type="button" id="sort-bookmarks-btn" class="settings-btn-item" style="flex-shrink: 0;">Sort Bookmark Bar</button>
-                    <div class="form-group" style="display: flex; flex-direction: row; gap: 40px; margin-bottom: 0; flex-grow: 1;">
-                        <div style="display: flex; flex-direction: column; gap: 5px;">
-                            <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
-                                <input type="radio" name="sort-order" value="mixed" checked>
-                                Mixed sort
-                            </label>
-                            <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
-                                <input type="radio" name="sort-order" value="foldersFirst">
-                                Folders first
-                            </label>
-                        </div>
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; margin-bottom: 0;">
-                            <input type="checkbox" id="sort-recursively-checkbox">
-                            Sort content of subfolders as well
+                <!-- Sorting Options Row -->
+                <div style="display: flex; align-items: center; gap: 30px; font-size: 0.85rem;">
+                    <div style="display: flex; gap: 15px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="sort-order" value="mixed" checked> mixed sort
+                        </label>
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="radio" name="sort-order" value="foldersFirst"> 'folder first' sort
                         </label>
                     </div>
+                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <input type="checkbox" id="sort-recursively-checkbox"> Sort subfolders as well
+                    </label>
                 </div>
             </div>
 
@@ -143,7 +145,7 @@
             <div class="settings-section">
                 <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%;">
-                        <button id="swap-organizers-btn" class="settings-btn-item">Swap content between</button>
+                        <button id="swap-organizers-btn" class="settings-btn-item" style="font-size: 0.8rem;">Swap content between</button>
                         <div class="swap-controls" style="display: flex; align-items: center; gap: 5px;">
                             <select id="swap-select-1" style="min-width: 140px;">
                                 <option value="A">Organizer A</option>
@@ -166,12 +168,16 @@
             <div class="settings-section">
                 <div class="data-controls"
                     style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
-                    <p style="margin: 0;">&nbsp;Save your current setup / Load setup:</p>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
+                        <button type="button" id="battery-toggle-btn" class="settings-btn-item">Show Battery</button>
+                    </div>
                     <div class="data-buttons" style="display: flex; gap: 10px;">
                         <button type="button" id="export-data-btn" class="settings-btn-item">Export Data</button>
                         <button type="button" id="import-data-btn" class="settings-btn-item">Import Data</button>
                     </div>
                 </div>
+                <p style="margin: 5px 0 0 0; text-align: right; font-size: 0.8rem; opacity: 0.7;">Save your current setup / Load setup</p>
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
 
@@ -262,11 +268,11 @@
                             <label for="panel-folder-select" style="margin: 0;">Bookmark Folder</label>
                             <div style="display: flex; gap: 5px;">
                                 <button type="button" id="refresh-bookmark-folders-btn" class="settings-btn-item" style="padding: 2px 8px; font-size: 0.8rem;">Refresh Bookmark Bar</button>
-                                <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 2px 8px; font-size: 0.8rem;">Sort Bookmark Bar</button>
+                                <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 2px 8px; font-size: 0.8rem;">Sort Root Folder</button>
                             </div>
                         </div>
-                        <select id="panel-folder-select">
-                            <option value="">--Select a folder--</option>
+                        <select id="panel-folder-select" multiple size="5" style="padding: 5px;">
+                            <option value="">--Select folders (Ctrl+Click)--</option>
                         </select>
                     </div>
                     <div class="form-actions">

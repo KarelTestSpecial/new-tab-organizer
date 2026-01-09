@@ -32,6 +32,16 @@ function getBookmarksInFolder(folderId, callback) {
     });
 }
 
+function getSubFolders(parentId, callback) {
+    chrome.bookmarks.getChildren(parentId, (children) => {
+        const folders = (children || []).filter(node => !node.url);
+        callback(folders.map(node => ({
+            id: node.id,
+            title: node.title
+        })));
+    });
+}
+
 function deleteBookmark(id, callback) {
     chrome.bookmarks.remove(id, () => {
         if (callback) callback();
@@ -39,15 +49,14 @@ function deleteBookmark(id, callback) {
 }
 
 /**
- * Sorts the bookmarks on the bookmark bar based on provided options.
+ * Sorts the bookmarks in a specific folder based on provided options.
+ * @param {string} folderId - The ID of the folder to sort.
  * @param {object} options - The sorting options.
  * @param {boolean} options.recursive - Whether to sort subfolders as well.
  * @param {string} options.sortOrder - 'mixed' or 'foldersFirst'.
  * @param {function} callback - Function to call when sorting is complete.
  */
-function sortBookmarksOnBookmarkBar(options, callback) {
-    const bookmarkBarId = '1'; // The ID for the bookmark bar is always '1'
-
+function sortBookmarksInFolder(folderId, options, callback) {
     const sortChildrenOfNode = (nodeId, done) => {
         chrome.bookmarks.getChildren(nodeId, (children) => {
             if (!children) {
@@ -92,7 +101,7 @@ function sortBookmarksOnBookmarkBar(options, callback) {
         });
     };
 
-    sortChildrenOfNode(bookmarkBarId, callback);
+    sortChildrenOfNode(folderId, callback);
 }
 
 function moveBookmark(id, destination, callback) {

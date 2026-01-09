@@ -51,15 +51,21 @@ body {
 #clock {
     font-size: 28px;
     font-weight: bold;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
 }
 
 #date {
     font-size: 11px;
     color: #666;
+    margin-bottom: 3px;
 }
 
-[data-theme="dark"] #date {
+#battery {
+    font-size: 11px;
+    color: #666;
+}
+
+[data-theme="dark"] #date, [data-theme="dark"] #battery {
     color: #999;
 }
 
