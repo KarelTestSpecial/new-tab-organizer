@@ -340,13 +340,36 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 500px;
-    max-width: 90%;
+    max-width: 95%;
     background-color: var(--sidebar-bg);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 20px;
     z-index: 1000;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.settings-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 15px;
+    padding-bottom: 10px;
+}
+
+.startup-options {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+}
+
+.startup-options label {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 0 !important;
 }
 
 #settings-panel h2 {
@@ -399,10 +422,10 @@ body {
     background-color: var(--accent-color);
     color: var(--text-color);
     border: 1px solid var(--border-color);
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 [data-theme="dark"] #save-settings-btn,
@@ -420,10 +443,10 @@ body {
 .settings-btn-item {
     background-color: var(--accent-color);
     border: 1px solid #ccc;
-    padding: 8px 12px;
+    padding: 6px 10px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 [data-theme="dark"] .settings-btn-item {

@@ -51,7 +51,7 @@
             </div>
         </main>
         <div id="settings-panel" class="hidden">
-    <button id="settings-close-btn" class="settings-close-btn">&times;</button>
+    
 
             <!-- Section 1: Toggles (Sidebar Label) & Date Font Size/Sidebar Folder -->
             <div class="settings-section">
@@ -142,7 +142,7 @@
             <!-- Section 5: Swap Content (Reduced Padding) -->
             <div class="settings-section">
                 <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%;">
                         <button id="swap-organizers-btn" class="settings-btn-item">Swap content between</button>
                         <div class="swap-controls" style="display: flex; align-items: center; gap: 5px;">
                             <select id="swap-select-1" style="min-width: 140px;">
@@ -175,20 +175,20 @@
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
 
-            <div class="settings-footer" style="display: flex; align-items: center; justify-content: space-between; margin-top: 15px; padding-bottom: 10px;">
+            <div class="settings-footer">
                 <div style="display: flex; gap: 10px;">
                     <button id="save-settings-btn">Save and Close</button>
                     <button id="close-settings-btn">Cancel</button>
                 </div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <span style="font-size: 0.9rem;">Open on startup:</span>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 3px; font-size: 0.9rem;">
+                <div class="startup-options">
+                    <span>Open on startup:</span>
+                    <label>
                         <input type="checkbox" id="startup-check-A"> A
                     </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 3px; font-size: 0.9rem;">
+                    <label>
                         <input type="checkbox" id="startup-check-B"> B
                     </label>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 3px; font-size: 0.9rem;">
+                    <label>
                         <input type="checkbox" id="startup-check-C"> C
                     </label>
                 </div>

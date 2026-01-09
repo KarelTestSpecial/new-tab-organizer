@@ -9,8 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsBtn = document.getElementById('settings-btn');
     const closeBtn = document.getElementById('close-settings-btn');
     const saveBtn = document.getElementById('save-settings-btn');
-    const settingsCloseBtn = document.getElementById('settings-close-btn');
-
+    
     settingsBtn.addEventListener('click', () => {
         if (settingsPanel.classList.contains('hidden')) {
             settingsPanel.classList.remove('hidden');
@@ -25,7 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     closeBtn.addEventListener('click', closeSettingsPanel);
-    settingsCloseBtn.addEventListener('click', closeSettingsPanel);
+    
+    // Close settings on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !settingsPanel.classList.contains('hidden')) {
+            closeSettingsPanel();
+        }
+    });
 
     const sidebarFolderSelect = document.getElementById('sidebar-folder-select');
 
