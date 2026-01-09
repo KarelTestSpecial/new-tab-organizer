@@ -220,8 +220,12 @@ document.addEventListener('DOMContentLoaded', () => {
         addBookmarksModal.classList.add('hidden');
     });
 
+    document.getElementById('refresh-bookmark-folders-btn').addEventListener('click', () => {
+        populateBookmarkFolderDropdown();
+    });
+
     document.getElementById('sort-bookmarks-popup-btn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to sort the bookmarks on your bookmark bar? This action cannot be undone.')) {
+        if (confirm('Are you sure you want to sort the bookmarks on your ACTUAL bookmark bar? This action cannot be undone.')) {
             chrome.storage.local.get('settings', (data) => {
                 const settings = data.settings || {};
                 const sortOptions = {
