@@ -209,11 +209,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('quick-backup-btn').addEventListener('click', () => {
-        if (window.handleExport) {
-            window.handleExport(STORAGE_KEY);
-        } else {
-            alert('Could not perform export. Function not found.');
-        }
+        chrome.storage.local.get([STORAGE_KEY, 'settings'], (data) => {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `organizer-${CURRENT_VIEW}-backup.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        });
     });
 
     addNotesModal.querySelector('.cancel-btn').addEventListener('click', () => {
