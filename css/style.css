@@ -259,10 +259,53 @@ body {
     font-size: 20px;
     line-height: 1;
     padding: 0 5px;
+    border-radius: 3px;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .add-card-btn:hover {
     color: #333;
+}
+
+[data-theme="dark"] .add-card-btn:hover {
+    color: #ccc;
+}
+
+.delete-btn {
+    background: none;
+    border: none;
+    color: #90949c;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    padding: 0 5px;
+}
+
+.delete-btn:hover {
+    color: #333;
+}
+
+[data-theme="dark"] .delete-btn:hover {
+    color: #ccc;
+}
+
+.card {
+    position: relative;
+}
+
+[data-theme="dark"] .card-delete-btn:hover {
+    color: #ffffff;
+}
+
+.card .card-delete-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: none;
+}
+
+.card:hover .card-delete-btn {
+    display: block;
 }
 
 .cards-container,
@@ -628,31 +671,6 @@ body {
 
 .edit-form .cancel-edit-btn {
     background-color: #90949c;
-}
-
-.delete-btn {
-    background: none;
-    border: none;
-    color: #90949c;
-    cursor: pointer;
-    font-size: 20px;
-    line-height: 1;
-    padding: 0 5px;
-}
-
-.card {
-    position: relative;
-}
-
-.card .card-delete-btn {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    display: none;
-}
-
-.card:hover .card-delete-btn {
-    display: block;
 }
 
 .sidebar-view-nav {
