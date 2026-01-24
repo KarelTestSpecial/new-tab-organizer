@@ -259,10 +259,21 @@ body {
     font-size: 20px;
     line-height: 1;
     padding: 0 5px;
+    border-radius: 3px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.delete-btn:hover {
+    color: #f55;
+    background-color: rgba(128, 128, 128, 0.2);
 }
 
 .add-card-btn:hover {
     color: #333;
+}
+
+[data-theme="dark"] .add-card-btn:hover {
+    color: #ccc;
 }
 
 .cards-container,
@@ -653,12 +664,6 @@ body {
 
 .card:hover .card-delete-btn {
     display: block;
-}
-
-.card .card-delete-btn:hover {
-    color: red;
-    background-color: rgba(229, 229, 229, 0.8);
-    border-radius: 2px;
 }
 
 .sidebar-view-nav {
