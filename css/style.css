@@ -655,6 +655,12 @@ body {
     display: block;
 }
 
+.card .card-delete-btn:hover {
+    color: red;
+    background-color: rgba(229, 229, 229, 0.8);
+    border-radius: 2px;
+}
+
 .sidebar-view-nav {
     display: flex;
     flex-direction: row;
