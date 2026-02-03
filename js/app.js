@@ -149,6 +149,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const bookmarksForm = document.getElementById('add-bookmarks-panel-form');
     const panelFolderSelect = document.getElementById('panel-folder-select');
 
+    if (panelFolderSelect) {
+        panelFolderSelect.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const size = panelFolderSelect.size || 6;
+            const itemHeight = panelFolderSelect.clientHeight / size;
+            const scrollAmount = (size - 1) * itemHeight;
+            panelFolderSelect.scrollTop += Math.sign(e.deltaY) * scrollAmount;
+        }, { passive: false });
+    }
+
     function populateBookmarkFolderDropdown() {
         chrome.storage.local.get('settings', (data) => {
             const settings = data.settings || {};

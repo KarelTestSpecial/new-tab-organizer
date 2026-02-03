@@ -753,3 +753,11 @@ body {
 .context-menu-item:hover {
     background-color: var(--accent-color);
 }
+
+/* Scroll snapping for the bookmark folder selection box */
+#panel-folder-select {
+    scroll-snap-type: y mandatory;
+}
+#panel-folder-select option {
+    scroll-snap-align: start;
+}
