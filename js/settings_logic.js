@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsBtn = document.getElementById('settings-btn');
     const closeBtn = document.getElementById('close-settings-btn');
     const saveBtn = document.getElementById('save-settings-btn');
-    
+
     // --- Element Definitions ---
     const sidebarFolderSelect = document.getElementById('sidebar-folder-select');
     const extensionRootFolderSelect = document.getElementById('extension-root-folder-select');
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     closeBtn.addEventListener('click', closeSettingsPanel);
-    
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && !settingsPanel.classList.contains('hidden')) {
             closeSettingsPanel();
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateFolderDropdowns() {
         getBookmarkFolders(folders => {
             sidebarFolderSelect.innerHTML = '<option value="">Select a Sidebar Folder</option>';
-            
+
             // Root Selector: Only two specific main folders
             extensionRootFolderSelect.innerHTML = '';
             const barOption = document.createElement('option');
@@ -109,14 +109,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             folders.forEach(folder => {
                 if (folder.id === '0') return;
-                
+
                 // Sidebar Option (remains recursive)
                 const sidebarOption = document.createElement('option');
                 sidebarOption.value = folder.id;
                 sidebarOption.textContent = folder.title;
                 sidebarFolderSelect.appendChild(sidebarOption);
             });
-            
+
             if (tempSettings.sidebarFolderId) sidebarFolderSelect.value = tempSettings.sidebarFolderId;
             if (tempSettings.rootFolderId) extensionRootFolderSelect.value = tempSettings.rootFolderId;
         });
@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateControlsDisabled = !tempSettings.showDate;
         yearToggleBtn.disabled = dateControlsDisabled;
         dayToggleBtn.disabled = dateControlsDisabled;
-        
+
         // Add a visual hint if needed, though 'disabled' attribute usually handles this.
         yearToggleBtn.style.opacity = dateControlsDisabled ? '0.5' : '1';
         dayToggleBtn.style.opacity = dateControlsDisabled ? '0.5' : '1';
@@ -327,15 +327,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
     exportBtn.addEventListener('click', () => {
         chrome.storage.local.get([STORAGE_KEY, 'settings'], (data) => {
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `organizer-${CURRENT_VIEW}-backup.json`;
-            a.click();
-            URL.revokeObjectURL(url);
+            const panels = data[STORAGE_KEY] || [];
+            const imageIds = [];
+
+            // Scan for local images in notes panels
+            panels.forEach(panel => {
+                if (panel.type === 'notes' && panel.cards) {
+                    panel.cards.forEach(card => {
+                        if (card.imageUrl === 'local') {
+                            imageIds.push(card.id);
+                        }
+                    });
+                }
+            });
+
+            if (imageIds.length > 0) {
+                chrome.storage.local.get(imageIds, (images) => {
+                    const exportData = { ...data, ...images };
+                    downloadJson(exportData);
+                });
+            } else {
+                downloadJson(data);
+            }
         });
     });
+
+    function downloadJson(data) {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `organizer-${CURRENT_VIEW}-backup.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
 
     importBtn.addEventListener('click', () => importFileInput.click());
 
@@ -348,9 +373,37 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const importedData = JSON.parse(e.target.result);
                 if (confirm(`Are you sure you want to import this data? Your current layout and settings for THIS VIEW will be overwritten.`)) {
-                    chrome.storage.local.set(importedData, () => {
-                        alert(`Data for ${CURRENT_VIEW} imported successfully! The page will now reload.`);
-                        location.reload();
+
+                    const panels = importedData[STORAGE_KEY] || [];
+                    const bookmarkPanelFixes = [];
+
+                    // Identify panels that need re-linking
+                    panels.forEach(panel => {
+                        if (panel.type === 'bookmarks' && panel.folderId) {
+                            bookmarkPanelFixes.push(new Promise(resolve => {
+                                // First check if ID exists and is a folder
+                                chrome.bookmarks.get(panel.folderId, (results) => {
+                                    if (chrome.runtime.lastError || !results || results.length === 0 || results[0].url) {
+                                        // ID invalid or not a folder, try title matching
+                                        findBookmarkFolderByTitle(panel.title, (folder) => {
+                                            if (folder) {
+                                                panel.folderId = folder.id;
+                                            }
+                                            resolve();
+                                        });
+                                    } else {
+                                        resolve();
+                                    }
+                                });
+                            }));
+                        }
+                    });
+
+                    Promise.all(bookmarkPanelFixes).then(() => {
+                        chrome.storage.local.set(importedData, () => {
+                            alert(`Data for ${CURRENT_VIEW} imported successfully! The page will now reload.`);
+                            location.reload();
+                        });
                     });
                 }
             } catch (err) {
@@ -408,5 +461,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function adjustColor(hex, amount) {
-    return hex; 
+    return hex;
 }

@@ -116,3 +116,28 @@ function updateBookmark(id, changes, callback) {
         if (callback) callback();
     });
 }
+
+/**
+ * Searches for a bookmark folder by its title.
+ * @param {string} title - The title of the folder to find.
+ * @param {function} callback - Called with the matching folder object or null.
+ */
+function findBookmarkFolderByTitle(title, callback) {
+    chrome.bookmarks.getTree((bookmarkTree) => {
+        let foundFolder = null;
+        function search(nodes) {
+            for (const node of nodes) {
+                if (!node.url && node.title === title) {
+                    foundFolder = node;
+                    return;
+                }
+                if (node.children) {
+                    search(node.children);
+                }
+                if (foundFolder) return;
+            }
+        }
+        search(bookmarkTree);
+        callback(foundFolder);
+    });
+}
