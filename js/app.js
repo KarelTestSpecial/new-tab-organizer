@@ -15,13 +15,15 @@ function getCurrentView() {
     if (filename.startsWith('panelA')) return 'A';
     if (filename.startsWith('panelB')) return 'B';
     if (filename.startsWith('panelC')) return 'C';
+    if (filename.startsWith('panelD')) return 'D';
     return 'A'; // Default to A
 }
 
 function getStorageKey(view) {
     if (view === 'B') return 'panelsState_B';
     if (view === 'C') return 'panelsState_C';
-    return 'panelsState'; // Default for A
+    if (view === 'D') return 'panelsState_D';
+    return 'panelsState'; // Default to A
 }
 
 const CURRENT_VIEW = getCurrentView();
@@ -37,24 +39,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 const startupA = typeof settings.startupA === 'boolean' ? settings.startupA : true;
                 const startupB = typeof settings.startupB === 'boolean' ? settings.startupB : false;
                 const startupC = typeof settings.startupC === 'boolean' ? settings.startupC : false;
+                const startupD = typeof settings.startupD === 'boolean' ? settings.startupD : false;
 
                 if (!startupA) {
                     // User doesn't want A on startup.
                     if (startupB) {
                         // Redirect current tab A to B
                         window.location.replace('panelB.html');
-                        if (startupC) {
-                            chrome.tabs.create({ url: 'panelC.html', active: false });
-                        }
+                        if (startupC) chrome.tabs.create({ url: 'panelC.html', active: false });
+                        if (startupD) chrome.tabs.create({ url: 'panelD.html', active: false });
                     } else if (startupC) {
                         // Redirect current tab A to C
                         window.location.replace('panelC.html');
+                        if (startupD) chrome.tabs.create({ url: 'panelD.html', active: false });
+                    } else if (startupD) {
+                        // Redirect current tab A to D
+                        window.location.replace('panelD.html');
                     }
                     // If all false, validation in settings should prevent this, but default A is fallback
                 } else {
                     // A is wanted (and we are here). Open others if needed.
                     if (startupB) chrome.tabs.create({ url: 'panelB.html', active: false });
                     if (startupC) chrome.tabs.create({ url: 'panelC.html', active: false });
+                    if (startupD) chrome.tabs.create({ url: 'panelD.html', active: false });
                 }
             });
         }
@@ -781,9 +788,17 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         navigateToView('panelC.html');
     });
+    document.getElementById('nav-view-4').addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateToView('panelD.html');
+    });
 
     // Highlight the active view link
-    document.getElementById(`nav-view-${CURRENT_VIEW === 'A' ? 1 : CURRENT_VIEW === 'B' ? 2 : 3}`).classList.add('active-view-link');
+    let activeViewIndex = 1;
+    if (CURRENT_VIEW === 'B') activeViewIndex = 2;
+    if (CURRENT_VIEW === 'C') activeViewIndex = 3;
+    if (CURRENT_VIEW === 'D') activeViewIndex = 4;
+    document.getElementById(`nav-view-${activeViewIndex}`).classList.add('active-view-link');
 
     // --- Bookmark Change Listener ---
     chrome.bookmarks.onChanged.addListener((id, changeInfo) => {

@@ -15,7 +15,8 @@
         "panelB.html",
         "panelB-inner.html",
         "panelC.html",
-        "panelC-inner.html"
+        "panelC-inner.html",
+        "panelD.html"
       ],
       "matches": [
         "<all_urls>"

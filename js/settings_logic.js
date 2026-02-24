@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startupCheckA = document.getElementById('startup-check-A');
     const startupCheckB = document.getElementById('startup-check-B');
     const startupCheckC = document.getElementById('startup-check-C');
+    const startupCheckD = document.getElementById('startup-check-D');
 
     const sortRecursivelyCheckbox = document.getElementById('sort-recursively-checkbox');
     const sortOrderRadios = document.querySelectorAll('input[name="sort-order"]');
@@ -213,8 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
         let valA = startupCheckA.checked;
         let valB = startupCheckB.checked;
         let valC = startupCheckC.checked;
+        let valD = startupCheckD.checked;
 
-        if (!valA && !valB && !valC) {
+        if (!valA && !valB && !valC && !valD) {
             valA = true;
             startupCheckA.checked = true;
         }
@@ -228,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
             startupA: valA,
             startupB: valB,
             startupC: valC,
+            startupD: valD,
             primaryColor: primaryColorPicker.value,
             bgColor: bgColorPicker.value,
             sidebarBg: bgColorPicker.value,
@@ -282,6 +285,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 startupA: typeof currentSettings.startupA === 'boolean' ? currentSettings.startupA : true,
                 startupB: typeof currentSettings.startupB === 'boolean' ? currentSettings.startupB : false,
                 startupC: typeof currentSettings.startupC === 'boolean' ? currentSettings.startupC : false,
+                startupD: typeof currentSettings.startupD === 'boolean' ? currentSettings.startupD : false,
                 primaryColor: currentSettings.primaryColor || '#4a90e2',
                 bgColor: currentSettings.bgColor || '#f0f2f5',
                 sidebarBg: currentSettings.sidebarBg || '#ffffff',
@@ -298,6 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (startupCheckA) startupCheckA.checked = tempSettings.startupA;
             if (startupCheckB) startupCheckB.checked = tempSettings.startupB;
             if (startupCheckC) startupCheckC.checked = tempSettings.startupC;
+            if (startupCheckD) startupCheckD.checked = tempSettings.startupD;
 
             let fontSize = currentSettings.dateFontSize || '11px';
             let numericSize = parseInt(fontSize.replace('px', '').replace('rem', ''));

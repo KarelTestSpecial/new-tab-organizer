@@ -5,6 +5,7 @@ let dragSrcContext = null;
 function getStorageKeyForMove(view) {
     if (view === 'B') return 'panelsState_B';
     if (view === 'C') return 'panelsState_C';
+    if (view === 'D') return 'panelsState_D';
     return 'panelsState'; // Default for A
 }
 
@@ -98,7 +99,7 @@ function createPanel(panelState, onStateChange) {
         // Relying on CURRENT_VIEW global from app.js
         if (typeof CURRENT_VIEW === 'undefined') return;
 
-        const views = ['A', 'B', 'C'];
+        const views = ['A', 'B', 'C', 'D'];
         const otherViews = views.filter(v => v !== CURRENT_VIEW);
 
         otherViews.forEach(targetView => {
