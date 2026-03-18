@@ -32,6 +32,7 @@ const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
 document.addEventListener('DOMContentLoaded', () => {
     // --- Update Notification (v3.2) ---
     chrome.storage.local.get('notified_v32', (data) => {
+        // Tip: To test this multiple times during development, comment out the "if" line below or clear storage.
         if (!data.notified_v32) {
             setTimeout(() => {
                 const overlay = document.createElement('div');
@@ -39,17 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const modal = document.createElement('div');
                 modal.className = 'modal update-notification-modal';
+                // Using var(--text-color) for the title ensures it is always visible regardless of light/dark mode.
                 modal.innerHTML = `
-                    <h2 style="margin-top: 0; color: var(--accent-color);">Extension Updated to v3.2!</h2>
-                    <p style="margin-bottom: 20px; line-height: 1.6;">
+                    <h2 style="margin-top: 0; color: var(--text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Extension Updated to v3.2!</h2>
+                    <p style="margin: 20px 0 15px; line-height: 1.6;">
                         We've improved how links work in the Organizer to make your workflow faster:
                     </p>
-                    <ul style="margin-bottom: 20px; padding-left: 20px; line-height: 1.8;">
+                    <ul style="margin-bottom: 25px; padding-left: 20px; line-height: 1.8;">
                         <li><strong>Left-click:</strong> Opens bookmarks in the <strong>current tab</strong>.</li>
                         <li><strong>Ctrl + Click (or Middle-click):</strong> Opens bookmarks in a <strong>new tab</strong>.</li>
                     </ul>
                     <div style="text-align: right;">
-                        <button id="close-update-notif" class="primary-btn" style="padding: 10px 25px; font-weight: bold; cursor: pointer;">Got it!</button>
+                        <button id="close-update-notif" class="primary-btn" style="padding: 10px 30px; font-weight: bold; cursor: pointer; border-radius: 4px;">Got it!</button>
                     </div>
                 `;
 
@@ -59,6 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('close-update-notif').onclick = () => {
                     overlay.remove();
                     modal.remove();
+                    // Set this flag so it only shows once. 
                     chrome.storage.local.set({ notified_v32: true });
                 };
             }, 800);
