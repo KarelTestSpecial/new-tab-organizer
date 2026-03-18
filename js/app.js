@@ -34,9 +34,34 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.get('notified_v32', (data) => {
         if (!data.notified_v32) {
             setTimeout(() => {
-                alert("New Tab Organizer Updated (v3.2)!\n\nLink behavior has changed:\n- Left-click: Opens bookmarks in the CURRENT tab.\n- Ctrl + Click (or middle-click): Opens bookmarks in a NEW tab.");
-                chrome.storage.local.set({ notified_v32: true });
-            }, 500);
+                const overlay = document.createElement('div');
+                overlay.className = 'modal-overlay';
+                
+                const modal = document.createElement('div');
+                modal.className = 'modal update-notification-modal';
+                modal.innerHTML = `
+                    <h2 style="margin-top: 0; color: var(--accent-color);">Extension Updated to v3.2!</h2>
+                    <p style="margin-bottom: 20px; line-height: 1.6;">
+                        We've improved how links work in the Organizer to make your workflow faster:
+                    </p>
+                    <ul style="margin-bottom: 20px; padding-left: 20px; line-height: 1.8;">
+                        <li><strong>Left-click:</strong> Opens bookmarks in the <strong>current tab</strong>.</li>
+                        <li><strong>Ctrl + Click (or Middle-click):</strong> Opens bookmarks in a <strong>new tab</strong>.</li>
+                    </ul>
+                    <div style="text-align: right;">
+                        <button id="close-update-notif" class="primary-btn" style="padding: 10px 25px; font-weight: bold; cursor: pointer;">Got it!</button>
+                    </div>
+                `;
+
+                document.body.appendChild(overlay);
+                document.body.appendChild(modal);
+
+                document.getElementById('close-update-notif').onclick = () => {
+                    overlay.remove();
+                    modal.remove();
+                    chrome.storage.local.set({ notified_v32: true });
+                };
+            }, 800);
         }
     });
 
