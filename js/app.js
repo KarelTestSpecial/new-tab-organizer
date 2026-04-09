@@ -30,7 +30,8 @@ const CURRENT_VIEW = getCurrentView();
 const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Update Notification (v3.2) ---
+    /******
+     --- Update Notification (v3.2) ---
     chrome.storage.local.get('notified_v32', (data) => {
         // Tip: To test this multiple times during development, comment out the "if" line below or clear storage.
         if (!data.notified_v32) {
@@ -65,8 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     chrome.storage.local.set({ notified_v32: true });
                 };
             }, 800);
-        }
-    });
+        } 
+    }); 
+    *//////
 
     // --- Startup Logic ---
     if (CURRENT_VIEW === 'A') {
@@ -209,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const settings = data.settings || {};
             // Default to '1' (Bookmark Bar) if not set
             const targetRootId = settings.rootFolderId || '1';
-            
+
             getSubFolders(targetRootId, folders => {
                 panelFolderSelect.innerHTML = '<option value="">--Select folders (Ctrl+Click)--</option>';
                 folders.forEach(folder => {
@@ -291,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chrome.storage.local.get('settings', (data) => {
             const settings = data.settings || {};
             const rootId = settings.rootFolderId || '1';
-            
+
             if (confirm('Are you sure you want to sort the bookmarks in your selected Root folder? This action cannot be undone.')) {
                 const sortOptions = {
                     recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
@@ -325,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const position = bookmarksForm.elements['bookmarks-position'].value;
         chrome.storage.local.set({ bookmarksPanelPosition: position });
-        
+
         const selectedOptions = Array.from(panelFolderSelect.selectedOptions);
         const folderIds = selectedOptions.map(opt => opt.value).filter(val => val !== "");
 
@@ -771,12 +773,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateElement = document.getElementById('date');
         dateElement.textContent = now.toLocaleDateString([], dateOptions);
         dateElement.style.fontSize = window.currentDateSettings.fontSize;
-        
+
         const batteryElement = document.getElementById('battery');
         if (batteryElement) {
             batteryElement.style.fontSize = window.currentDateSettings.fontSize;
         }
-        
+
         updateBattery();
     }
 
@@ -914,7 +916,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // 1. Calculate MAX columns possible with the NARROWEST sidebar
             // Available = Total - MinSidebar - (LeftPad + RightPad) - Scrollbar
             const availableForContentAtMin = windowWidth - minSidebar - (basePadding * 2) - scrollbarBuffer;
-            
+
             let cols = Math.floor((availableForContentAtMin + gap) / (panelWidth + gap));
             cols = Math.max(1, cols);
 
@@ -933,7 +935,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Gap Left (Padding Left): 16%
             // Gap between panels: 10%
             // Right Margin: 34% (implicit via paddingRight)
-            
+
             let sidebarExtra = totalExcessSpace * 0.40;
             let paddingLeftExtra = totalExcessSpace * 0.16;
             let gapExtraPool = totalExcessSpace * 0.10;
@@ -980,7 +982,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Run immediately and on resize
     adjustSidebarWidth();
     window.addEventListener('resize', adjustSidebarWidth);
-    
+
     // Also run after a short delay to catch any layout shifts after CSS load
     setTimeout(adjustSidebarWidth, 100);
 });
