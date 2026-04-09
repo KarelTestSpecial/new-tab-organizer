@@ -781,8 +781,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- View Navigation ---
-    function navigateToView(viewUrl) {
+    function navigateToView(viewUrl, isCtrlClick) {
         const targetUrl = chrome.runtime.getURL(viewUrl);
+
+        if (!isCtrlClick) {
+            window.location.href = viewUrl;
+            return;
+        }
 
         // First, query for the specific extension URL.
         chrome.tabs.query({ url: targetUrl }, (tabs) => {
@@ -816,19 +821,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('nav-view-1').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelA.html');
+        navigateToView('panelA.html', e.ctrlKey || e.metaKey);
     });
     document.getElementById('nav-view-2').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelB.html');
+        navigateToView('panelB.html', e.ctrlKey || e.metaKey);
     });
     document.getElementById('nav-view-3').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelC.html');
+        navigateToView('panelC.html', e.ctrlKey || e.metaKey);
     });
     document.getElementById('nav-view-4').addEventListener('click', (e) => {
         e.preventDefault();
-        navigateToView('panelD.html');
+        navigateToView('panelD.html', e.ctrlKey || e.metaKey);
     });
 
     // Highlight the active view link
