@@ -256,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 sortOrder: document.querySelector('input[name="sort-order"]:checked').value,
             };
             sortBookmarksInFolder(rootId, sortOptions, () => {
-                alert('Root folder has been sorted!');
                 // Refresh both the settings dropdowns and the main page dropdown
                 populateFolderDropdowns();
                 if (tempSettings.sidebarFolderId === '1') {

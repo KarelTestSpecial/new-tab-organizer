@@ -300,7 +300,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     sortOrder: settings.sortOrder || 'mixed',
                 };
                 sortBookmarksInFolder(rootId, sortOptions, () => {
-                    alert('Root folder has been sorted!');
                     // Also refresh the folder dropdown in case folder names were sorted
                     populateBookmarkFolderDropdown();
                 });
