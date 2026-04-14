@@ -191,22 +191,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     primaryColorPicker.addEventListener('input', () => {
         tempSettings.primaryColor = primaryColorPicker.value;
+        tempSettings.theme = 'custom';
+        updateButtonText();
         applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
     });
 
     bgColorPicker.addEventListener('input', () => {
         tempSettings.bgColor = bgColorPicker.value;
         tempSettings.sidebarBg = bgColorPicker.value;
+        tempSettings.theme = 'custom';
+        updateButtonText();
         applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
     });
 
     textColorPicker.addEventListener('input', () => {
         tempSettings.textColor = textColorPicker.value;
+        tempSettings.theme = 'custom';
+        updateButtonText();
         applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
     });
 
     accentColorPicker.addEventListener('input', () => {
         tempSettings.accentColor = accentColorPicker.value;
+        tempSettings.theme = 'custom';
+        updateButtonText();
         applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
     });
 

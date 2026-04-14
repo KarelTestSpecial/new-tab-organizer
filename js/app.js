@@ -307,6 +307,52 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    document.getElementById('import-all-bookmarks-modal-btn').addEventListener('click', () => {
+        chrome.storage.local.get('settings', (data) => {
+            const settings = data.settings || {};
+            const rootId = settings.rootFolderId || '1';
+
+            if (!confirm(`Are you sure you want to add a new panel for every subfolder of your selected Root folder to ${CURRENT_VIEW}?`)) {
+                return;
+            }
+
+            getSubFolders(rootId, (folders) => {
+                if (folders.length === 0) {
+                    alert('No subfolders found in the selected Root folder.');
+                    return;
+                }
+
+                chrome.storage.local.get(STORAGE_KEY, (data) => {
+                    const currentPanels = data[STORAGE_KEY] || [];
+                    const existingFolderIds = new Set(currentPanels.map(p => p.folderId));
+                    let newPanelsAdded = 0;
+
+                    folders.forEach((folder, index) => {
+                        if (!existingFolderIds.has(folder.id)) {
+                            currentPanels.push({
+                                id: `panel-${Date.now()}-${index}`,
+                                title: folder.title,
+                                type: 'bookmarks',
+                                folderId: folder.id,
+                                cards: []
+                            });
+                            newPanelsAdded++;
+                        }
+                    });
+
+                    if (newPanelsAdded > 0) {
+                        chrome.storage.local.set({ [STORAGE_KEY]: currentPanels }, () => {
+                            alert(`${newPanelsAdded} new bookmark panels have been added to ${CURRENT_VIEW}. The page will now reload.`);
+                            location.reload();
+                        });
+                    } else {
+                        alert('All subfolders from this root are already present as panels in this view.');
+                    }
+                });
+            });
+        });
+    });
+
     notesForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const position = notesForm.elements['notes-position'].value;
@@ -1100,6 +1146,7 @@ function applySettings(settings) {
         document.documentElement.style.setProperty('--panel-bg', settings.sidebarBg);
         document.documentElement.style.setProperty('--border-color', settings.accentColor);
         document.documentElement.style.setProperty('--accent-color', settings.accentColor);
+        document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
     } else {
         // Clear custom styles when switching back to a predefined theme
         document.documentElement.style.setProperty('--bg-color', '');
@@ -1108,6 +1155,7 @@ function applySettings(settings) {
         document.documentElement.style.setProperty('--panel-bg', '');
         document.documentElement.style.setProperty('--border-color', '');
         document.documentElement.style.setProperty('--accent-color', '');
+        document.documentElement.style.setProperty('--primary-color', '');
     }
     document.documentElement.setAttribute('data-theme', settings.theme || 'light');
 

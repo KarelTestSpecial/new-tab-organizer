@@ -264,14 +264,21 @@
             <div class="modal-content">
                 <h2>Add New Bookmark Panel</h2>
                 <form id="add-bookmarks-panel-form">
-                    <div class="form-group">
-                        <label>Position</label>
-                        <label><input type="radio" name="bookmarks-position" value="top"> Top</label>
-                        <label><input type="radio" name="bookmarks-position" value="bottom" checked> Bottom</label>
+                    <div class="form-row" style="display: flex; gap: 30px; align-items: flex-end; margin-bottom: 20px;">
+                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                            <label style="font-weight: bold; margin-bottom: 8px;">Position</label>
+                            <div style="display: flex; gap: 15px;">
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;"><input type="radio" name="bookmarks-position" value="top"> Top</label>
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;"><input type="radio" name="bookmarks-position" value="bottom" checked> Bottom</label>
+                            </div>
+                        </div>
+                        <div class="form-group" style="flex: 1.5; margin-bottom: 0;">
+                            <button type="button" id="import-all-bookmarks-modal-btn" class="settings-btn-item" style="width: 100%; font-weight: bold; background-color: var(--primary-color); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Import All Bookmark Folders from Root</button>
+                        </div>
                     </div>
                     <div class="form-group">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <label for="panel-folder-select" style="margin: 0;">Bookmark Folder</label>
+                            <label for="panel-folder-select" style="margin: 0; font-weight: bold;">Select Specific Folders</label>
                             <div style="display: flex; gap: 5px;">
                                 <button type="button" id="refresh-bookmark-folders-btn" class="settings-btn-item" style="padding: 2px 8px; font-size: 0.8rem;">Refresh Bookmark Bar</button>
                                 <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 2px 8px; font-size: 0.8rem;">Sort Root Folder</button>
