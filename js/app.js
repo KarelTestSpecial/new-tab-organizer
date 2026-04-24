@@ -198,11 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (panelFolderSelect) {
         panelFolderSelect.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            const size = panelFolderSelect.size || 6;
-            const itemHeight = panelFolderSelect.clientHeight / size;
-            const scrollAmount = (size - 1) * itemHeight;
-            panelFolderSelect.scrollTop += Math.sign(e.deltaY) * scrollAmount;
+            // Manually handle scroll to ensure it works even when focus is weird.
+            // Using e.deltaY ensures it respects the user's scroll speed settings.
+            panelFolderSelect.scrollTop += e.deltaY;
+            e.preventDefault(); 
         }, { passive: false });
     }
 
@@ -263,6 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
             bookmarksForm.elements['bookmarks-position'].value = position;
         });
         addBookmarksModal.classList.remove('hidden');
+        // Focus the selection field immediately so it's ready for interaction
+        setTimeout(() => panelFolderSelect.focus(), 10);
     });
 
     document.getElementById('quick-backup-btn').addEventListener('click', () => {

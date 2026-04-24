@@ -70,7 +70,7 @@ body {
 }
 
 [data-theme="dark"] #date, [data-theme="dark"] #battery {
-    color: var(--primary-color);
+    color: var(--text-color);
 }
 
 .sidebar-links {
@@ -514,8 +514,8 @@ body {
 
 [data-theme="dark"] .settings-btn-item {
     background-color: var(--accent-color);
-    color: var(--primary-color);
-    border-color: var(--primary-color);
+    color: var(--text-color);
+    border-color: var(--border-color);
 }
 
 #settings-btn {
@@ -721,9 +721,9 @@ body {
 
 .sidebar-view-nav a.active-view-link {
     font-weight: bold;
-    color: var(--primary-color);
+    color: var(--text-color);
     text-decoration: none;
-    border-bottom: 2px solid var(--primary-color);
+    border-bottom: 2px solid var(--text-color);
 }
 
 .inline-section {
@@ -783,10 +783,3 @@ body {
     background-color: var(--accent-color);
 }
 
-/* Scroll snapping for the bookmark folder selection box */
-#panel-folder-select {
-    scroll-snap-type: y mandatory;
-}
-#panel-folder-select option {
-    scroll-snap-align: start;
-}
