@@ -444,6 +444,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 let newPanelsAdded = 0;
 
                 folders.forEach((folder, index) => {
+                    // Skip if it's the folder currently selected as sidebar folder
+                    if (folder.id === sidebarFolderSelect.value) return;
+                    // Fallback for hardcoded name check
+                    if (folder.title && folder.title.toLowerCase() === 'zijbalk') return;
+
                     if (!existingFolderIds.has(folder.id)) {
                         currentPanels.push({
                             id: `panel-${Date.now()}-${index}`,

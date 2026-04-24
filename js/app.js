@@ -211,12 +211,38 @@ document.addEventListener('DOMContentLoaded', () => {
             // Default to '1' (Bookmark Bar) if not set
             const targetRootId = settings.rootFolderId || '1';
 
-            getSubFolders(targetRootId, folders => {
+            function getFoldersRecursive(parentId, depth, callback) {
+                chrome.bookmarks.getSubTree(parentId, (results) => {
+                    const folders = [];
+                    function traverse(node, currentDepth) {
+                        if (!node.url) {
+                            if (node.id !== parentId) {
+                                folders.push({
+                                    id: node.id,
+                                    title: node.title || 'Unnamed',
+                                    depth: currentDepth
+                                });
+                            }
+                            if (node.children) {
+                                node.children.forEach(child => traverse(child, currentDepth + 1));
+                            }
+                        }
+                    }
+                    if (results && results[0]) {
+                        traverse(results[0], 0);
+                    }
+                    callback(folders);
+                });
+            }
+
+            getFoldersRecursive(targetRootId, 0, folders => {
                 panelFolderSelect.innerHTML = '<option value="">--Select folders (Ctrl+Click)--</option>';
                 folders.forEach(folder => {
                     const option = document.createElement('option');
                     option.value = folder.id;
-                    option.textContent = folder.title;
+                    // Use \u00A0 (non-breaking space) for indentation
+                    const indent = '\u00A0'.repeat(folder.depth * 4);
+                    option.textContent = indent + folder.title;
                     panelFolderSelect.appendChild(option);
                 });
             });
@@ -262,8 +288,21 @@ document.addEventListener('DOMContentLoaded', () => {
             bookmarksForm.elements['bookmarks-position'].value = position;
         });
         addBookmarksModal.classList.remove('hidden');
+        // Reset recursive checkbox
+        document.getElementById('import-subfolders-checkbox').checked = false;
+        document.getElementById('import-recursive-checkbox').checked = false;
+        document.getElementById('recursive-import-label').classList.add('hidden');
         // Focus the selection field immediately so it's ready for interaction
         setTimeout(() => panelFolderSelect.focus(), 10);
+    });
+
+    document.getElementById('import-subfolders-checkbox').addEventListener('change', (e) => {
+        const recursiveLabel = document.getElementById('recursive-import-label');
+        if (e.target.checked) {
+            recursiveLabel.classList.remove('hidden');
+        } else {
+            recursiveLabel.classList.add('hidden');
+        }
     });
 
     document.getElementById('quick-backup-btn').addEventListener('click', () => {
@@ -329,6 +368,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     let newPanelsAdded = 0;
 
                     folders.forEach((folder, index) => {
+                        // Skip if it's the sidebar folder
+                        if (folder.id === settings.sidebarFolderId) return;
+                        if (folder.title && folder.title.toLowerCase() === 'zijbalk') return; // Fallback
+
                         if (!existingFolderIds.has(folder.id)) {
                             currentPanels.push({
                                 id: `panel-${Date.now()}-${index}`,
@@ -371,33 +414,77 @@ document.addEventListener('DOMContentLoaded', () => {
 
     bookmarksForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const position = bookmarksForm.elements['bookmarks-position'].value;
-        chrome.storage.local.set({ bookmarksPanelPosition: position });
+        chrome.storage.local.get('settings', (settingsData) => {
+            const settings = settingsData.settings || {};
+            const sidebarFolderId = settings.sidebarFolderId;
+            const position = bookmarksForm.elements['bookmarks-position'].value;
+            const importSubfolders = document.getElementById('import-subfolders-checkbox').checked;
+            const isRecursive = document.getElementById('import-recursive-checkbox').checked;
+            chrome.storage.local.set({ bookmarksPanelPosition: position });
 
-        const selectedOptions = Array.from(panelFolderSelect.selectedOptions);
-        const folderIds = selectedOptions.map(opt => opt.value).filter(val => val !== "");
+            const selectedOptions = Array.from(panelFolderSelect.selectedOptions);
+            const folderIds = selectedOptions.map(opt => opt.value).filter(val => val !== "");
 
-        if (folderIds.length === 0) {
-            alert('Please select at least one bookmark folder.');
-            return;
-        }
+            if (folderIds.length === 0) {
+                alert('Please select at least one bookmark folder.');
+                return;
+            }
 
-        folderIds.forEach((fId, index) => {
-            const title = selectedOptions.find(o => o.value === fId).text;
-            // Add a slight delay to ensure unique IDs if processing is super fast, though Date.now() usually suffices.
-            // Or just append index to ID.
-            const newPanelState = {
-                id: `panel-${Date.now()}-${index}`,
-                title: title,
-                type: 'bookmarks',
-                folderId: fId,
-                cards: []
+            const addPanel = (fId, title, indexSuffix = '') => {
+                const newPanelState = {
+                    id: `panel-${Date.now()}-${fId}-${indexSuffix}`,
+                    title: title,
+                    type: 'bookmarks',
+                    folderId: fId,
+                    cards: []
+                };
+                const panelEl = createPanel(newPanelState, saveState);
+                addPanelToContainer(panelEl, position);
             };
-            const panelEl = createPanel(newPanelState, saveState);
-            addPanelToContainer(panelEl, position);
-        });
 
-        addBookmarksModal.classList.add('hidden');
+            if (importSubfolders) {
+                let foldersProcessed = 0;
+                folderIds.forEach((fId) => {
+                    // Also import the parent folder itself
+                    const parentTitle = selectedOptions.find(o => o.value === fId).textContent.trim();
+                    addPanel(fId, parentTitle, 'parent');
+
+                    chrome.bookmarks.getSubTree(fId, (results) => {
+                        if (results && results[0] && results[0].children) {
+                            const processNode = (node) => {
+                                if (!node.url) {
+                                    // skip sidebar folder
+                                    if (node.id === sidebarFolderId) return;
+                                    if (node.title && node.title.toLowerCase() === 'zijbalk') return; // Fallback
+                                    
+                                    addPanel(node.id, node.title, node.id);
+                                    
+                                    if (isRecursive && node.children) {
+                                        node.children.forEach(processNode);
+                                    }
+                                }
+                            };
+                            
+                            results[0].children.forEach(processNode);
+                        }
+                        
+                        foldersProcessed++;
+                        if (foldersProcessed === folderIds.length) {
+                            addBookmarksModal.classList.add('hidden');
+                            document.getElementById('import-subfolders-checkbox').checked = false;
+                            document.getElementById('import-recursive-checkbox').checked = false;
+                            document.getElementById('recursive-import-label').classList.add('hidden');
+                        }
+                    });
+                });
+            } else {
+                folderIds.forEach((fId, index) => {
+                    const title = selectedOptions.find(o => o.value === fId).textContent.trim();
+                    addPanel(fId, title, index);
+                });
+                addBookmarksModal.classList.add('hidden');
+            }
+        });
     });
 
     document.getElementById('bookmarks-title-link').addEventListener('click', (e) => {

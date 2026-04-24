@@ -288,6 +288,14 @@
                             <option value="">--Select folders (Ctrl+Click)--</option>
                         </select>
                     </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 20px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="import-subfolders-checkbox"> Import subfolders as individual panels
+                        </label>
+                        <label id="recursive-import-label" class="hidden" style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                            <input type="checkbox" id="import-recursive-checkbox"> Recursive
+                        </label>
+                    </div>
                     <div class="form-actions">
                         <button type="submit">Create</button>
                         <button type="button" class="cancel-btn">Cancel</button>
