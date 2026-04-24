@@ -30,45 +30,23 @@ const CURRENT_VIEW = getCurrentView();
 const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
 
 document.addEventListener('DOMContentLoaded', () => {
-    /******
-     --- Update Notification (v3.2) ---
-    chrome.storage.local.get('notified_v32', (data) => {
-        // Tip: To test this multiple times during development, comment out the "if" line below or clear storage.
-        if (!data.notified_v32) {
-            setTimeout(() => {
-                const overlay = document.createElement('div');
-                overlay.className = 'modal-overlay';
-                
-                const modal = document.createElement('div');
-                modal.className = 'modal update-notification-modal';
-                // Using var(--text-color) for the title ensures it is always visible regardless of light/dark mode.
-                modal.innerHTML = `
-                    <h2 style="margin-top: 0; color: var(--text-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;">Extension Updated to v3.2!</h2>
-                    <p style="margin: 20px 0 15px; line-height: 1.6;">
-                        We've improved how links work in the Organizer to make your workflow faster:
-                    </p>
-                    <ul style="margin-bottom: 25px; padding-left: 20px; line-height: 1.8;">
-                        <li><strong>Left-click:</strong> Opens bookmarks in the <strong>current tab</strong>.</li>
-                        <li><strong>Ctrl + Click (or Middle-click):</strong> Opens bookmarks in a <strong>new tab</strong>.</li>
-                    </ul>
-                    <div style="text-align: right;">
-                        <button id="close-update-notif" class="primary-btn" style="padding: 10px 30px; font-weight: bold; cursor: pointer; border-radius: 4px;">Got it!</button>
-                    </div>
-                `;
+    // --- Update Notification (v4.0) ---
+    chrome.storage.local.get('notified_v4.0', (data) => {
+        console.log("Checking update notification. Already notified?", data['notified_v4.0']);
+        if (!data['notified_v4.0']) {
+            chrome.notifications.create('', {
+                type: 'basic',
+                iconUrl: 'assets/icon.png',
+                title: 'New Tab Organizer Updated to v4.0!',
+                message: 'New: Recursive Bookmark Subfolder Import',
+                priority: 2
+            }, (id) => {
+                console.log("Notification created with ID:", id);
+                chrome.storage.local.set({ 'notified_v4.0': true });
+            });
+        }
+    });
 
-                document.body.appendChild(overlay);
-                document.body.appendChild(modal);
-
-                document.getElementById('close-update-notif').onclick = () => {
-                    overlay.remove();
-                    modal.remove();
-                    // Set this flag so it only shows once. 
-                    chrome.storage.local.set({ notified_v32: true });
-                };
-            }, 800);
-        } 
-    }); 
-    *//////
 
     // --- Startup Logic ---
     if (CURRENT_VIEW === 'A') {
@@ -201,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Manually handle scroll to ensure it works even when focus is weird.
             // Using e.deltaY ensures it respects the user's scroll speed settings.
             panelFolderSelect.scrollTop += e.deltaY;
-            e.preventDefault(); 
+            e.preventDefault();
         }, { passive: false });
     }
 
@@ -456,18 +434,18 @@ document.addEventListener('DOMContentLoaded', () => {
                                     // skip sidebar folder
                                     if (node.id === sidebarFolderId) return;
                                     if (node.title && node.title.toLowerCase() === 'zijbalk') return; // Fallback
-                                    
+
                                     addPanel(node.id, node.title, node.id);
-                                    
+
                                     if (isRecursive && node.children) {
                                         node.children.forEach(processNode);
                                     }
                                 }
                             };
-                            
+
                             results[0].children.forEach(processNode);
                         }
-                        
+
                         foldersProcessed++;
                         if (foldersProcessed === folderIds.length) {
                             addBookmarksModal.classList.add('hidden');

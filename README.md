@@ -10,9 +10,9 @@ A powerful and highly customizable startpage to replace your browser's default n
 - **Editable Titles:** All panel titles can be edited directly on the page. Just click the title, make your changes, and it saves automatically.
 
 ### Multiple Independent Views (Organizers)
-- **Three Workspaces:** To prevent clutter and keep workflows separate, the extension supports up to three independent views (A, B, and C).
+- **Four Workspaces:** To prevent clutter and keep workflows separate, the extension supports up to four independent views (A, B, C, and D).
 - **Separate Data:** Each view maintains its own unique set of panels and data, allowing you to organize different projects or contexts.
-- **Smart Navigation:** Use the A/B/C links in the sidebar to switch between views. The extension intelligently focuses an existing view's tab if it's already open, preventing duplicates.
+- **Smart Navigation:** Use the A/B/C/D links in the sidebar to switch between views. The extension intelligently focuses an existing view's tab if it's already open, preventing duplicates.
 - **Swap & Move:**
     - **Swap Organizers:** Swap the entire contents of two organizers from the Settings menu.
     - **Move Panels:** Move individual panels from one organizer to another.
@@ -36,7 +36,7 @@ A powerful and highly customizable startpage to replace your browser's default n
 - **Quick Actions:** Instantly create new notes (`+ P`) or bookmark (`+ L`) panels from the sidebar.
 - **Undo Deletions:** Accidentally deleted a panel or a card? Press `Ctrl+Z` to restore it instantly.
 - **Customizable Sidebar:** Choose a specific bookmark folder to display in the persistent sidebar via the Settings menu for quick access.
-- **Open on startup:** Choose which workspace (A, B, or C) opens automatically when you launch your browser.
+- **Open on startup:** Choose which workspace (A, B, C, or D) opens automatically when you launch your browser.
 - **Data Portability:** Use the **Import** and **Export** buttons in Settings to save your entire layout and settings to a JSON file, or restore your setup from a backup.
 - **Bulk Bookmark Import:** Quickly populate a view by using the "Import All Bookmarks" button, which creates panels for all your bookmark folders that aren't already displayed.
 - **Customizable UI:**
