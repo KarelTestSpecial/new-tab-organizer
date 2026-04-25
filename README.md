@@ -25,6 +25,7 @@ A powerful and highly customizable startpage to replace your browser's default n
 
 ### Bookmark Panels
 - **Live Bookmark Folders:** Display and manage links from any of your browser's bookmark folders.
+- **Create Folders:** Create brand new Chrome bookmark folders directly from the extension when adding a new Bookmark Panel. You can choose whether to create them in the root or inside a specific Organizer folder.
 - **Full Bookmark Management:**
     - **Edit:** Hover over any bookmark to reveal an "edit" (e) button to modify its title and URL.
     - **Delete:** Remove bookmarks with a confirmation step to prevent accidents.
@@ -39,11 +40,15 @@ A powerful and highly customizable startpage to replace your browser's default n
 - **Open on startup:** Choose which workspace (A, B, C, or D) opens automatically when you launch your browser.
 - **Data Portability:** Use the **Import** and **Export** buttons in Settings to save your entire layout and settings to a JSON file, or restore your setup from a backup.
 - **Bulk Bookmark Import:** Quickly populate a view by using the "Import All Bookmarks" button, which creates panels for all your bookmark folders that aren't already displayed.
+- **Dedicated Organizer Folders:** Enable the "Use Organizer Folders" setting to automatically create dedicated overarching folders (Organizer A, B, C, D) in your Chrome bookmarks. This keeps your extension bookmarks neatly separated from your regular browser bookmarks. If enabled, moving panels between views will also physically move the corresponding bookmark folder in Chrome.
 - **Customizable UI:**
-    - Switch between **light and dark themes**.
+    - Switch between **light and dark themes** or pick custom colors.
     - Choose whether new panels are added to the **top or bottom** of the page.
+- **Multilingual Support:** Fully localized in 6 languages: **English, Dutch, French, German, Spanish, and Portuguese**. Switch languages instantly from the Settings menu.
+- **Localized Date & Clock:**
     - Show or hide the **clock and date** display.
     - **Granular Date Control:** Toggle the display of the **Year** and **Day of Week** independently.
+    - **Smart Localization:** The date and clock automatically respect your manually selected language (e.g., Spanish date formatting when the Spanish language is selected).
     - **Date Font Size:** Adjust the size of the date text using a slider in Settings.
 
 ## How to Install and Use
