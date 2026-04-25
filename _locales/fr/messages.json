@@ -1,0 +1,272 @@
+{
+  "extName": {
+    "message": "Tableau de Bord NewTab Startpage"
+  },
+  "extDesc": {
+    "message": "Transformez votre nouvel onglet en un espace de travail organisé. Gardez vos favoris séparés par contexte. Minimaliste et magnifique."
+  },
+  "settings_title": {
+    "message": "Paramètres"
+  },
+  "settings_language": {
+    "message": "Langue (Language)"
+  },
+  "settings_language_auto": {
+    "message": "Auto (Navigateur par défaut)"
+  },
+  "settings_visual": {
+    "message": "Paramètres Visuels"
+  },
+  "settings_bg_color": {
+    "message": "Couleur de fond"
+  },
+  "settings_text_color": {
+    "message": "Couleur du texte"
+  },
+  "settings_accent_color": {
+    "message": "Couleur d'accentuation"
+  },
+  "settings_date_font_size": {
+    "message": "Taille de la date"
+  },
+  "settings_show_battery": {
+    "message": "Afficher l'état de la batterie"
+  },
+  "settings_startup_views": {
+    "message": "Vues au Démarrage"
+  },
+  "settings_startup_desc": {
+    "message": "Choisissez quelles vues ouvrir dans de nouveaux onglets au démarrage de Chrome :"
+  },
+  "settings_sidebar_folder": {
+    "message": "Sélectionnez le dossier de favoris de la barre latérale :"
+  },
+  "settings_folders": {
+    "message": "Dossiers & Synchronisation"
+  },
+  "settings_root_folder": {
+    "message": "Où voulez-vous que nous placions les dossiers Organizer ?"
+  },
+  "settings_toggle_folders": {
+    "message": "Créer 4 dossiers dans les favoris Chrome : Organizer A, Organizer B, Organizer C, Organizer D"
+  },
+  "settings_toggle_desc": {
+    "message": "Si désactivé, le déplacement automatique s'arrête. Les dossiers existants dans Chrome sont conservés."
+  },
+  "settings_swap": {
+    "message": "Échanger les Organizers"
+  },
+  "settings_swap_desc": {
+    "message": "Échangez en toute sécurité le contenu de deux Organizers."
+  },
+  "settings_swap_btn": {
+    "message": "Échanger le contenu entre"
+  },
+  "settings_backup": {
+    "message": "Sauvegarde & Importation"
+  },
+  "settings_export": {
+    "message": "Exporter la mise en page (Vue actuelle)"
+  },
+  "settings_import": {
+    "message": "Importer la mise en page (Vue actuelle)"
+  },
+  "settings_save": {
+    "message": "Enregistrer et fermer"
+  },
+  "add_bookmark_title": {
+    "message": "Ajouter un Panneau de Favoris"
+  },
+  "add_bookmark_new_folder": {
+    "message": "Créer un nouveau dossier"
+  },
+  "add_bookmark_new_folder_placeholder": {
+    "message": "Nom du nouveau dossier"
+  },
+  "add_bookmark_select_desc": {
+    "message": "Sélectionnez un ou plusieurs dossiers de favoris à afficher sous forme de panneaux :"
+  },
+  "add_bookmark_recursive_desc": {
+    "message": "Importer également les sous-dossiers dans les dossiers sélectionnés ?"
+  },
+  "add_bookmark_btn": {
+    "message": "Ajouter le panneau de favoris"
+  },
+  "add_bookmark_cancel": {
+    "message": "Annuler"
+  },
+  "add_notes_title": {
+    "message": "Ajouter un nouveau panneau de notes"
+  },
+  "add_notes_placeholder": {
+    "message": "Entrez le titre du panneau de notes..."
+  },
+  "add_notes_btn": {
+    "message": "Ajouter un panneau de notes"
+  },
+  "upgrade_title": {
+    "message": "Nouvelle fonctionnalité : Dossiers Organizer"
+  },
+  "upgrade_desc1": {
+    "message": "Mise à niveau : L'extension fonctionne désormais avec des dossiers spéciaux ! Le principe : Ce que vous voyez dans l'extension, c'est ce que vous avez dans Chrome."
+  },
+  "upgrade_desc2": {
+    "message": "Chaque Organizer (A, B, C et D) a son propre dossier physique dans vos favoris Chrome. Cela permet de garder tout séparé proprement. Lorsque vous déplacerez un panneau, l'extension déplacera automatiquement le dossier correspondant dans Chrome."
+  },
+  "upgrade_where": {
+    "message": "Où voulez-vous que nous créions les 4 dossiers principaux ?"
+  },
+  "upgrade_btn_ok": {
+    "message": "Créer les dossiers & Démarrer"
+  },
+  "upgrade_btn_cancel": {
+    "message": "Pas maintenant"
+  },
+  "alert_provide_name": {
+    "message": "Veuillez fournir un nom pour le nouveau dossier."
+  },
+  "alert_error_creating": {
+    "message": "Erreur lors de la création du dossier : "
+  },
+  "alert_auto_move_off": {
+    "message": "Le déplacement automatique des dossiers est désactivé. Vos dossiers Organizer existants n'ont PAS été supprimés."
+  },
+  "alert_select_two_different": {
+    "message": "Veuillez sélectionner deux organisateurs différents à échanger."
+  },
+  "alert_swap_success": {
+    "message": "Contenu échangé avec succès. La page va maintenant se recharger."
+  },
+  "alert_select_one_folder": {
+    "message": "Veuillez sélectionner au moins un dossier de favoris."
+  },
+  "alert_import_success": {
+    "message": "Données importées avec succès ! La page va se recharger."
+  },
+  "alert_invalid_backup": {
+    "message": "Fichier de sauvegarde non valide."
+  },
+  "confirm_enable_folders": {
+    "message": "Nous appliquons le principe : Ce que vous voyez dans l'extension, c'est ce que vous avez dans Chrome.\n\n4 dossiers seront créés dans les favoris Chrome. Lorsque vous déplacerez des panneaux, les dossiers correspondants seront également déplacés.\n\nÊtes-vous d'accord ?"
+  },
+  "confirm_import_overwrite": {
+    "message": "Voulez-vous vraiment importer ces données ? Votre mise en page et vos paramètres actuels pour CETTE VUE seront écrasés."
+  },
+  "confirm_flattening": {
+    "message": "Remarque : tous les dossiers seront placés à la racine du dossier Organizer (y compris les sous-dossiers), les structures en arborescence seront perdues -- tout deviendra plat. Si vous acceptez, la structure sera aplatie dans Chrome. Voulez-vous continuer ?"
+  },
+  "confirm_swap": {
+    "message": "Êtes-vous sûr de vouloir échanger le contenu ?"
+  },
+  "confirm_delete_panel": {
+    "message": "Supprimer ce panneau ?"
+  },
+  "this_folder_empty": {
+    "message": "Ce dossier est vide."
+  },
+  "select_folder_settings": {
+    "message": "Sélectionnez un dossier dans les paramètres."
+  },
+  "save_current_setup": {
+    "message": "Enregistrez votre configuration actuelle"
+  },
+  "move_panels_rightclick": {
+    "message": "Déplacez les panneaux en faisant un clic droit sur l'en-tête"
+  },
+  "select_sidebar_folder": {
+    "message": "Sélectionnez un dossier de barre latérale"
+  },
+  "btn_hide_clock": {
+    "message": "Masquer l'horloge"
+  },
+  "btn_show_clock": {
+    "message": "Afficher l'horloge"
+  },
+  "btn_hide_date": {
+    "message": "Masquer la date"
+  },
+  "btn_show_date": {
+    "message": "Afficher la date"
+  },
+  "btn_hide_day": {
+    "message": "Masquer le jour"
+  },
+  "btn_show_day": {
+    "message": "Afficher le jour"
+  },
+  "btn_hide_year": {
+    "message": "Masquer l'année"
+  },
+  "btn_show_year": {
+    "message": "Afficher l'année"
+  },
+  "btn_theme_light": {
+    "message": "Thème : Clair"
+  },
+  "btn_theme_dark": {
+    "message": "Thème : Sombre"
+  },
+  "btn_theme_custom": {
+    "message": "Thème : Personnalisé"
+  },
+  "btn_hide_battery": {
+    "message": "Masquer la batterie"
+  },
+  "btn_show_battery": {
+    "message": "Afficher la batterie"
+  },
+  "label_date_size": {
+    "message": "Taille de la date :"
+  },
+  "btn_export_data": {
+    "message": "Exporter les données"
+  },
+  "btn_import_data": {
+    "message": "Importer les données"
+  },
+  "btn_cancel": {
+    "message": "Annuler"
+  },
+  "label_on_startup": {
+    "message": "au démarrage :"
+  },
+  "label_select_specific_folders": {
+    "message": "Sélectionner des dossiers spécifiques"
+  },
+  "btn_sort_root_folder": {
+    "message": "Trier le dossier racine"
+  },
+  "label_recursive": {
+    "message": "Récursif"
+  },
+  "select_folders_prompt": {
+    "message": "--Sélectionner des dossiers (Ctrl+Clic)--"
+  },
+  "label_import_subfolders": {
+    "message": "Importer les sous-dossiers comme panneaux individuels"
+  },
+  "label_position": {
+    "message": "Position"
+  },
+  "label_top": {
+    "message": "Haut"
+  },
+  "label_bottom": {
+    "message": "Bas"
+  },
+  "btn_add": {
+    "message": "Ajouter"
+  },
+  "btn_create": {
+    "message": "Créer"
+  },
+  "btn_cancel_modal": {
+    "message": "Annuler"
+  },
+  "label_notes_name": {
+    "message": "Nom du panneau"
+  },
+  "placeholder_notes_name": {
+    "message": "Titre des notes"
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "extName": {
+    "message": "Panel de Control NewTab Startpage"
+  },
+  "extDesc": {
+    "message": "Convierte tu nueva pestaña en un espacio de trabajo organizado. Mantén los marcadores separados por contexto. Minimalista y hermoso."
+  },
+  "settings_title": {
+    "message": "Configuración"
+  },
+  "settings_language": {
+    "message": "Idioma (Language)"
+  },
+  "settings_language_auto": {
+    "message": "Auto (Predeterminado del navegador)"
+  },
+  "settings_visual": {
+    "message": "Configuración Visual"
+  },
+  "settings_bg_color": {
+    "message": "Color de fondo"
+  },
+  "settings_text_color": {
+    "message": "Color del texto"
+  },
+  "settings_accent_color": {
+    "message": "Color de acento"
+  },
+  "settings_date_font_size": {
+    "message": "Tamaño de fuente de fecha"
+  },
+  "settings_show_battery": {
+    "message": "Mostrar estado de la batería"
+  },
+  "settings_startup_views": {
+    "message": "Vistas de Inicio"
+  },
+  "settings_startup_desc": {
+    "message": "Elige qué vistas abrir en nuevas pestañas al iniciar Chrome:"
+  },
+  "settings_sidebar_folder": {
+    "message": "Selecciona la carpeta de marcadores de la barra lateral:"
+  },
+  "settings_folders": {
+    "message": "Carpetas y Sincronización"
+  },
+  "settings_root_folder": {
+    "message": "¿Dónde quieres que coloquemos las carpetas Organizer?"
+  },
+  "settings_toggle_folders": {
+    "message": "Crear 4 carpetas en Marcadores de Chrome: Organizer A, Organizer B, Organizer C, Organizer D"
+  },
+  "settings_toggle_desc": {
+    "message": "Si está desactivado, el movimiento automático se detiene. Las carpetas existentes en Chrome se conservan."
+  },
+  "settings_swap": {
+    "message": "Intercambiar Organizers"
+  },
+  "settings_swap_desc": {
+    "message": "Intercambia de forma segura el contenido de dos Organizers."
+  },
+  "settings_swap_btn": {
+    "message": "Intercambiar contenido entre"
+  },
+  "settings_backup": {
+    "message": "Copia de seguridad e Importar"
+  },
+  "settings_export": {
+    "message": "Exportar Diseño (Vista Actual)"
+  },
+  "settings_import": {
+    "message": "Importar Diseño (Vista Actual)"
+  },
+  "settings_save": {
+    "message": "Guardar y Cerrar"
+  },
+  "add_bookmark_title": {
+    "message": "Añadir Panel de Marcadores"
+  },
+  "add_bookmark_new_folder": {
+    "message": "Crear nueva carpeta"
+  },
+  "add_bookmark_new_folder_placeholder": {
+    "message": "Nombre de la nueva carpeta"
+  },
+  "add_bookmark_select_desc": {
+    "message": "Selecciona una o más carpetas de marcadores para mostrar como paneles:"
+  },
+  "add_bookmark_recursive_desc": {
+    "message": "¿Importar también subcarpetas dentro de las carpetas seleccionadas?"
+  },
+  "add_bookmark_btn": {
+    "message": "Añadir Panel de Marcadores"
+  },
+  "add_bookmark_cancel": {
+    "message": "Cancelar"
+  },
+  "add_notes_title": {
+    "message": "Añadir nuevo panel de notas"
+  },
+  "add_notes_placeholder": {
+    "message": "Introduce el título del panel de notas..."
+  },
+  "add_notes_btn": {
+    "message": "Añadir panel de notas"
+  },
+  "upgrade_title": {
+    "message": "Nueva Función: Carpetas Organizer"
+  },
+  "upgrade_desc1": {
+    "message": "Actualización: ¡La extensión ahora funciona con carpetas especiales! El principio: Lo que ves en la extensión es lo que tienes en Chrome."
+  },
+  "upgrade_desc2": {
+    "message": "Cada Organizer (A, B, C y D) tiene su propia carpeta física en tus marcadores de Chrome. Cuando muevas un panel, la extensión moverá automáticamente la carpeta en Chrome."
+  },
+  "upgrade_where": {
+    "message": "¿Dónde quieres que creemos las 4 carpetas principales?"
+  },
+  "upgrade_btn_ok": {
+    "message": "Crear Carpetas e Iniciar"
+  },
+  "upgrade_btn_cancel": {
+    "message": "Ahora no"
+  },
+  "alert_provide_name": {
+    "message": "Por favor, proporcione un nombre para la nueva carpeta."
+  },
+  "alert_error_creating": {
+    "message": "Error al crear la carpeta: "
+  },
+  "alert_auto_move_off": {
+    "message": "El movimiento automático de carpetas está desactivado. Sus carpetas Organizer existentes NO han sido eliminadas."
+  },
+  "alert_select_two_different": {
+    "message": "Seleccione dos organizadores diferentes para intercambiar."
+  },
+  "alert_swap_success": {
+    "message": "Contenido intercambiado con éxito. La página se recargará ahora."
+  },
+  "alert_select_one_folder": {
+    "message": "Seleccione al menos una carpeta de marcadores."
+  },
+  "alert_import_success": {
+    "message": "Datos importados con éxito! La página se recargará ahora."
+  },
+  "alert_invalid_backup": {
+    "message": "Archivo de copia de seguridad no válido."
+  },
+  "confirm_enable_folders": {
+    "message": "Aplicamos el principio: Lo que ves en la extensión es lo que tienes en Chrome.\n\nSe crearán 4 carpetas (A, B, C, D) en los Marcadores de Chrome. ¿Estás de acuerdo?"
+  },
+  "confirm_import_overwrite": {
+    "message": "¿Seguro que quieres importar estos datos? Tu diseño y configuración actuales para ESTA VISTA se sobrescribirán."
+  },
+  "confirm_flattening": {
+    "message": "Nota: todas las carpetas se colocarán en la raíz de la carpeta Organizer (incluidas las subcarpetas), se perderán las estructuras de árbol. Si aceptas, la estructura se aplanará en Chrome. ¿Quieres continuar?"
+  },
+  "confirm_swap": {
+    "message": "¿Seguro que quieres intercambiar el contenido?"
+  },
+  "confirm_delete_panel": {
+    "message": "¿Eliminar este panel?"
+  },
+  "this_folder_empty": {
+    "message": "Esta carpeta está vacía."
+  },
+  "select_folder_settings": {
+    "message": "Seleccione una carpeta en la configuración."
+  },
+  "save_current_setup": {
+    "message": "Guarde su configuración actual"
+  },
+  "move_panels_rightclick": {
+    "message": "Mueva paneles individuales haciendo clic derecho en el encabezado"
+  },
+  "select_sidebar_folder": {
+    "message": "Seleccione una carpeta de la barra lateral"
+  },
+  "btn_hide_clock": {
+    "message": "Ocultar reloj"
+  },
+  "btn_show_clock": {
+    "message": "Mostrar reloj"
+  },
+  "btn_hide_date": {
+    "message": "Ocultar fecha"
+  },
+  "btn_show_date": {
+    "message": "Mostrar fecha"
+  },
+  "btn_hide_day": {
+    "message": "Ocultar día"
+  },
+  "btn_show_day": {
+    "message": "Mostrar día"
+  },
+  "btn_hide_year": {
+    "message": "Ocultar año"
+  },
+  "btn_show_year": {
+    "message": "Mostrar año"
+  },
+  "btn_theme_light": {
+    "message": "Tema: Claro"
+  },
+  "btn_theme_dark": {
+    "message": "Tema: Oscuro"
+  },
+  "btn_theme_custom": {
+    "message": "Tema: Personalizado"
+  },
+  "btn_hide_battery": {
+    "message": "Ocultar batería"
+  },
+  "btn_show_battery": {
+    "message": "Mostrar batería"
+  },
+  "label_date_size": {
+    "message": "Tamaño de la fecha:"
+  },
+  "btn_export_data": {
+    "message": "Exportar datos"
+  },
+  "btn_import_data": {
+    "message": "Importar datos"
+  },
+  "btn_cancel": {
+    "message": "Cancelar"
+  },
+  "label_on_startup": {
+    "message": "al iniciar:"
+  },
+  "label_select_specific_folders": {
+    "message": "Seleccionar carpetas específicas"
+  },
+  "btn_sort_root_folder": {
+    "message": "Ordenar carpeta raíz"
+  },
+  "label_recursive": {
+    "message": "Recursivo"
+  },
+  "select_folders_prompt": {
+    "message": "--Seleccionar carpetas (Ctrl+Clic)--"
+  },
+  "label_import_subfolders": {
+    "message": "Importar subcarpetas como paneles individuales"
+  },
+  "label_position": {
+    "message": "Posición"
+  },
+  "label_top": {
+    "message": "Arriba"
+  },
+  "label_bottom": {
+    "message": "Abajo"
+  },
+  "btn_add": {
+    "message": "Añadir"
+  },
+  "btn_create": {
+    "message": "Crear"
+  },
+  "btn_cancel_modal": {
+    "message": "Cancelar"
+  },
+  "label_notes_name": {
+    "message": "Nombre del panel"
+  },
+  "placeholder_notes_name": {
+    "message": "Título de las notas"
+  }
+}

@@ -4,7 +4,7 @@ function getStorageKey(view) {
     return 'panelsState'; // Default for A
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('i18nReady', () => {
     const settingsPanel = document.getElementById('settings-panel');
     const settingsBtn = document.getElementById('settings-btn');
     const closeBtn = document.getElementById('close-settings-btn');
@@ -28,8 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startupCheckC = document.getElementById('startup-check-C');
     const startupCheckD = document.getElementById('startup-check-D');
 
-
-
+    const useOrganizerFoldersToggle = document.getElementById('use-organizer-folders-toggle');
 
     const bgColorPicker = document.getElementById('bg-color-picker');
     const textColorPicker = document.getElementById('text-color-picker');
@@ -51,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let tempSettings = {};
+    let originalLanguage = 'auto';
 
     // --- Listeners ---
     settingsBtn.addEventListener('click', () => {
@@ -74,6 +74,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    if (useOrganizerFoldersToggle) {
+        useOrganizerFoldersToggle.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                const confirmed = confirm(I18N.getMessage('confirm_enable_folders'));
+                if (confirmed) {
+                    tempSettings.useOrganizerFolders = true;
+                    const rootId = extensionRootFolderSelect.value || '1';
+                    chrome.bookmarks.getChildren(rootId, (children) => {
+                        if (chrome.runtime.lastError) return;
+                        ['A', 'B', 'C', 'D'].forEach(v => {
+                            const folderName = `Organizer ${v}`;
+                            const exists = children.some(c => !c.url && c.title === folderName);
+                            if (!exists) {
+                                chrome.bookmarks.create({ parentId: rootId, title: folderName });
+                            }
+                        });
+                        // Mark upgrade modal as done so it doesn't show up again
+                        chrome.storage.local.set({ foldersUpgradeDone: true });
+                    });
+                } else {
+                    e.target.checked = false;
+                    tempSettings.useOrganizerFolders = false;
+                }
+            } else {
+                alert(I18N.getMessage('alert_auto_move_off'));
+                tempSettings.useOrganizerFolders = false;
+            }
+        });
+    }
+
     sidebarFolderSelect.addEventListener('change', () => {
         tempSettings.sidebarFolderId = sidebarFolderSelect.value;
         const currentFontSize = dateFontSizeSlider ? `${dateFontSizeSlider.value}px` : '11px';
@@ -92,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function populateFolderDropdowns() {
         getBookmarkFolders(folders => {
-            sidebarFolderSelect.innerHTML = '<option value="">Select a Sidebar Folder</option>';
+            sidebarFolderSelect.innerHTML = '<option value="">' + I18N.getMessage('select_sidebar_folder') + '</option>';
 
             // Root Selector: Only specific main folders
             extensionRootFolderSelect.innerHTML = '<option value="">Select Root Folder</option>';
@@ -122,27 +152,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateButtonText() {
-        let themeText = 'Light';
-        if (tempSettings.theme === 'dark') {
-            themeText = 'Dark';
-        } else if (tempSettings.theme === 'custom') {
-            themeText = 'Custom';
+        clockToggleBtn.textContent = tempSettings.showClock ? I18N.getMessage('btn_hide_clock') : I18N.getMessage('btn_show_clock');
+        dateToggleBtn.textContent = tempSettings.showDate ? I18N.getMessage('btn_hide_date') : I18N.getMessage('btn_show_date');
+        dayToggleBtn.textContent = tempSettings.showDayOfWeek ? I18N.getMessage('btn_hide_day') : I18N.getMessage('btn_show_day');
+        yearToggleBtn.textContent = tempSettings.showYear ? I18N.getMessage('btn_hide_year') : I18N.getMessage('btn_show_year');
+        batteryToggleBtn.textContent = tempSettings.showBattery ? I18N.getMessage('btn_hide_battery') : I18N.getMessage('btn_show_battery');
+
+        if (tempSettings.theme === 'light') {
+            themeBtn.textContent = I18N.getMessage('btn_theme_light');
+        } else if (tempSettings.theme === 'dark') {
+            themeBtn.textContent = I18N.getMessage('btn_theme_dark');
+        } else {
+            themeBtn.textContent = I18N.getMessage('btn_theme_custom');
         }
-        themeBtn.textContent = `Theme: ${themeText}`;
-        clockToggleBtn.textContent = `${tempSettings.showClock ? 'Hide' : 'Show'} Clock`;
-        batteryToggleBtn.textContent = `${tempSettings.showBattery ? 'Hide' : 'Show'} Battery`;
-        dateToggleBtn.textContent = `${tempSettings.showDate ? 'Hide' : 'Show'} Date`;
-
-        yearToggleBtn.textContent = `${tempSettings.showYear ? 'Hide' : 'Show'} Year`;
-        dayToggleBtn.textContent = `${tempSettings.showDayOfWeek ? 'Hide' : 'Show'} Day`;
-
-        const dateControlsDisabled = !tempSettings.showDate;
-        yearToggleBtn.disabled = dateControlsDisabled;
-        dayToggleBtn.disabled = dateControlsDisabled;
-
-        // Add a visual hint if needed, though 'disabled' attribute usually handles this.
-        yearToggleBtn.style.opacity = dateControlsDisabled ? '0.5' : '1';
-        dayToggleBtn.style.opacity = dateControlsDisabled ? '0.5' : '1';
     }
 
     dateToggleBtn.addEventListener('click', () => {
@@ -232,6 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
             startupB: valB,
             startupC: valC,
             startupD: valD,
+            useOrganizerFolders: tempSettings.useOrganizerFolders,
+            language: tempSettings.language,
 
             bgColor: bgColorPicker.value,
             sidebarBg: bgColorPicker.value,
@@ -240,6 +264,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         };
         chrome.storage.local.set({ settings: settingsToSave }, () => {
+            if (originalLanguage !== settingsToSave.language) {
+                location.reload();
+                return;
+            }
             settingsPanel.classList.add('hidden');
             applySettings(settingsToSave);
             if (window.populateBookmarkFolderDropdown) {
@@ -253,6 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadSettings() {
         chrome.storage.local.get('settings', data => {
             const currentSettings = data.settings || {};
+            originalLanguage = currentSettings.language || 'auto';
             tempSettings = {
                 theme: currentSettings.theme || 'light',
                 newPanelPosition: currentSettings.newPanelPosition || 'bottom',
@@ -267,13 +296,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 startupB: typeof currentSettings.startupB === 'boolean' ? currentSettings.startupB : false,
                 startupC: typeof currentSettings.startupC === 'boolean' ? currentSettings.startupC : false,
                 startupD: typeof currentSettings.startupD === 'boolean' ? currentSettings.startupD : false,
+                useOrganizerFolders: typeof currentSettings.useOrganizerFolders === 'boolean' ? currentSettings.useOrganizerFolders : false,
 
                 bgColor: currentSettings.bgColor || '#f0f2f5',
                 sidebarBg: currentSettings.sidebarBg || '#ffffff',
                 textColor: currentSettings.textColor || '#1c1e21',
                 accentColor: currentSettings.accentColor || '#e0e0e0',
+                language: currentSettings.language || 'auto',
 
             };
+
+    const languageSelect = document.getElementById('language-select');
+    if (languageSelect) {
+        languageSelect.value = tempSettings.language || 'auto';
+        languageSelect.addEventListener('change', () => {
+            tempSettings.language = languageSelect.value;
+            saveSettings(); // Immediate reload
+            // Immediate effect requires reload, but we'll let saveSettings handle it
+        });
+    }
+
 
             updateButtonText();
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
@@ -283,6 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (startupCheckB) startupCheckB.checked = tempSettings.startupB;
             if (startupCheckC) startupCheckC.checked = tempSettings.startupC;
             if (startupCheckD) startupCheckD.checked = tempSettings.startupD;
+            if (useOrganizerFoldersToggle) useOrganizerFoldersToggle.checked = tempSettings.useOrganizerFolders;
 
             let fontSize = currentSettings.dateFontSize || '11px';
             let numericSize = parseInt(fontSize.replace('px', '').replace('rem', ''));
@@ -355,7 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reader.onload = (e) => {
             try {
                 const importedData = JSON.parse(e.target.result);
-                if (confirm(`Are you sure you want to import this data? Your current layout and settings for THIS VIEW will be overwritten.`)) {
+                if (confirm(I18N.getMessage('confirm_import_overwrite'))) {
 
                     const panels = importedData[STORAGE_KEY] || [];
                     const bookmarkPanelFixes = [];
@@ -384,20 +427,93 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     Promise.all(bookmarkPanelFixes).then(() => {
                         chrome.storage.local.set(importedData, () => {
-                            alert(`Data for ${CURRENT_VIEW} imported successfully! The page will now reload.`);
+                            alert(I18N.getMessage('alert_import_success'));
                             location.reload();
                         });
                     });
                 }
             } catch (err) {
-                alert('Invalid backup file.');
+                alert(I18N.getMessage('alert_invalid_backup'));
             }
         };
         reader.readAsText(file);
         importFileInput.value = '';
     });
 
+    // --- Swap Organizers Logic ---
+    const swapOrganizersBtn = document.getElementById('swap-organizers-btn');
+    const swapSelect1 = document.getElementById('swap-select-1');
+    const swapSelect2 = document.getElementById('swap-select-2');
 
+    if (swapOrganizersBtn) {
+        swapOrganizersBtn.addEventListener('click', () => {
+            const view1 = swapSelect1.value;
+            const view2 = swapSelect2.value;
+
+            if (view1 === view2) {
+                alert(I18N.getMessage('alert_select_two_different'));
+                return;
+            }
+
+            if (confirm(I18N.getMessage('confirm_swap'))) {
+                // Determine storage keys
+                const getKey = (v) => v === 'A' ? 'panelsState' : `panelsState_${v}`;
+                const key1 = getKey(view1);
+                const key2 = getKey(view2);
+                
+                chrome.storage.local.get([key1, key2, 'settings'], (data) => {
+                    const panels1 = data[key1] || [];
+                    const panels2 = data[key2] || [];
+                    const isFoldersEnabled = data.settings && data.settings.useOrganizerFolders;
+                    const rootId = (data.settings && data.settings.rootFolderId) || '1';
+
+                    const performDataSwap = () => {
+                        const newData = {};
+                        newData[key1] = panels2;
+                        newData[key2] = panels1;
+
+                        chrome.storage.local.set(newData, () => {
+                            alert(I18N.getMessage('alert_swap_success'));
+                            location.reload();
+                        });
+                    };
+
+                    if (isFoldersEnabled) {
+                        // Rename physical folders
+                        chrome.bookmarks.getChildren(rootId, (children) => {
+                            if (chrome.runtime.lastError) {
+                                console.error(chrome.runtime.lastError);
+                                performDataSwap(); // fallback
+                                return;
+                            }
+                            
+                            const name1 = `Organizer ${view1}`;
+                            const name2 = `Organizer ${view2}`;
+                            
+                            const folder1 = children.find(c => !c.url && c.title === name1);
+                            const folder2 = children.find(c => !c.url && c.title === name2);
+                            
+                            if (folder1 && folder2) {
+                                // Swap using a temporary name to avoid collisions
+                                const tempName = `Organizer_TEMP_${Date.now()}`;
+                                chrome.bookmarks.update(folder1.id, { title: tempName }, () => {
+                                    chrome.bookmarks.update(folder2.id, { title: name1 }, () => {
+                                        chrome.bookmarks.update(folder1.id, { title: name2 }, () => {
+                                            performDataSwap();
+                                        });
+                                    });
+                                });
+                            } else {
+                                performDataSwap(); // one or both folders missing
+                            }
+                        });
+                    } else {
+                        performDataSwap();
+                    }
+                });
+            }
+        });
+    }
 
     populateFolderDropdowns();
     loadSettings();

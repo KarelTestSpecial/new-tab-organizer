@@ -53,6 +53,21 @@
             </div>
         </main>
         <div id="settings-panel" class="hidden">
+            <!-- Language Selector -->
+            <div class="settings-section" style="padding-bottom: 10px; border-bottom: 1px solid var(--border-color); margin-bottom: 15px;">
+                <div class="form-group" style="margin: 0; display: flex; align-items: center;">
+                    <label data-i18n="settings_language" style="margin-right: 10px;">Taal (Language):</label>
+                    <select id="language-select" class="settings-select" style="min-width: 150px; padding: 5px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-color);">
+                        <option value="auto" data-i18n="settings_language_auto">Auto (Browser Default)</option>
+                        <option value="en">English</option>
+                        <option value="nl">Nederlands</option>
+                        <option value="fr">Français</option>
+                        <option value="de">Deutsch</option>
+                        <option value="es">Español</option>
+                        <option value="pt">Português</option>
+                    </select>
+                </div>
+            </div>
 
 
                     <!-- Section 1: Toggles (Sidebar Label) & Date Font Size/Sidebar Folder -->            <div class="settings-section">
@@ -72,11 +87,11 @@
                 <div class="form-group inline-section"
                     style="display: flex; align-items: center; justify-content: flex-start; gap: 15px; width: 100%; margin-bottom: 0;">
                     <div style="display: flex; gap: 8px;">
-                        <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
-                        <button type="button" id="battery-toggle-btn" class="settings-btn-item">Show Battery</button>
+                        <button type="button" id="theme-toggle-btn" class="settings-btn-item" data-i18n="btn_theme_light">Theme: Light</button>
+                        <button type="button" id="battery-toggle-btn" class="settings-btn-item" data-i18n="btn_show_battery">Show Battery</button>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px; width: 190px;">
-                        <label for="date-font-size-slider" style="margin:0; white-space: nowrap; font-size: 0.8rem;">Date Size:</label>
+                        <label for="date-font-size-slider" style="margin:0; white-space: nowrap; font-size: 0.8rem;" data-i18n="label_date_size">Date Size:</label>
                         <input type="range" id="date-font-size-slider" min="8" max="18" step="1"
                             style="flex-grow: 1; cursor: pointer;">
                         <span id="date-font-size-value" style="min-width: 25px; text-align: right; font-size: 0.8rem;">11px</span>
@@ -101,11 +116,11 @@
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <div style="font-size: 0.8rem; opacity: 0.7; text-align: right; line-height: 1.2;">
-                        Save your current<br>setup
+                        <span data-i18n="save_current_setup">Save your current setup</span>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 8px;">
-                        <button type="button" id="export-data-btn" class="settings-btn-item">Export Data</button>
-                        <button type="button" id="import-data-btn" class="settings-btn-item">Import Data</button>
+                        <button type="button" id="export-data-btn" class="settings-btn-item" data-i18n="btn_export_data">Export Data</button>
+                        <button type="button" id="import-data-btn" class="settings-btn-item" data-i18n="btn_import_data">Import Data</button>
                     </div>
                 </div>
             </div>
@@ -114,7 +129,7 @@
             <div class="settings-section">
                 <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
                     <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%;">
-                        <button id="swap-organizers-btn" class="settings-btn-item" style="font-size: 0.8rem;">Swap content between</button>
+                        <button id="swap-organizers-btn" class="settings-btn-item" style="font-size: 0.8rem;"><span data-i18n="settings_swap_btn">Swap content between</span></button>
                         <div class="swap-controls" style="display: flex; align-items: center; gap: 5px;">
                             <select id="swap-select-1" style="min-width: 140px;">
                                 <option value="A">Organizer A</option>
@@ -131,7 +146,7 @@
                             </select>
                         </div>
                     </div>
-                    <p style="text-align: right; margin: 0;">Move Individual Panels by Rightclicking Panel Header&nbsp;&nbsp;&nbsp;</p>
+                    <p style="text-align: right; margin: 0;" data-i18n="move_panels_rightclick">Move Individual Panels by Rightclicking Panel Header&nbsp;&nbsp;&nbsp;</p>
                 </div>
             </div>
 
@@ -141,20 +156,27 @@
                     style="display: flex; align-items: center; justify-content: flex-start; gap: 15px; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <select id="sidebar-folder-select" style="min-width: 180px;">
-                            <option value="">Select a Sidebar Folder</option>
+                            <option value="" data-i18n="select_sidebar_folder">Select a Sidebar Folder</option>
                         </select>
                         <select id="extension-root-folder-select" style="min-width: 180px;">
                             <option value="">Select Root Folder</option>
                         </select>
                     </div>
                 </div>
-
+                <div style="margin-top: 15px;">
+                    <label style="cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+                        <input type="checkbox" id="use-organizer-folders-toggle"> <span data-i18n="settings_toggle_folders">Maak 4 mappen in Chrome Bookmarks : Organizer A , Organizer B , Organizer C , Organizer D</span>
+                    </label>
+                    <div style="font-size: 0.75rem; color: #777; margin-top: 5px; margin-left: 20px;">
+                        <span data-i18n="settings_toggle_desc">Zet je dit uit, dan stopt het automatisch verplaatsen. Bestaande mappen in Chrome blijven behouden.</span>
+                    </div>
+                </div>
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
 
             <div class="settings-footer">
                 <div style="display: flex; gap: 10px;">
-                    <button id="save-settings-btn">Save and Close</button>
+                    <button id="save-settings-btn"><span data-i18n="settings_save">Save and Close</span></button>
                     <button id="close-settings-btn">Cancel</button>
                 </div>
                 <div class="startup-options">
@@ -188,7 +210,7 @@
                     </div>
                     <div class="form-actions">
                         <button type="submit">Move Panel</button>
-                        <button type="button" class="cancel-btn">Cancel</button>
+                        <button type="button" class="cancel-btn" data-i18n="btn_cancel_modal">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -205,7 +227,7 @@
                     </div>
                     <div class="form-actions">
                         <button type="submit" id="confirm-delete-folder-btn" disabled>Delete Forever</button>
-                        <button type="button" class="cancel-btn">Cancel</button>
+                        <button type="button" class="cancel-btn" data-i18n="btn_cancel_modal">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -213,16 +235,16 @@
 
         <div id="add-notes-panel-modal" class="modal hidden">
             <div class="modal-content">
-                <h2>Add New Notes Panel</h2>
+                <h2 data-i18n="add_notes_title">Add New Notes Panel</h2>
                 <form id="add-notes-panel-form">
                     <div class="form-group">
-                        <label>Position</label>
-                        <label><input type="radio" name="notes-position" value="top"> Top</label>
-                        <label><input type="radio" name="notes-position" value="bottom" checked> Bottom</label>
+                        <label data-i18n="label_position">Position</label>
+                        <label><input type="radio" name="notes-position" value="top"> <span data-i18n="label_top">Top</span></label>
+                        <label><input type="radio" name="notes-position" value="bottom" checked> <span data-i18n="label_bottom">Bottom</span></label>
                     </div>
                     <div class="form-actions">
-                        <button type="submit">Create</button>
-                        <button type="button" class="cancel-btn">Cancel</button>
+                        <button type="submit" data-i18n="btn_create">Create</button>
+                        <button type="button" class="cancel-btn" data-i18n="btn_cancel_modal">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -230,15 +252,23 @@
 
         <div id="add-bookmarks-panel-modal" class="modal hidden">
             <div class="modal-content">
-                <h2 style="margin-bottom: 20px;">Add New Bookmark Panel</h2>
+                <h2 style="margin-bottom: 20px;" data-i18n="add_bookmark_title">Add New Bookmark Panel</h2>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="text" id="new-bookmark-folder-name" data-i18n-placeholder="add_bookmark_new_folder_placeholder" placeholder="Naam nieuwe map" style="padding: 6px; font-size: 0.9rem; width: 200px;">
+                        <button type="button" id="create-new-bookmark-folder-btn" class="settings-btn-item" style="padding: 6px 15px; font-weight: bold;" data-i18n="add_bookmark_new_folder">Maak Nieuwe Map</button>
+                    </div>
+                </div>
+
                 <form id="add-bookmarks-panel-form">
                     <!-- Top Row: Label and Sorting Controls -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <label for="panel-folder-select" style="margin: 0; font-weight: bold;">Select Specific Folders</label>
+                        <label for="panel-folder-select" style="margin: 0; font-weight: bold;" data-i18n="label_select_specific_folders">Select Specific Folders</label>
                         <div style="display: flex; align-items: center; gap: 12px;">
-                            <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 5px 12px; font-size: 0.85rem; font-weight: bold;">Sort Root Folder</button>
+                            <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 5px 12px; font-size: 0.85rem; font-weight: bold;" data-i18n="btn_sort_root_folder">Sort Root Folder</button>
                             <label style="font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" id="sort-recursive-popup-checkbox"> Recursive
+                                <input type="checkbox" id="sort-recursive-popup-checkbox"> <span data-i18n="label_recursive">Recursive</span>
                             </label>
                         </div>
                     </div>
@@ -246,38 +276,59 @@
                     <!-- Select Box -->
                     <div class="form-group">
                         <select id="panel-folder-select" multiple size="8" style="width: 100%; padding: 5px; min-height: 150px;">
-                            <option value="">--Select folders (Ctrl+Click)--</option>
+                            <option value="" data-i18n="select_folders_prompt">--Select folders (Ctrl+Click)--</option>
                         </select>
                     </div>
 
                     <!-- Import Options Row -->
                     <div class="form-group" style="display: flex; align-items: center; gap: 25px; margin-top: 15px; margin-bottom: 20px;">
                         <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;">
-                            <input type="checkbox" id="import-subfolders-checkbox"> Import subfolders as individual panels
+                            <input type="checkbox" id="import-subfolders-checkbox"> <span data-i18n="label_import_subfolders">Import subfolders as individual panels</span>
                         </label>
                         <label id="recursive-import-label" class="hidden" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;">
-                            <input type="checkbox" id="import-recursive-checkbox"> Recursive
+                            <input type="checkbox" id="import-recursive-checkbox"> <span data-i18n="label_recursive">Recursive</span>
                         </label>
                     </div>
 
                     <!-- Footer: Position and Actions -->
                     <div class="form-actions" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
                         <div style="display: flex; align-items: center; gap: 20px;">
-                            <span style="font-weight: bold; font-size: 0.9rem;">Position</span>
+                            <span style="font-weight: bold; font-size: 0.9rem;" data-i18n="label_position">Position</span>
                             <div style="display: flex; gap: 15px;">
-                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;"><input type="radio" name="bookmarks-position" value="top"> Top</label>
-                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;"><input type="radio" name="bookmarks-position" value="bottom" checked> Bottom</label>
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;"><input type="radio" name="bookmarks-position" value="top"> <span data-i18n="label_top">Top</span></label>
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;"><input type="radio" name="bookmarks-position" value="bottom" checked> <span data-i18n="label_bottom">Bottom</span></label>
                             </div>
                         </div>
                         <div style="display: flex; gap: 12px;">
-                            <button type="submit" style="min-width: 80px; font-weight: bold;">Add</button>
-                            <button type="button" class="cancel-btn" style="min-width: 80px;">Cancel</button>
+                            <button type="submit" style="min-width: 80px; font-weight: bold;" data-i18n="btn_add">Add</button>
+                            <button type="button" class="cancel-btn" style="min-width: 80px;" data-i18n="btn_cancel_modal">Cancel</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
+        <div id="upgrade-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2 style="margin-bottom: 20px;" data-i18n="upgrade_title">Nieuwe Functie: Organizer Mappen</h2>
+                <p data-i18n="upgrade_desc1"><strong>Upgrade:</strong> Vanaf nu werkt de extensie met speciale mappen! <strong>We hanteren het principe: Wat je in de extensie ziet, is wat je in Chrome hebt.</strong></p>
+                <p data-i18n="upgrade_desc2">Elke Organizer (A, B, C en D) krijgt zijn eigen fysieke map in je Chrome bladwijzers. Dit houdt alles netjes gescheiden. Wanneer je straks een bladwijzerpaneel verplaatst (via het rechtermuisklik-menu of door inhoud te wisselen in de instellingen), zal de extensie ook automatisch de bijbehorende fysieke map in Chrome verplaatsen.</p>
+                <p style="margin-bottom: 15px;" data-i18n="upgrade_where">Waar wil je dat wij de 4 hoofdmappen voor jou aanmaken?</p>
+                <form id="upgrade-form">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <select id="upgrade-root-select" style="width: 100%; padding: 8px;">
+                            <option value="1">Bladwijzerbalk (Bookmark Bar)</option>
+                            <option value="2">Andere Bladwijzers (Other Bookmarks)</option>
+                        </select>
+                    </div>
+                    <div class="form-actions" style="display: flex; justify-content: space-between;">
+                        <button type="submit" style="font-weight: bold;">Toestaan en Mappen Aanmaken</button>
+                        <button type="button" id="upgrade-cancel-btn" class="cancel-btn">Nu niet</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
+    <script src="js/i18n.js"></script>
     <script src="js/bookmarks.js"></script>
     <script src="js/panels.js"></script>
     <script src="js/app.js"></script>

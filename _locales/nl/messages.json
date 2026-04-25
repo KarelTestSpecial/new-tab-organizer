@@ -1,0 +1,274 @@
+{
+  "extName": {
+    "message": "NewTab Startpage Organizer Dashboard",
+    "description": "Name of the extension"
+  },
+  "extDesc": {
+    "message": "Maak van je nieuwe tabblad een georganiseerde werkruimte. Houd bladwijzers gescheiden per context. Minimalistisch en prachtig.",
+    "description": "Description of the extension"
+  },
+  "settings_title": {
+    "message": "Instellingen"
+  },
+  "settings_language": {
+    "message": "Taal (Language)"
+  },
+  "settings_language_auto": {
+    "message": "Auto (Browser Standaard)"
+  },
+  "settings_visual": {
+    "message": "Visuele Instellingen"
+  },
+  "settings_bg_color": {
+    "message": "Achtergrondkleur"
+  },
+  "settings_text_color": {
+    "message": "Tekstkleur"
+  },
+  "settings_accent_color": {
+    "message": "Accentkleur"
+  },
+  "settings_date_font_size": {
+    "message": "Lettergrootte Datum"
+  },
+  "settings_show_battery": {
+    "message": "Toon Batterij Status"
+  },
+  "settings_startup_views": {
+    "message": "Opstart Weergaven"
+  },
+  "settings_startup_desc": {
+    "message": "Kies welke weergaven er in nieuwe tabbladen openen wanneer Chrome start:"
+  },
+  "settings_sidebar_folder": {
+    "message": "Selecteer Sidebar Bookmarks Map:"
+  },
+  "settings_folders": {
+    "message": "Mappen & Synchronisatie"
+  },
+  "settings_root_folder": {
+    "message": "Waar wil je dat wij de Organizer mappen plaatsen?"
+  },
+  "settings_toggle_folders": {
+    "message": "Maak 4 mappen in Chrome Bookmarks : Organizer A, Organizer B, Organizer C, Organizer D"
+  },
+  "settings_toggle_desc": {
+    "message": "Zet je dit uit, dan stopt het automatisch verplaatsen. Bestaande mappen in Chrome blijven behouden."
+  },
+  "settings_swap": {
+    "message": "Wissel Organizers"
+  },
+  "settings_swap_desc": {
+    "message": "Wissel veilig de inhoud van twee Organizers om."
+  },
+  "settings_swap_btn": {
+    "message": "Wissel inhoud tussen"
+  },
+  "settings_backup": {
+    "message": "Back-up & Importeren"
+  },
+  "settings_export": {
+    "message": "Exporteer Lay-out (Huidige Weergave)"
+  },
+  "settings_import": {
+    "message": "Importeer Lay-out (Huidige Weergave)"
+  },
+  "settings_save": {
+    "message": "Opslaan en Sluiten"
+  },
+  "add_bookmark_title": {
+    "message": "Nieuw Bladwijzer Paneel Toevoegen"
+  },
+  "add_bookmark_new_folder": {
+    "message": "Maak Nieuwe Map"
+  },
+  "add_bookmark_new_folder_placeholder": {
+    "message": "Naam nieuwe map"
+  },
+  "add_bookmark_select_desc": {
+    "message": "Selecteer één of meerdere bladwijzermappen om als panelen weer te geven:"
+  },
+  "add_bookmark_recursive_desc": {
+    "message": "Ook submappen binnen de geselecteerde mappen importeren?"
+  },
+  "add_bookmark_btn": {
+    "message": "Voeg Bladwijzer Paneel Toe"
+  },
+  "add_bookmark_cancel": {
+    "message": "Annuleren"
+  },
+  "add_notes_title": {
+    "message": "Nieuw Notitiepaneel Toevoegen"
+  },
+  "add_notes_placeholder": {
+    "message": "Voer titel voor notitiepaneel in..."
+  },
+  "add_notes_btn": {
+    "message": "Voeg Notitie Paneel Toe"
+  },
+  "upgrade_title": {
+    "message": "Nieuwe Functie: Organizer Mappen"
+  },
+  "upgrade_desc1": {
+    "message": "Upgrade: Vanaf nu werkt de extensie met speciale mappen! We hanteren het principe: Wat je in de extensie ziet, is wat je in Chrome hebt."
+  },
+  "upgrade_desc2": {
+    "message": "Elke Organizer (A, B, C en D) krijgt zijn eigen fysieke map in je Chrome bladwijzers. Dit houdt alles netjes gescheiden. Wanneer je straks een bladwijzerpaneel verplaatst (via het rechtermuisklik-menu of door inhoud te wisselen in de instellingen), zal de extensie ook automatisch de bijbehorende fysieke map in Chrome verplaatsen."
+  },
+  "upgrade_where": {
+    "message": "Waar wil je dat wij de 4 hoofdmappen voor jou aanmaken?"
+  },
+  "upgrade_btn_ok": {
+    "message": "Maak Mappen & Start"
+  },
+  "upgrade_btn_cancel": {
+    "message": "Niet nu"
+  },
+  "alert_provide_name": {
+    "message": "Vul een naam in voor de nieuwe map."
+  },
+  "alert_error_creating": {
+    "message": "Fout bij het aanmaken van de map: "
+  },
+  "alert_auto_move_off": {
+    "message": "Automatisch verplaatsen van mappen is uitgeschakeld. Je bestaande Organizer mappen zijn (nog) niet verwijderd."
+  },
+  "alert_select_two_different": {
+    "message": "Selecteer twee verschillende organizers om te wisselen."
+  },
+  "alert_swap_success": {
+    "message": "Inhoud succesvol gewisseld. De pagina wordt nu herladen."
+  },
+  "alert_select_one_folder": {
+    "message": "Selecteer tenminste één bladwijzermap."
+  },
+  "alert_import_success": {
+    "message": "Data succesvol geïmporteerd! De pagina wordt nu herladen."
+  },
+  "alert_invalid_backup": {
+    "message": "Ongeldig back-up bestand."
+  },
+  "confirm_enable_folders": {
+    "message": "We hanteren het principe: Wat je in de extensie ziet, is wat je in Chrome hebt.\n\n4 mappen (Organizer A, B, C, D) worden aangemaakt in Chrome Bookmarks. Wanneer je straks panelen verplaatst via rechtsklik of de swap-knop, zullen ook de bijbehorende mappen in Chrome verplaatst worden.\n\nGa je akkoord?"
+  },
+  "confirm_import_overwrite": {
+    "message": "Weet je zeker dat je deze data wilt importeren? Je huidige lay-out en instellingen voor DEZE WEERGAVE worden overschreven."
+  },
+  "confirm_flattening": {
+    "message": "Let op: alle mappen worden in de root geplaatst van de Organizer map (ook submappen) , eventuele boomstructuren gaan verloren -- alles wordt één vlakke structuur met alle mappen naast elkaar zonder submappen. Ga je akkoord, dan wordt de mappenstructuur effectief platgemaakt in Chrome. Wil je doorgaan?"
+  },
+  "confirm_swap": {
+    "message": "Weet je zeker dat je de inhoud wilt wisselen?"
+  },
+  "confirm_delete_panel": {
+    "message": "Dit paneel verwijderen?"
+  },
+  "this_folder_empty": {
+    "message": "Deze map is leeg."
+  },
+  "select_folder_settings": {
+    "message": "Selecteer een map in de instellingen."
+  },
+  "save_current_setup": {
+    "message": "Sla je huidige layout op"
+  },
+  "move_panels_rightclick": {
+    "message": "Verplaats individuele panelen door rechts te klikken op de titel"
+  },
+  "select_sidebar_folder": {
+    "message": "Selecteer een Zijbalk Map"
+  },
+  "btn_hide_clock": {
+    "message": "Verberg Klok"
+  },
+  "btn_show_clock": {
+    "message": "Toon Klok"
+  },
+  "btn_hide_date": {
+    "message": "Verberg Datum"
+  },
+  "btn_show_date": {
+    "message": "Toon Datum"
+  },
+  "btn_hide_day": {
+    "message": "Verberg Dag"
+  },
+  "btn_show_day": {
+    "message": "Toon Dag"
+  },
+  "btn_hide_year": {
+    "message": "Verberg Jaar"
+  },
+  "btn_show_year": {
+    "message": "Toon Jaar"
+  },
+  "btn_theme_light": {
+    "message": "Thema: Licht"
+  },
+  "btn_theme_dark": {
+    "message": "Thema: Donker"
+  },
+  "btn_theme_custom": {
+    "message": "Thema: Aangepast"
+  },
+  "btn_hide_battery": {
+    "message": "Verberg Batterij"
+  },
+  "btn_show_battery": {
+    "message": "Toon Batterij"
+  },
+  "label_date_size": {
+    "message": "Datumgrootte:"
+  },
+  "btn_export_data": {
+    "message": "Exporteer Data"
+  },
+  "btn_import_data": {
+    "message": "Importeer Data"
+  },
+  "btn_cancel": {
+    "message": "Annuleren"
+  },
+  "label_on_startup": {
+    "message": "bij opstarten:"
+  },
+  "label_select_specific_folders": {
+    "message": "Selecteer Specifieke Mappen"
+  },
+  "btn_sort_root_folder": {
+    "message": "Sorteer Hoofdmap"
+  },
+  "label_recursive": {
+    "message": "Recursief"
+  },
+  "select_folders_prompt": {
+    "message": "--Selecteer mappen (Ctrl+Klik)--"
+  },
+  "label_import_subfolders": {
+    "message": "Importeer submappen als individuele panelen"
+  },
+  "label_position": {
+    "message": "Positie"
+  },
+  "label_top": {
+    "message": "Boven"
+  },
+  "label_bottom": {
+    "message": "Onder"
+  },
+  "btn_add": {
+    "message": "Toevoegen"
+  },
+  "btn_create": {
+    "message": "Aanmaken"
+  },
+  "btn_cancel_modal": {
+    "message": "Annuleren"
+  },
+  "label_notes_name": {
+    "message": "Paneelnaam"
+  },
+  "placeholder_notes_name": {
+    "message": "Notitietitel"
+  }
+}

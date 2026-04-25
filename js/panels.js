@@ -38,31 +38,63 @@ window.movePanelToOrganizer = function (panelId, sourceView, destinationView, po
                 destinationPanels.push(panelToMove);
             }
 
-            chrome.storage.local.set({
-                [sourceKey]: sourcePanels,
-                [destinationKey]: destinationPanels
-            }, () => {
-                if (chrome.runtime.lastError) {
-                    console.error(chrome.runtime.lastError);
-                    alert('An error occurred while moving the panel.');
-                } else {
-                    // --- Refresh affected tabs ---
-                    const viewsToReload = [sourceView, destinationView];
-                    viewsToReload.forEach(view => {
-                        // CURRENT_VIEW is available globally from app.js by the time this runs
-                        if (typeof CURRENT_VIEW !== 'undefined' && view === CURRENT_VIEW) return;
+            const finishMove = () => {
+                chrome.storage.local.set({
+                    [sourceKey]: sourcePanels,
+                    [destinationKey]: destinationPanels
+                }, () => {
+                    if (chrome.runtime.lastError) {
+                        console.error(chrome.runtime.lastError);
+                        alert('An error occurred while moving the panel.');
+                    } else {
+                        // --- Refresh affected tabs ---
+                        const viewsToReload = [sourceView, destinationView];
+                        viewsToReload.forEach(view => {
+                            // CURRENT_VIEW is available globally from app.js by the time this runs
+                            if (typeof CURRENT_VIEW !== 'undefined' && view === CURRENT_VIEW) return;
 
-                        const urlToReload = chrome.runtime.getURL(`panel${view}.html`);
-                        chrome.tabs.query({ url: urlToReload }, (tabs) => {
-                            if (tabs.length > 0) chrome.tabs.reload(tabs[0].id);
+                            const urlToReload = chrome.runtime.getURL(`panel${view}.html`);
+                            chrome.tabs.query({ url: urlToReload }, (tabs) => {
+                                if (tabs.length > 0) chrome.tabs.reload(tabs[0].id);
+                            });
                         });
-                    });
 
-                    if (typeof CURRENT_VIEW !== 'undefined' && viewsToReload.includes(CURRENT_VIEW)) {
-                        setTimeout(() => location.reload(), 150);
+                        if (typeof CURRENT_VIEW !== 'undefined' && viewsToReload.includes(CURRENT_VIEW)) {
+                            setTimeout(() => location.reload(), 150);
+                        }
                     }
-                }
-            });
+                });
+            };
+
+            // Move the actual bookmark folder if it's a bookmark panel
+            if (panelToMove.type === 'bookmarks' && panelToMove.folderId) {
+                chrome.storage.local.get('settings', (settingsData) => {
+                    const settings = settingsData.settings || {};
+                    if (!settings.useOrganizerFolders) {
+                        finishMove();
+                        return;
+                    }
+                    const rootId = settings.rootFolderId || '1';
+                    const destFolderName = `Organizer ${destinationView}`;
+
+                    chrome.bookmarks.getChildren(rootId, (children) => {
+                        if (chrome.runtime.lastError) {
+                            finishMove();
+                            return;
+                        }
+                        const destFolder = children.find(c => !c.url && c.title === destFolderName);
+                        if (destFolder) {
+                            chrome.bookmarks.move(panelToMove.folderId, { parentId: destFolder.id }, () => {
+                                finishMove();
+                            });
+                        } else {
+                            finishMove();
+                        }
+                    });
+                });
+            } else {
+                finishMove();
+            }
         } else {
             alert('Could not find the panel to move. It might have been deleted.');
         }

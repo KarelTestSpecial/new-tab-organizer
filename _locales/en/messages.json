@@ -1,0 +1,274 @@
+{
+  "extName": {
+    "message": "NewTab Startpage Organizer Dashboard",
+    "description": "Name of the extension"
+  },
+  "extDesc": {
+    "message": "Turn your new tab into an organized workspace. Keep bookmarks separated by context. Minimalist and beautiful.",
+    "description": "Description of the extension"
+  },
+  "settings_title": {
+    "message": "Settings"
+  },
+  "settings_language": {
+    "message": "Language"
+  },
+  "settings_language_auto": {
+    "message": "Auto (Browser Default)"
+  },
+  "settings_visual": {
+    "message": "Visual Settings"
+  },
+  "settings_bg_color": {
+    "message": "Background Color"
+  },
+  "settings_text_color": {
+    "message": "Text Color"
+  },
+  "settings_accent_color": {
+    "message": "Accent Color"
+  },
+  "settings_date_font_size": {
+    "message": "Date Font Size"
+  },
+  "settings_show_battery": {
+    "message": "Show Battery Status"
+  },
+  "settings_startup_views": {
+    "message": "Startup Views"
+  },
+  "settings_startup_desc": {
+    "message": "Select which views to open in new tabs when Chrome starts:"
+  },
+  "settings_sidebar_folder": {
+    "message": "Select Sidebar Bookmarks Folder:"
+  },
+  "settings_folders": {
+    "message": "Folders & Syncing"
+  },
+  "settings_root_folder": {
+    "message": "Where should the Organizer folders be placed?"
+  },
+  "settings_toggle_folders": {
+    "message": "Create 4 folders in Chrome Bookmarks : Organizer A, Organizer B, Organizer C, Organizer D"
+  },
+  "settings_toggle_desc": {
+    "message": "If turned off, automatic moving stops. Existing folders in Chrome are preserved."
+  },
+  "settings_swap": {
+    "message": "Swap Organizers"
+  },
+  "settings_swap_desc": {
+    "message": "Safely swap the contents of two Organizers."
+  },
+  "settings_swap_btn": {
+    "message": "Swap content between"
+  },
+  "settings_backup": {
+    "message": "Backup & Import"
+  },
+  "settings_export": {
+    "message": "Export Layout (Current View)"
+  },
+  "settings_import": {
+    "message": "Import Layout (Current View)"
+  },
+  "settings_save": {
+    "message": "Save and Close"
+  },
+  "add_bookmark_title": {
+    "message": "Add New Bookmark Panel"
+  },
+  "add_bookmark_new_folder": {
+    "message": "Create New Folder"
+  },
+  "add_bookmark_new_folder_placeholder": {
+    "message": "New folder name"
+  },
+  "add_bookmark_select_desc": {
+    "message": "Select one or more bookmark folders to display as panels:"
+  },
+  "add_bookmark_recursive_desc": {
+    "message": "Also import subfolders inside the selected folders?"
+  },
+  "add_bookmark_btn": {
+    "message": "Add Bookmarks Panel"
+  },
+  "add_bookmark_cancel": {
+    "message": "Cancel"
+  },
+  "add_notes_title": {
+    "message": "Add New Notes Panel"
+  },
+  "add_notes_placeholder": {
+    "message": "Enter title for notes panel..."
+  },
+  "add_notes_btn": {
+    "message": "Add Notes Panel"
+  },
+  "upgrade_title": {
+    "message": "New Feature: Organizer Folders"
+  },
+  "upgrade_desc1": {
+    "message": "Upgrade: The extension now works with special folders! We use the principle: What you see in the extension is what you have in Chrome."
+  },
+  "upgrade_desc2": {
+    "message": "Each Organizer (A, B, C, and D) gets its own physical folder in your Chrome bookmarks. This keeps everything neatly separated. When you move a panel later (via right-click or the swap button), the extension will automatically move the corresponding physical folder in Chrome."
+  },
+  "upgrade_where": {
+    "message": "Where do you want us to create the 4 main folders for you?"
+  },
+  "upgrade_btn_ok": {
+    "message": "Create Folders & Start"
+  },
+  "upgrade_btn_cancel": {
+    "message": "Not Now"
+  },
+  "alert_provide_name": {
+    "message": "Please provide a name for the new folder."
+  },
+  "alert_error_creating": {
+    "message": "Error creating folder: "
+  },
+  "alert_auto_move_off": {
+    "message": "Automatic folder moving is disabled. Your existing Organizer folders have NOT been removed."
+  },
+  "alert_select_two_different": {
+    "message": "Please select two different organizers to swap."
+  },
+  "alert_swap_success": {
+    "message": "Content swapped successfully. The page will now reload."
+  },
+  "alert_select_one_folder": {
+    "message": "Please select at least one bookmark folder."
+  },
+  "alert_import_success": {
+    "message": "Data imported successfully! The page will now reload."
+  },
+  "alert_invalid_backup": {
+    "message": "Invalid backup file."
+  },
+  "confirm_enable_folders": {
+    "message": "We use the principle: What you see in the extension is what you have in Chrome.\n\n4 folders (Organizer A, B, C, D) will be created in Chrome Bookmarks. When you move panels via right-click or swap, the corresponding folders in Chrome will also be moved.\n\nDo you agree?"
+  },
+  "confirm_import_overwrite": {
+    "message": "Are you sure you want to import this data? Your current layout and settings for THIS VIEW will be overwritten."
+  },
+  "confirm_flattening": {
+    "message": "Note: all folders will be placed in the root of the Organizer folder (including subfolders), any tree structures will be lost -- everything will become one flat structure with all folders next to each other without subfolders. If you agree, the folder structure will be effectively flattened in Chrome. Do you want to continue?"
+  },
+  "confirm_swap": {
+    "message": "Are you sure you want to swap the contents?"
+  },
+  "confirm_delete_panel": {
+    "message": "Remove this panel?"
+  },
+  "this_folder_empty": {
+    "message": "This folder is empty."
+  },
+  "select_folder_settings": {
+    "message": "Select a folder in settings."
+  },
+  "save_current_setup": {
+    "message": "Save your current setup"
+  },
+  "move_panels_rightclick": {
+    "message": "Move Individual Panels by Rightclicking Panel Header"
+  },
+  "select_sidebar_folder": {
+    "message": "Select a Sidebar Folder"
+  },
+  "btn_hide_clock": {
+    "message": "Hide Clock"
+  },
+  "btn_show_clock": {
+    "message": "Show Clock"
+  },
+  "btn_hide_date": {
+    "message": "Hide Date"
+  },
+  "btn_show_date": {
+    "message": "Show Date"
+  },
+  "btn_hide_day": {
+    "message": "Hide Day"
+  },
+  "btn_show_day": {
+    "message": "Show Day"
+  },
+  "btn_hide_year": {
+    "message": "Hide Year"
+  },
+  "btn_show_year": {
+    "message": "Show Year"
+  },
+  "btn_theme_light": {
+    "message": "Theme: Light"
+  },
+  "btn_theme_dark": {
+    "message": "Theme: Dark"
+  },
+  "btn_theme_custom": {
+    "message": "Theme: Custom"
+  },
+  "btn_hide_battery": {
+    "message": "Hide Battery"
+  },
+  "btn_show_battery": {
+    "message": "Show Battery"
+  },
+  "label_date_size": {
+    "message": "Date Size:"
+  },
+  "btn_export_data": {
+    "message": "Export Data"
+  },
+  "btn_import_data": {
+    "message": "Import Data"
+  },
+  "btn_cancel": {
+    "message": "Cancel"
+  },
+  "label_on_startup": {
+    "message": "on startup:"
+  },
+  "label_select_specific_folders": {
+    "message": "Select Specific Folders"
+  },
+  "btn_sort_root_folder": {
+    "message": "Sort Root Folder"
+  },
+  "label_recursive": {
+    "message": "Recursive"
+  },
+  "select_folders_prompt": {
+    "message": "--Select folders (Ctrl+Click)--"
+  },
+  "label_import_subfolders": {
+    "message": "Import subfolders as individual panels"
+  },
+  "label_position": {
+    "message": "Position"
+  },
+  "label_top": {
+    "message": "Top"
+  },
+  "label_bottom": {
+    "message": "Bottom"
+  },
+  "btn_add": {
+    "message": "Add"
+  },
+  "btn_create": {
+    "message": "Create"
+  },
+  "btn_cancel_modal": {
+    "message": "Cancel"
+  },
+  "label_notes_name": {
+    "message": "Panel Name"
+  },
+  "placeholder_notes_name": {
+    "message": "Notes title"
+  }
+}

@@ -1,0 +1,272 @@
+{
+  "extName": {
+    "message": "Painel NewTab Startpage Organizer"
+  },
+  "extDesc": {
+    "message": "Transforme sua nova guia em um espaço de trabalho organizado. Mantenha os favoritos separados por contexto. Minimalista e bonito."
+  },
+  "settings_title": {
+    "message": "Configurações"
+  },
+  "settings_language": {
+    "message": "Idioma (Language)"
+  },
+  "settings_language_auto": {
+    "message": "Auto (Padrão do navegador)"
+  },
+  "settings_visual": {
+    "message": "Configurações Visuais"
+  },
+  "settings_bg_color": {
+    "message": "Cor de fundo"
+  },
+  "settings_text_color": {
+    "message": "Cor do texto"
+  },
+  "settings_accent_color": {
+    "message": "Cor de destaque"
+  },
+  "settings_date_font_size": {
+    "message": "Tamanho da fonte da data"
+  },
+  "settings_show_battery": {
+    "message": "Mostrar status da bateria"
+  },
+  "settings_startup_views": {
+    "message": "Exibições de Inicialização"
+  },
+  "settings_startup_desc": {
+    "message": "Escolha quais visualizações abrir em novas guias quando o Chrome for iniciado:"
+  },
+  "settings_sidebar_folder": {
+    "message": "Selecione a pasta de favoritos da barra lateral:"
+  },
+  "settings_folders": {
+    "message": "Pastas e Sincronização"
+  },
+  "settings_root_folder": {
+    "message": "Onde você deseja que coloquemos as pastas do Organizer?"
+  },
+  "settings_toggle_folders": {
+    "message": "Criar 4 pastas nos Favoritos do Chrome: Organizer A, Organizer B, Organizer C, Organizer D"
+  },
+  "settings_toggle_desc": {
+    "message": "Se desativado, o movimento automático é interrompido. As pastas existentes no Chrome são preservadas."
+  },
+  "settings_swap": {
+    "message": "Trocar Organizers"
+  },
+  "settings_swap_desc": {
+    "message": "Troque o conteúdo de dois Organizers com segurança."
+  },
+  "settings_swap_btn": {
+    "message": "Trocar conteúdo entre"
+  },
+  "settings_backup": {
+    "message": "Backup e Importar"
+  },
+  "settings_export": {
+    "message": "Exportar Layout (Visualização Atual)"
+  },
+  "settings_import": {
+    "message": "Importar Layout (Visualização Atual)"
+  },
+  "settings_save": {
+    "message": "Salvar e Fechar"
+  },
+  "add_bookmark_title": {
+    "message": "Adicionar Painel de Favoritos"
+  },
+  "add_bookmark_new_folder": {
+    "message": "Criar Nova Pasta"
+  },
+  "add_bookmark_new_folder_placeholder": {
+    "message": "Nome da nova pasta"
+  },
+  "add_bookmark_select_desc": {
+    "message": "Selecione uma ou mais pastas de favoritos para exibir como painéis:"
+  },
+  "add_bookmark_recursive_desc": {
+    "message": "Importar também subpastas dentro das pastas selecionadas?"
+  },
+  "add_bookmark_btn": {
+    "message": "Adicionar Painel de Favoritos"
+  },
+  "add_bookmark_cancel": {
+    "message": "Cancelar"
+  },
+  "add_notes_title": {
+    "message": "Adicionar novo painel de notas"
+  },
+  "add_notes_placeholder": {
+    "message": "Insira o título do painel de notas..."
+  },
+  "add_notes_btn": {
+    "message": "Adicionar Painel de Notas"
+  },
+  "upgrade_title": {
+    "message": "Novo Recurso: Pastas Organizer"
+  },
+  "upgrade_desc1": {
+    "message": "Atualização: A extensão agora funciona com pastas especiais! O princípio: O que você vê na extensão é o que você tem no Chrome."
+  },
+  "upgrade_desc2": {
+    "message": "Cada Organizer (A, B, C e D) possui sua própria pasta física em seus favoritos do Chrome. Quando você mover um painel, a extensão moverá automaticamente a pasta correspondente no Chrome."
+  },
+  "upgrade_where": {
+    "message": "Onde você quer que criemos as 4 pastas principais?"
+  },
+  "upgrade_btn_ok": {
+    "message": "Criar Pastas e Iniciar"
+  },
+  "upgrade_btn_cancel": {
+    "message": "Agora não"
+  },
+  "alert_provide_name": {
+    "message": "Por favor, forneça um nome para a nova pasta."
+  },
+  "alert_error_creating": {
+    "message": "Erro ao criar pasta: "
+  },
+  "alert_auto_move_off": {
+    "message": "O movimento automático de pastas está desativado. Suas pastas existentes do Organizer NÃO foram removidas."
+  },
+  "alert_select_two_different": {
+    "message": "Selecione dois organizadores diferentes para trocar."
+  },
+  "alert_swap_success": {
+    "message": "Conteúdo trocado com sucesso. A página será recarregada agora."
+  },
+  "alert_select_one_folder": {
+    "message": "Selecione pelo menos uma pasta de favoritos."
+  },
+  "alert_import_success": {
+    "message": "Dados importados com sucesso! A página será recarregada agora."
+  },
+  "alert_invalid_backup": {
+    "message": "Arquivo de backup inválido."
+  },
+  "confirm_enable_folders": {
+    "message": "Aplicamos o princípio: O que você vê na extensão é o que você tem no Chrome.\n\n4 pastas (A, B, C, D) serão criadas nos Favoritos do Chrome. Você concorda?"
+  },
+  "confirm_import_overwrite": {
+    "message": "Tem certeza de que deseja importar esses dados? Seu layout e configurações atuais para ESTA VISUALIZAÇÃO serão substituídos."
+  },
+  "confirm_flattening": {
+    "message": "Nota: todas as pastas serão colocadas na raiz da pasta Organizer (incluindo subpastas), estruturas de árvore serão perdidas. Se você concordar, a estrutura será achatada no Chrome. Deseja continuar?"
+  },
+  "confirm_swap": {
+    "message": "Tem certeza de que deseja trocar o conteúdo?"
+  },
+  "confirm_delete_panel": {
+    "message": "Remover este painel?"
+  },
+  "this_folder_empty": {
+    "message": "Esta pasta está vazia."
+  },
+  "select_folder_settings": {
+    "message": "Selecione uma pasta nas configurações."
+  },
+  "save_current_setup": {
+    "message": "Salve sua configuração atual"
+  },
+  "move_panels_rightclick": {
+    "message": "Mova painéis clicando com o botão direito no cabeçalho"
+  },
+  "select_sidebar_folder": {
+    "message": "Selecione uma pasta da barra lateral"
+  },
+  "btn_hide_clock": {
+    "message": "Ocultar relógio"
+  },
+  "btn_show_clock": {
+    "message": "Mostrar relógio"
+  },
+  "btn_hide_date": {
+    "message": "Ocultar data"
+  },
+  "btn_show_date": {
+    "message": "Mostrar data"
+  },
+  "btn_hide_day": {
+    "message": "Ocultar dia"
+  },
+  "btn_show_day": {
+    "message": "Mostrar dia"
+  },
+  "btn_hide_year": {
+    "message": "Ocultar ano"
+  },
+  "btn_show_year": {
+    "message": "Mostrar ano"
+  },
+  "btn_theme_light": {
+    "message": "Tema: Claro"
+  },
+  "btn_theme_dark": {
+    "message": "Tema: Escuro"
+  },
+  "btn_theme_custom": {
+    "message": "Tema: Personalizado"
+  },
+  "btn_hide_battery": {
+    "message": "Ocultar bateria"
+  },
+  "btn_show_battery": {
+    "message": "Mostrar bateria"
+  },
+  "label_date_size": {
+    "message": "Tamanho da data:"
+  },
+  "btn_export_data": {
+    "message": "Exportar dados"
+  },
+  "btn_import_data": {
+    "message": "Importar dados"
+  },
+  "btn_cancel": {
+    "message": "Cancelar"
+  },
+  "label_on_startup": {
+    "message": "na inicialização:"
+  },
+  "label_select_specific_folders": {
+    "message": "Selecionar pastas específicas"
+  },
+  "btn_sort_root_folder": {
+    "message": "Ordenar pasta raiz"
+  },
+  "label_recursive": {
+    "message": "Recursivo"
+  },
+  "select_folders_prompt": {
+    "message": "--Selecionar pastas (Ctrl+Clique)--"
+  },
+  "label_import_subfolders": {
+    "message": "Importar subpastas como painéis individuais"
+  },
+  "label_position": {
+    "message": "Posição"
+  },
+  "label_top": {
+    "message": "Superior"
+  },
+  "label_bottom": {
+    "message": "Inferior"
+  },
+  "btn_add": {
+    "message": "Adicionar"
+  },
+  "btn_create": {
+    "message": "Criar"
+  },
+  "btn_cancel_modal": {
+    "message": "Cancelar"
+  },
+  "label_notes_name": {
+    "message": "Nome do painel"
+  },
+  "placeholder_notes_name": {
+    "message": "Título das notas"
+  }
+}

@@ -6,7 +6,8 @@ window.bookmarkRefreshCallbacks = [];
 window.currentDateSettings = {
     showYear: true,
     showDayOfWeek: true,
-    fontSize: '11px'
+    fontSize: '11px',
+    language: 'auto'
 };
 
 // --- View Identification ---
@@ -29,7 +30,7 @@ function getStorageKey(view) {
 const CURRENT_VIEW = getCurrentView();
 const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('i18nReady', () => {
     // --- Update Notification (Dynamic) ---
     const version = chrome.runtime.getManifest().version;
     const notificationKey = `notified_v${version}`;
@@ -50,6 +51,68 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // --- Organizer Folders Upgrade Logic ---
+    chrome.storage.local.get(['foldersUpgradeDone', 'settings'], (data) => {
+        if (!data.foldersUpgradeDone) {
+            const settings = data.settings || {};
+            const rootId = settings.rootFolderId || '1'; // Default to Bookmark Bar
+
+            chrome.bookmarks.getChildren(rootId, (children) => {
+                if (chrome.runtime.lastError) return; // Silent fail if root folder doesn't exist
+                const views = ['A', 'B', 'C', 'D'];
+                const allExist = views.every(v => children.some(c => !c.url && c.title === `Organizer ${v}`));
+
+                if (!allExist) {
+                    const upgradeModal = document.getElementById('upgrade-modal');
+                    const upgradeForm = document.getElementById('upgrade-form');
+                    const upgradeRootSelect = document.getElementById('upgrade-root-select');
+                    const upgradeCancelBtn = document.getElementById('upgrade-cancel-btn');
+
+                    if (upgradeModal && upgradeForm) {
+                        upgradeRootSelect.value = rootId; // Set default selection to current setting
+                        upgradeModal.classList.remove('hidden');
+
+                        const handleSubmit = (e) => {
+                            e.preventDefault();
+                            const selectedRoot = upgradeRootSelect.value;
+                            
+                            // Save new root and mark upgrade as done
+                            settings.rootFolderId = selectedRoot;
+                            settings.useOrganizerFolders = true;
+                            chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
+                                // Create missing folders
+                                chrome.bookmarks.getChildren(selectedRoot, (selectedChildren) => {
+                                    if (chrome.runtime.lastError) return;
+                                    views.forEach(v => {
+                                        const folderName = `Organizer ${v}`;
+                                        const exists = selectedChildren.some(c => !c.url && c.title === folderName);
+                                        if (!exists) {
+                                            chrome.bookmarks.create({ parentId: selectedRoot, title: folderName });
+                                        }
+                                    });
+                                });
+                                upgradeModal.classList.add('hidden');
+                                if (window.populateBookmarkFolderDropdown) {
+                                    window.populateBookmarkFolderDropdown(); // Refresh UI
+                                }
+                            });
+                        };
+
+                        // Use a named function to avoid duplicate listeners if executed multiple times
+                        upgradeForm.onsubmit = handleSubmit;
+
+                        upgradeCancelBtn.onclick = () => {
+                            upgradeModal.classList.add('hidden');
+                            chrome.storage.local.set({ foldersUpgradeDone: true });
+                        };
+                    }
+                } else {
+                    // They already exist, just mark as done
+                    chrome.storage.local.set({ foldersUpgradeDone: true });
+                }
+            });
+        }
+    });
 
     // --- Startup Logic ---
     if (CURRENT_VIEW === 'A') {
@@ -217,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             getFoldersRecursive(targetRootId, 0, folders => {
-                panelFolderSelect.innerHTML = '<option value="">--Select folders (Ctrl+Click)--</option>';
+                panelFolderSelect.innerHTML = '<option value="">' + I18N.getMessage('select_folders_prompt') + '</option>';
                 folders.forEach(folder => {
                     const option = document.createElement('option');
                     option.value = folder.id;
@@ -274,9 +337,73 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('import-recursive-checkbox').checked = false;
         document.getElementById('recursive-import-label').classList.add('hidden');
         document.getElementById('sort-bookmarks-popup-btn').textContent = 'Sort Root Folder';
+        // Reset create folder input
+        const newFolderInput = document.getElementById('new-bookmark-folder-name');
+        if (newFolderInput) newFolderInput.value = '';
         // Focus the selection field immediately so it's ready for interaction
         setTimeout(() => panelFolderSelect.focus(), 10);
     });
+
+    const createNewFolderBtn = document.getElementById('create-new-bookmark-folder-btn');
+    const newFolderNameInput = document.getElementById('new-bookmark-folder-name');
+
+    if (createNewFolderBtn && newFolderNameInput) {
+        createNewFolderBtn.addEventListener('click', () => {
+            const folderName = newFolderNameInput.value.trim();
+            if (!folderName) {
+                alert(I18N.getMessage('alert_provide_name'));
+                return;
+            }
+
+            chrome.storage.local.get('settings', (data) => {
+                const settings = data.settings || {};
+                const isFoldersEnabled = settings.useOrganizerFolders;
+                const baseRootId = settings.rootFolderId || '1';
+
+                const createFolderAndPanel = (parentId) => {
+                    chrome.bookmarks.create({ parentId: parentId, title: folderName }, (newFolder) => {
+                        if (chrome.runtime.lastError) {
+                            alert(I18N.getMessage('alert_error_creating') + chrome.runtime.lastError.message);
+                            return;
+                        }
+                        // Add as a panel to the current view
+                        chrome.storage.local.get('bookmarksPanelPosition', (posData) => {
+                            const position = posData.bookmarksPanelPosition || 'bottom';
+                            const newPanelState = {
+                                id: `panel-${Date.now()}-${newFolder.id}-`,
+                                title: newFolder.title,
+                                type: 'bookmarks',
+                                folderId: newFolder.id,
+                                cards: []
+                            };
+                            const panelEl = createPanel(newPanelState, saveState);
+                            addPanelToContainer(panelEl, position);
+                            if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
+                            
+                            // Close modal
+                            addBookmarksModal.classList.add('hidden');
+                            newFolderNameInput.value = '';
+                        });
+                    });
+                };
+
+                if (isFoldersEnabled) {
+                    const destFolderName = `Organizer ${CURRENT_VIEW}`;
+                    chrome.bookmarks.getChildren(baseRootId, (children) => {
+                        if (chrome.runtime.lastError) return;
+                        const destFolder = children.find(c => !c.url && c.title === destFolderName);
+                        if (destFolder) {
+                            createFolderAndPanel(destFolder.id);
+                        } else {
+                            createFolderAndPanel(baseRootId); // Fallback
+                        }
+                    });
+                } else {
+                    createFolderAndPanel(baseRootId);
+                }
+            });
+        });
+    }
 
     document.getElementById('import-subfolders-checkbox').addEventListener('change', (e) => {
         const recursiveLabel = document.getElementById('recursive-import-label');
@@ -384,9 +511,30 @@ document.addEventListener('DOMContentLoaded', () => {
             const folderIds = selectedOptions.map(opt => opt.value).filter(val => val !== "");
 
             if (folderIds.length === 0) {
-                alert('Please select at least one bookmark folder.');
+                alert(I18N.getMessage('alert_select_one_folder'));
                 return;
             }
+
+            if (settings.useOrganizerFolders) {
+                const confirmed = confirm(I18N.getMessage('confirm_flattening'));
+                if (!confirmed) {
+                    return;
+                }
+            }
+
+            const moveFolderIfEnabled = (fId) => {
+                if (settings.useOrganizerFolders) {
+                    const rootId = settings.rootFolderId || '1';
+                    const destFolderName = `Organizer ${CURRENT_VIEW}`;
+                    chrome.bookmarks.getChildren(rootId, (children) => {
+                        if (chrome.runtime.lastError) return;
+                        const destFolder = children.find(c => !c.url && c.title === destFolderName);
+                        if (destFolder) {
+                            chrome.bookmarks.move(fId, { parentId: destFolder.id });
+                        }
+                    });
+                }
+            };
 
             const addPanel = (fId, title, indexSuffix = '') => {
                 const newPanelState = {
@@ -398,6 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
                 const panelEl = createPanel(newPanelState, saveState);
                 addPanelToContainer(panelEl, position);
+                moveFolderIfEnabled(fId);
             };
 
             if (importSubfolders) {
@@ -859,7 +1008,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateClock() {
         const now = new Date();
-        document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
+        const locale = window.currentDateSettings.language && window.currentDateSettings.language !== 'auto' 
+            ? window.currentDateSettings.language 
+            : [];
+
+        document.getElementById('clock').textContent = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
 
         const dateOptions = { month: 'long', day: 'numeric' };
         if (window.currentDateSettings.showDayOfWeek) {
@@ -870,7 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const dateElement = document.getElementById('date');
-        dateElement.textContent = now.toLocaleDateString([], dateOptions);
+        dateElement.textContent = now.toLocaleDateString(locale, dateOptions);
         dateElement.style.fontSize = window.currentDateSettings.fontSize;
 
         const batteryElement = document.getElementById('battery');
@@ -1090,7 +1243,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
     element.innerHTML = '';
     if (!bookmarks || bookmarks.length === 0) {
-        element.innerHTML = '<p class="empty-folder-message">This folder is empty.</p>';
+        element.innerHTML = '<p class="empty-folder-message">' + I18N.getMessage('this_folder_empty') + '</p>';
         return;
     }
     const fragment = document.createDocumentFragment();
@@ -1227,7 +1380,8 @@ function applySettings(settings) {
     window.currentDateSettings = {
         showYear: typeof settings.showYear === 'boolean' ? settings.showYear : true,
         showDayOfWeek: typeof settings.showDayOfWeek === 'boolean' ? settings.showDayOfWeek : true,
-        fontSize: settings.dateFontSize || '11px'
+        fontSize: settings.dateFontSize || '11px',
+        language: settings.language || 'auto'
     };
 
     // Force clock update to apply new formats immediately
@@ -1245,7 +1399,10 @@ function applySettings(settings) {
         if (window.currentDateSettings.showYear) {
             dateOptions.year = 'numeric';
         }
-        dateElement.textContent = now.toLocaleDateString([], dateOptions);
+        const locale = window.currentDateSettings.language && window.currentDateSettings.language !== 'auto' 
+            ? window.currentDateSettings.language 
+            : [];
+        dateElement.textContent = now.toLocaleDateString(locale, dateOptions);
         dateElement.style.fontSize = window.currentDateSettings.fontSize;
     }
 
@@ -1280,6 +1437,6 @@ function applySettings(settings) {
         refreshSidebar();
     } else {
         delete sidebarBookmarks.dataset.folderId;
-        sidebarBookmarks.innerHTML = '<p style="padding: 8px;">Select a folder in settings.</p>';
+        sidebarBookmarks.innerHTML = '<p style="padding: 8px;">' + I18N.getMessage('select_folder_settings') + '</p>';
     }
 }

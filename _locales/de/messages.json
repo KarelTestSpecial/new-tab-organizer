@@ -1,0 +1,272 @@
+{
+  "extName": {
+    "message": "NewTab Startpage Organizer Dashboard"
+  },
+  "extDesc": {
+    "message": "Verwandeln Sie Ihren neuen Tab in einen organisierten Arbeitsbereich. Halten Sie Lesezeichen nach Kontext getrennt. Minimalistisch und schön."
+  },
+  "settings_title": {
+    "message": "Einstellungen"
+  },
+  "settings_language": {
+    "message": "Sprache (Language)"
+  },
+  "settings_language_auto": {
+    "message": "Auto (Browser-Standard)"
+  },
+  "settings_visual": {
+    "message": "Visuelle Einstellungen"
+  },
+  "settings_bg_color": {
+    "message": "Hintergrundfarbe"
+  },
+  "settings_text_color": {
+    "message": "Textfarbe"
+  },
+  "settings_accent_color": {
+    "message": "Akzentfarbe"
+  },
+  "settings_date_font_size": {
+    "message": "Datum Schriftgröße"
+  },
+  "settings_show_battery": {
+    "message": "Batteriestatus anzeigen"
+  },
+  "settings_startup_views": {
+    "message": "Startansichten"
+  },
+  "settings_startup_desc": {
+    "message": "Wählen Sie, welche Ansichten beim Start von Chrome in neuen Tabs geöffnet werden sollen:"
+  },
+  "settings_sidebar_folder": {
+    "message": "Wählen Sie den Lesezeichen-Ordner für die Seitenleiste:"
+  },
+  "settings_folders": {
+    "message": "Ordner & Synchronisation"
+  },
+  "settings_root_folder": {
+    "message": "Wo sollen die Organizer-Ordner abgelegt werden?"
+  },
+  "settings_toggle_folders": {
+    "message": "Erstellen Sie 4 Ordner in Chrome-Lesezeichen: Organizer A, Organizer B, Organizer C, Organizer D"
+  },
+  "settings_toggle_desc": {
+    "message": "Wenn diese Option deaktiviert ist, wird das automatische Verschieben gestoppt. Bestehende Ordner in Chrome bleiben erhalten."
+  },
+  "settings_swap": {
+    "message": "Organizer Tauschen"
+  },
+  "settings_swap_desc": {
+    "message": "Tauschen Sie den Inhalt zweier Organizer sicher aus."
+  },
+  "settings_swap_btn": {
+    "message": "Inhalt tauschen zwischen"
+  },
+  "settings_backup": {
+    "message": "Backup & Importieren"
+  },
+  "settings_export": {
+    "message": "Layout Exportieren (Aktuelle Ansicht)"
+  },
+  "settings_import": {
+    "message": "Layout Importieren (Aktuelle Ansicht)"
+  },
+  "settings_save": {
+    "message": "Speichern und Schließen"
+  },
+  "add_bookmark_title": {
+    "message": "Neues Lesezeichen-Panel Hinzufügen"
+  },
+  "add_bookmark_new_folder": {
+    "message": "Neuen Ordner erstellen"
+  },
+  "add_bookmark_new_folder_placeholder": {
+    "message": "Name des neuen Ordners"
+  },
+  "add_bookmark_select_desc": {
+    "message": "Wählen Sie einen oder mehrere Lesezeichenordner aus, um sie als Panels anzuzeigen:"
+  },
+  "add_bookmark_recursive_desc": {
+    "message": "Auch Unterordner in den ausgewählten Ordnern importieren?"
+  },
+  "add_bookmark_btn": {
+    "message": "Lesezeichen-Panel hinzufügen"
+  },
+  "add_bookmark_cancel": {
+    "message": "Abbrechen"
+  },
+  "add_notes_title": {
+    "message": "Neues Notizen-Panel hinzufügen"
+  },
+  "add_notes_placeholder": {
+    "message": "Titel für Notizen-Panel eingeben..."
+  },
+  "add_notes_btn": {
+    "message": "Notizen-Panel Hinzufügen"
+  },
+  "upgrade_title": {
+    "message": "Neue Funktion: Organizer-Ordner"
+  },
+  "upgrade_desc1": {
+    "message": "Upgrade: Die Erweiterung funktioniert jetzt mit speziellen Ordnern! Das Prinzip: Was Sie in der Erweiterung sehen, haben Sie auch in Chrome."
+  },
+  "upgrade_desc2": {
+    "message": "Jeder Organizer (A, B, C und D) erhält seinen eigenen physischen Ordner in Ihren Chrome-Lesezeichen. Dies hält alles sauber getrennt. Wenn Sie ein Panel später verschieben, verschiebt die Erweiterung automatisch den entsprechenden Ordner in Chrome."
+  },
+  "upgrade_where": {
+    "message": "Wo sollen wir die 4 Hauptordner für Sie erstellen?"
+  },
+  "upgrade_btn_ok": {
+    "message": "Ordner erstellen & Starten"
+  },
+  "upgrade_btn_cancel": {
+    "message": "Nicht jetzt"
+  },
+  "alert_provide_name": {
+    "message": "Bitte geben Sie einen Namen für den neuen Ordner ein."
+  },
+  "alert_error_creating": {
+    "message": "Fehler beim Erstellen des Ordners: "
+  },
+  "alert_auto_move_off": {
+    "message": "Das automatische Verschieben von Ordnern ist deaktiviert. Ihre bestehenden Organizer-Ordner wurden NICHT gelöscht."
+  },
+  "alert_select_two_different": {
+    "message": "Bitte wählen Sie zwei verschiedene Organizer zum Tauschen aus."
+  },
+  "alert_swap_success": {
+    "message": "Inhalt erfolgreich getauscht. Die Seite wird nun neu geladen."
+  },
+  "alert_select_one_folder": {
+    "message": "Bitte wählen Sie mindestens einen Lesezeichenordner aus."
+  },
+  "alert_import_success": {
+    "message": "Daten erfolgreich importiert! Die Seite wird nun neu geladen."
+  },
+  "alert_invalid_backup": {
+    "message": "Ungültige Backup-Datei."
+  },
+  "confirm_enable_folders": {
+    "message": "Wir wenden das Prinzip an: Was Sie in der Erweiterung sehen, haben Sie auch in Chrome.\n\n4 Ordner (Organizer A, B, C, D) werden in Chrome-Lesezeichen erstellt. Wenn Sie Panels verschieben, werden die entsprechenden Ordner in Chrome ebenfalls verschoben.\n\nStimmen Sie zu?"
+  },
+  "confirm_import_overwrite": {
+    "message": "Sind Sie sicher, dass Sie diese Daten importieren möchten? Ihr aktuelles Layout und Ihre Einstellungen für DIESE ANSICHT werden überschrieben."
+  },
+  "confirm_flattening": {
+    "message": "Hinweis: Alle Ordner werden im Stammverzeichnis des Organizer-Ordners platziert (einschließlich Unterordner). Etwaige Baumstrukturen gehen verloren - alles wird zu einer flachen Struktur. Wenn Sie zustimmen, wird die Struktur in Chrome flachgedrückt. Möchten Sie fortfahren?"
+  },
+  "confirm_swap": {
+    "message": "Sind Sie sicher, dass Sie den Inhalt tauschen möchten?"
+  },
+  "confirm_delete_panel": {
+    "message": "Dieses Panel entfernen?"
+  },
+  "this_folder_empty": {
+    "message": "Dieser Ordner ist leer."
+  },
+  "select_folder_settings": {
+    "message": "Wählen Sie einen Ordner in den Einstellungen."
+  },
+  "save_current_setup": {
+    "message": "Speichern Sie Ihr aktuelles Setup"
+  },
+  "move_panels_rightclick": {
+    "message": "Verschieben Sie einzelne Panels durch Rechtsklick auf den Header"
+  },
+  "select_sidebar_folder": {
+    "message": "Wählen Sie einen Seitenleisten-Ordner"
+  },
+  "btn_hide_clock": {
+    "message": "Uhr verbergen"
+  },
+  "btn_show_clock": {
+    "message": "Uhr anzeigen"
+  },
+  "btn_hide_date": {
+    "message": "Datum verbergen"
+  },
+  "btn_show_date": {
+    "message": "Datum anzeigen"
+  },
+  "btn_hide_day": {
+    "message": "Tag verbergen"
+  },
+  "btn_show_day": {
+    "message": "Tag anzeigen"
+  },
+  "btn_hide_year": {
+    "message": "Jahr verbergen"
+  },
+  "btn_show_year": {
+    "message": "Jahr anzeigen"
+  },
+  "btn_theme_light": {
+    "message": "Design: Hell"
+  },
+  "btn_theme_dark": {
+    "message": "Design: Dunkel"
+  },
+  "btn_theme_custom": {
+    "message": "Design: Benutzerdefiniert"
+  },
+  "btn_hide_battery": {
+    "message": "Batterie verbergen"
+  },
+  "btn_show_battery": {
+    "message": "Batterie anzeigen"
+  },
+  "label_date_size": {
+    "message": "Datumsgröße:"
+  },
+  "btn_export_data": {
+    "message": "Daten exportieren"
+  },
+  "btn_import_data": {
+    "message": "Daten importieren"
+  },
+  "btn_cancel": {
+    "message": "Abbrechen"
+  },
+  "label_on_startup": {
+    "message": "beim Start:"
+  },
+  "label_select_specific_folders": {
+    "message": "Bestimmte Ordner auswählen"
+  },
+  "btn_sort_root_folder": {
+    "message": "Stammordner sortieren"
+  },
+  "label_recursive": {
+    "message": "Rekursiv"
+  },
+  "select_folders_prompt": {
+    "message": "--Ordner auswählen (Strg+Klick)--"
+  },
+  "label_import_subfolders": {
+    "message": "Unterordner als einzelne Panels importieren"
+  },
+  "label_position": {
+    "message": "Position"
+  },
+  "label_top": {
+    "message": "Oben"
+  },
+  "label_bottom": {
+    "message": "Unten"
+  },
+  "btn_add": {
+    "message": "Hinzufügen"
+  },
+  "btn_create": {
+    "message": "Erstellen"
+  },
+  "btn_cancel_modal": {
+    "message": "Abbrechen"
+  },
+  "label_notes_name": {
+    "message": "Panel-Name"
+  },
+  "placeholder_notes_name": {
+    "message": "Notizentitel"
+  }
+}
