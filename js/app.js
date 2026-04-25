@@ -30,19 +30,19 @@ const CURRENT_VIEW = getCurrentView();
 const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Update Notification (v4.0) ---
-    chrome.storage.local.get('notified_v4.0', (data) => {
-        console.log("Checking update notification. Already notified?", data['notified_v4.0']);
-        if (!data['notified_v4.0']) {
+    // --- Update Notification (v4.1) ---
+    chrome.storage.local.get('notified_v4.1', (data) => {
+        console.log("Checking update notification. Already notified?", data['notified_v4.1']);
+        if (!data['notified_v4.1']) {
             chrome.notifications.create('', {
                 type: 'basic',
                 iconUrl: 'assets/icon.png',
-                title: 'New Tab Organizer Updated to v4.0!',
-                message: 'New: Recursive Bookmark Subfolder Import',
+                title: 'New Tab Organizer Updated to v4.1!',
+                message: 'New: Improved Modal UX & Dynamic Sorting Controls',
                 priority: 2
             }, (id) => {
                 console.log("Notification created with ID:", id);
-                chrome.storage.local.set({ 'notified_v4.0': true });
+                chrome.storage.local.set({ 'notified_v4.1': true });
             });
         }
     });
@@ -270,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('import-subfolders-checkbox').checked = false;
         document.getElementById('import-recursive-checkbox').checked = false;
         document.getElementById('recursive-import-label').classList.add('hidden');
+        document.getElementById('sort-bookmarks-popup-btn').textContent = 'Sort Root Folder';
         // Focus the selection field immediately so it's ready for interaction
         setTimeout(() => panelFolderSelect.focus(), 10);
     });
@@ -282,6 +283,13 @@ document.addEventListener('DOMContentLoaded', () => {
             recursiveLabel.classList.add('hidden');
         }
     });
+
+    panelFolderSelect.addEventListener('change', () => {
+        const selectedCount = Array.from(panelFolderSelect.selectedOptions).filter(opt => opt.value !== "").length;
+        document.getElementById('sort-bookmarks-popup-btn').textContent = selectedCount > 0 ? 'Sort Selected Folder' : 'Sort Root Folder';
+    });
+
+
 
     document.getElementById('quick-backup-btn').addEventListener('click', () => {
         chrome.storage.local.get([STORAGE_KEY, 'settings'], (data) => {
@@ -303,77 +311,46 @@ document.addEventListener('DOMContentLoaded', () => {
         addBookmarksModal.classList.add('hidden');
     });
 
-    document.getElementById('refresh-bookmark-folders-btn').addEventListener('click', () => {
-        populateBookmarkFolderDropdown();
-    });
+
 
     document.getElementById('sort-bookmarks-popup-btn').addEventListener('click', () => {
         chrome.storage.local.get('settings', (data) => {
             const settings = data.settings || {};
             const rootId = settings.rootFolderId || '1';
+            
+            const selectedOptions = Array.from(document.getElementById('panel-folder-select').selectedOptions);
+            const selectedFolderIds = selectedOptions.map(opt => opt.value).filter(id => id !== "");
+            const isRecursive = document.getElementById('sort-recursive-popup-checkbox').checked;
+            
+            const foldersToSort = selectedFolderIds.length > 0 ? selectedFolderIds : [rootId];
+            const targetName = selectedFolderIds.length > 0 ? "selected folder(s)" : (rootId === '1' ? 'Bookmark Bar' : 'Other Bookmarks');
 
-            if (confirm('Are you sure you want to sort the bookmarks in your selected Root folder? This action cannot be undone.')) {
+            if (confirm(`Are you sure you want to sort the subfolders within the ${targetName}? This action cannot be undone.`)) {
                 const sortOptions = {
-                    recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
+                    recursive: isRecursive,
                     sortOrder: settings.sortOrder || 'mixed',
                 };
-                sortBookmarksInFolder(rootId, sortOptions, () => {
-                    // Also refresh the folder dropdown in case folder names were sorted
-                    populateBookmarkFolderDropdown();
+                
+                let sortChain = Promise.resolve();
+                foldersToSort.forEach(folderId => {
+                    sortChain = sortChain.then(() => new Promise(resolve => {
+                        sortBookmarksInFolder(folderId, sortOptions, resolve);
+                    }));
                 });
-            }
-        });
-    });
 
-    document.getElementById('import-all-bookmarks-modal-btn').addEventListener('click', () => {
-        chrome.storage.local.get('settings', (data) => {
-            const settings = data.settings || {};
-            const rootId = settings.rootFolderId || '1';
-
-            if (!confirm(`Are you sure you want to add a new panel for every subfolder of your selected Root folder to ${CURRENT_VIEW}?`)) {
-                return;
-            }
-
-            getSubFolders(rootId, (folders) => {
-                if (folders.length === 0) {
-                    alert('No subfolders found in the selected Root folder.');
-                    return;
-                }
-
-                chrome.storage.local.get(STORAGE_KEY, (data) => {
-                    const currentPanels = data[STORAGE_KEY] || [];
-                    const existingFolderIds = new Set(currentPanels.map(p => p.folderId));
-                    let newPanelsAdded = 0;
-
-                    folders.forEach((folder, index) => {
-                        // Skip if it's the sidebar folder
-                        if (folder.id === settings.sidebarFolderId) return;
-                        if (folder.title && folder.title.toLowerCase() === 'zijbalk') return; // Fallback
-
-                        if (!existingFolderIds.has(folder.id)) {
-                            currentPanels.push({
-                                id: `panel-${Date.now()}-${index}`,
-                                title: folder.title,
-                                type: 'bookmarks',
-                                folderId: folder.id,
-                                cards: []
-                            });
-                            newPanelsAdded++;
-                        }
-                    });
-
-                    if (newPanelsAdded > 0) {
-                        chrome.storage.local.set({ [STORAGE_KEY]: currentPanels }, () => {
-                            alert(`${newPanelsAdded} new bookmark panels have been added to ${CURRENT_VIEW}. The page will now reload.`);
-                            location.reload();
-                        });
-                    } else {
-                        alert('All subfolders from this root are already present as panels in this view.');
+                sortChain.then(() => {
+                    // Refresh the folder dropdown so the new order is visible
+                    populateBookmarkFolderDropdown();
+                    // Also refresh any active bookmark panels/sidebar
+                    if (window.bookmarkRefreshCallbacks) {
+                        window.bookmarkRefreshCallbacks.forEach(cb => cb());
                     }
                 });
-            });
+            }
         });
     });
+
+
 
     notesForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -574,6 +551,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Undo Logic ---
     document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            // Close all modals
+            document.querySelectorAll('.modal').forEach(modal => modal.classList.add('hidden'));
+            // Close settings panel
+            const settingsPanel = document.getElementById('settings-panel');
+            if (settingsPanel) settingsPanel.classList.add('hidden');
+        }
+
         if (e.ctrlKey && (e.key === 'z' || e.key === 'Z')) {
             // Check for focused text element first for immediate text undo
             // Must differentiate between Card Text (P) and Panel Title (H3)

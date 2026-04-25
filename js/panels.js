@@ -117,6 +117,33 @@ function createPanel(panelState, onStateChange) {
         });
 
         if (panel.dataset.type === 'bookmarks') {
+            const sortItem = document.createElement('div');
+            sortItem.className = 'context-menu-item';
+            sortItem.textContent = 'Sort Folder';
+            sortItem.addEventListener('click', () => {
+                const folderId = panel.dataset.folderId;
+                if (!folderId) return;
+
+                chrome.storage.local.get('settings', (data) => {
+                    const settings = data.settings || {};
+                    const sortOptions = {
+                        recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
+                        sortOrder: settings.sortOrder || 'mixed'
+                    };
+
+                    if (typeof sortBookmarksInFolder === 'function') {
+                        sortBookmarksInFolder(folderId, sortOptions, () => {
+                            // Trigger all refresh callbacks to ensure UI consistency
+                            if (window.bookmarkRefreshCallbacks) {
+                                window.bookmarkRefreshCallbacks.forEach(cb => cb());
+                            }
+                        });
+                    }
+                });
+                menu.remove();
+            });
+            menu.appendChild(sortItem);
+
             const deleteItem = document.createElement('div');
             deleteItem.className = 'context-menu-item';
             deleteItem.textContent = 'Delete Folder...';

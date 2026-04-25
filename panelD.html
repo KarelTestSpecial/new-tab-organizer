@@ -261,43 +261,49 @@
 
         <div id="add-bookmarks-panel-modal" class="modal hidden">
             <div class="modal-content">
-                <h2>Add New Bookmark Panel</h2>
+                <h2 style="margin-bottom: 20px;">Add New Bookmark Panel</h2>
                 <form id="add-bookmarks-panel-form">
-                    <div class="form-row" style="display: flex; gap: 30px; align-items: flex-end; margin-bottom: 20px;">
-                        <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                            <label style="font-weight: bold; margin-bottom: 8px;">Position</label>
-                            <div style="display: flex; gap: 15px;">
-                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;"><input type="radio" name="bookmarks-position" value="top"> Top</label>
-                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;"><input type="radio" name="bookmarks-position" value="bottom" checked> Bottom</label>
-                            </div>
-                        </div>
-                        <div class="form-group" style="flex: 1.5; margin-bottom: 0;">
-                            <button type="button" id="import-all-bookmarks-modal-btn" class="settings-btn-item" style="width: 100%; font-weight: bold; background-color: var(--primary-color); color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer;">Import All Bookmark Folders from Root</button>
+                    <!-- Top Row: Label and Sorting Controls -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <label for="panel-folder-select" style="margin: 0; font-weight: bold;">Select Specific Folders</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 5px 12px; font-size: 0.85rem; font-weight: bold;">Sort Root Folder</button>
+                            <label style="font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" id="sort-recursive-popup-checkbox"> Recursive
+                            </label>
                         </div>
                     </div>
+                    
+                    <!-- Select Box -->
                     <div class="form-group">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                            <label for="panel-folder-select" style="margin: 0; font-weight: bold;">Select Specific Folders</label>
-                            <div style="display: flex; gap: 5px;">
-                                <button type="button" id="refresh-bookmark-folders-btn" class="settings-btn-item" style="padding: 2px 8px; font-size: 0.8rem;">Refresh Bookmark Bar</button>
-                                <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 2px 8px; font-size: 0.8rem;">Sort Root Folder</button>
-                            </div>
-                        </div>
-                        <select id="panel-folder-select" multiple size="6" style="padding: 0 5px;">
+                        <select id="panel-folder-select" multiple size="8" style="width: 100%; padding: 5px; min-height: 150px;">
                             <option value="">--Select folders (Ctrl+Click)--</option>
                         </select>
                     </div>
-                    <div class="form-group" style="display: flex; align-items: center; gap: 20px;">
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+
+                    <!-- Import Options Row -->
+                    <div class="form-group" style="display: flex; align-items: center; gap: 25px; margin-top: 15px; margin-bottom: 20px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;">
                             <input type="checkbox" id="import-subfolders-checkbox"> Import subfolders as individual panels
                         </label>
-                        <label id="recursive-import-label" class="hidden" style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <label id="recursive-import-label" class="hidden" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.9rem;">
                             <input type="checkbox" id="import-recursive-checkbox"> Recursive
                         </label>
                     </div>
-                    <div class="form-actions">
-                        <button type="submit">Create</button>
-                        <button type="button" class="cancel-btn">Cancel</button>
+
+                    <!-- Footer: Position and Actions -->
+                    <div class="form-actions" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <span style="font-weight: bold; font-size: 0.9rem;">Position</span>
+                            <div style="display: flex; gap: 15px;">
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;"><input type="radio" name="bookmarks-position" value="top"> Top</label>
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.9rem;"><input type="radio" name="bookmarks-position" value="bottom" checked> Bottom</label>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button type="submit" style="min-width: 80px; font-weight: bold;">Add</button>
+                            <button type="button" class="cancel-btn" style="min-width: 80px;">Cancel</button>
+                        </div>
                     </div>
                 </form>
             </div>
