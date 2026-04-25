@@ -30,19 +30,22 @@ const CURRENT_VIEW = getCurrentView();
 const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
 
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Update Notification (v4.1) ---
-    chrome.storage.local.get('notified_v4.1', (data) => {
-        console.log("Checking update notification. Already notified?", data['notified_v4.1']);
-        if (!data['notified_v4.1']) {
+    // --- Update Notification (Dynamic) ---
+    const version = chrome.runtime.getManifest().version;
+    const notificationKey = `notified_v${version}`;
+
+    chrome.storage.local.get(notificationKey, (data) => {
+        console.log(`Checking update notification for v${version}. Already notified?`, data[notificationKey]);
+        if (!data[notificationKey]) {
             chrome.notifications.create('', {
                 type: 'basic',
                 iconUrl: 'assets/icon.png',
-                title: 'New Tab Organizer Updated to v4.1!',
-                message: 'New: Improved Modal UX & Dynamic Sorting Controls',
+                title: `New Tab Organizer Updated to v${version}!`,
+                message: 'The extension has been updated to the latest version.',
                 priority: 2
             }, (id) => {
                 console.log("Notification created with ID:", id);
-                chrome.storage.local.set({ 'notified_v4.1': true });
+                chrome.storage.local.set({ [notificationKey]: true });
             });
         }
     });
