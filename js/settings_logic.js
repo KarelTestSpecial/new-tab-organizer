@@ -28,11 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const startupCheckC = document.getElementById('startup-check-C');
     const startupCheckD = document.getElementById('startup-check-D');
 
-    const sortRecursivelyCheckbox = document.getElementById('sort-recursively-checkbox');
-    const sortOrderRadios = document.querySelectorAll('input[name="sort-order"]');
-    const sortBookmarksBtn = document.getElementById('sort-bookmarks-btn');
 
-    const primaryColorPicker = document.getElementById('primary-color-picker');
+
+
     const bgColorPicker = document.getElementById('bg-color-picker');
     const textColorPicker = document.getElementById('text-color-picker');
     const accentColorPicker = document.getElementById('accent-color-picker');
@@ -96,8 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
         getBookmarkFolders(folders => {
             sidebarFolderSelect.innerHTML = '<option value="">Select a Sidebar Folder</option>';
 
-            // Root Selector: Only two specific main folders
-            extensionRootFolderSelect.innerHTML = '';
+            // Root Selector: Only specific main folders
+            extensionRootFolderSelect.innerHTML = '<option value="">Select Root Folder</option>';
             const barOption = document.createElement('option');
             barOption.value = '1';
             barOption.textContent = 'Bookmark Bar';
@@ -189,12 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
         applySettings({ ...tempSettings, dateFontSize: size });
     });
 
-    primaryColorPicker.addEventListener('input', () => {
-        tempSettings.primaryColor = primaryColorPicker.value;
-        tempSettings.theme = 'custom';
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
-    });
+
 
     bgColorPicker.addEventListener('input', () => {
         tempSettings.bgColor = bgColorPicker.value;
@@ -239,13 +232,12 @@ document.addEventListener('DOMContentLoaded', () => {
             startupB: valB,
             startupC: valC,
             startupD: valD,
-            primaryColor: primaryColorPicker.value,
+
             bgColor: bgColorPicker.value,
             sidebarBg: bgColorPicker.value,
             textColor: textColorPicker.value,
             accentColor: accentColorPicker.value,
-            sortRecursively: sortRecursivelyCheckbox.checked,
-            sortOrder: document.querySelector('input[name="sort-order"]:checked').value,
+
         };
         chrome.storage.local.set({ settings: settingsToSave }, () => {
             settingsPanel.classList.add('hidden');
@@ -256,25 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    sortBookmarksBtn.addEventListener('click', () => {
-        const rootId = extensionRootFolderSelect.value || '1';
-        if (confirm('Are you sure you want to sort the bookmarks in your selected Root folder? This action cannot be undone.')) {
-            const sortOptions = {
-                recursive: sortRecursivelyCheckbox.checked,
-                sortOrder: document.querySelector('input[name="sort-order"]:checked').value,
-            };
-            sortBookmarksInFolder(rootId, sortOptions, () => {
-                // Refresh both the settings dropdowns and the main page dropdown
-                populateFolderDropdowns();
-                if (tempSettings.sidebarFolderId === '1') {
-                    loadSidebarBookmarks(tempSettings.sidebarFolderId);
-                }
-                if (window.populateBookmarkFolderDropdown) {
-                    window.populateBookmarkFolderDropdown();
-                }
-            });
-        }
-    });
+
 
     function loadSettings() {
         chrome.storage.local.get('settings', data => {
@@ -293,13 +267,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 startupB: typeof currentSettings.startupB === 'boolean' ? currentSettings.startupB : false,
                 startupC: typeof currentSettings.startupC === 'boolean' ? currentSettings.startupC : false,
                 startupD: typeof currentSettings.startupD === 'boolean' ? currentSettings.startupD : false,
-                primaryColor: currentSettings.primaryColor || '#4a90e2',
+
                 bgColor: currentSettings.bgColor || '#f0f2f5',
                 sidebarBg: currentSettings.sidebarBg || '#ffffff',
                 textColor: currentSettings.textColor || '#1c1e21',
                 accentColor: currentSettings.accentColor || '#e0e0e0',
-                sortRecursively: typeof currentSettings.sortRecursively === 'boolean' ? currentSettings.sortRecursively : false,
-                sortOrder: currentSettings.sortOrder || 'mixed',
+
             };
 
             updateButtonText();
@@ -318,14 +291,12 @@ document.addEventListener('DOMContentLoaded', () => {
             dateFontSizeSlider.value = numericSize;
             dateFontSizeValue.textContent = `${numericSize}px`;
 
-            primaryColorPicker.value = tempSettings.primaryColor;
+
             bgColorPicker.value = tempSettings.bgColor;
             textColorPicker.value = tempSettings.textColor;
             accentColorPicker.value = tempSettings.accentColor;
 
-            sortRecursivelyCheckbox.checked = tempSettings.sortRecursively;
-            const sortOrderInput = document.querySelector(`input[name="sort-order"][value="${tempSettings.sortOrder}"]`);
-            if (sortOrderInput) sortOrderInput.checked = true;
+
 
             applySettings({ ...tempSettings, dateFontSize: `${numericSize}px` });
         });
@@ -426,52 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
         importFileInput.value = '';
     });
 
-    document.getElementById('import-all-bookmarks-btn').addEventListener('click', () => {
-        const rootId = extensionRootFolderSelect.value || '1';
-        if (!confirm(`Are you sure you want to add a new panel for every subfolder of your selected Root folder to ${CURRENT_VIEW}?`)) {
-            return;
-        }
 
-        getSubFolders(rootId, (folders) => {
-            if (folders.length === 0) {
-                alert('No subfolders found in the selected Root folder.');
-                return;
-            }
-
-            chrome.storage.local.get(STORAGE_KEY, (data) => {
-                const currentPanels = data[STORAGE_KEY] || [];
-                const existingFolderIds = new Set(currentPanels.map(p => p.folderId));
-                let newPanelsAdded = 0;
-
-                folders.forEach((folder, index) => {
-                    // Skip if it's the folder currently selected as sidebar folder
-                    if (folder.id === sidebarFolderSelect.value) return;
-                    // Fallback for hardcoded name check
-                    if (folder.title && folder.title.toLowerCase() === 'zijbalk') return;
-
-                    if (!existingFolderIds.has(folder.id)) {
-                        currentPanels.push({
-                            id: `panel-${Date.now()}-${index}`,
-                            title: folder.title,
-                            type: 'bookmarks',
-                            folderId: folder.id,
-                            cards: []
-                        });
-                        newPanelsAdded++;
-                    }
-                });
-
-                if (newPanelsAdded > 0) {
-                    chrome.storage.local.set({ [STORAGE_KEY]: currentPanels }, () => {
-                        alert(`${newPanelsAdded} new bookmark panels have been added to ${CURRENT_VIEW}. The page will now reload.`);
-                        location.reload();
-                    });
-                } else {
-                    alert('All subfolders from this root are already present as panels in this view.');
-                }
-            });
-        });
-    });
 
     populateFolderDropdowns();
     loadSettings();

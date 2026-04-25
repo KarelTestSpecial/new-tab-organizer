@@ -72,10 +72,9 @@
                 </div>
                 <div class="form-group inline-section"
                     style="display: flex; align-items: center; justify-content: flex-start; gap: 15px; width: 100%; margin-bottom: 0;">
-                    <div class="sidebar-selector" style="display: flex; align-items: center; gap: 5px;">
-                        <select id="sidebar-folder-select" style="min-width: 180px;">
-                            <option value="">Select a Sidebar Folder</option>
-                        </select>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
+                        <button type="button" id="battery-toggle-btn" class="settings-btn-item">Show Battery</button>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px; width: 190px;">
                         <label for="date-font-size-slider" style="margin:0; white-space: nowrap; font-size: 0.8rem;">Date Size:</label>
@@ -86,61 +85,34 @@
                 </div>
             </div>
             <!-- Section 2: Colors -->
-            <div class="settings-section">
-                <div style="display: flex; justify-content: space-around; align-items: center; gap: 12px;">
-                    <div class="color-picker-group" style="gap: 5px; margin-bottom: 0;">
-                        <label for="primary-color-picker" style="margin-bottom: 0;">Primary:</label>
-                        <input type="color" id="primary-color-picker">
-                    </div>
-                    <div class="color-picker-group" style="gap: 5px; margin-bottom: 0;">
-                        <label for="text-color-picker" style="margin-bottom: 0;">Text:</label>
+            <div class="settings-section" style="display: flex; justify-content: space-between; align-items: flex-end;">
+                <div style="display: flex; gap: 20px; align-items: flex-end;">
+                    <div class="color-picker-group" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <label for="text-color-picker" style="font-size: 0.75rem; margin: 0;">Text</label>
                         <input type="color" id="text-color-picker">
                     </div>
-                    <div class="color-picker-group" style="gap: 5px; margin-bottom: 0;">
-                        <label for="accent-color-picker" style="margin-bottom: 0;">Accent:</label>
+                    <div class="color-picker-group" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <label for="accent-color-picker" style="font-size: 0.75rem; margin: 0;">Accent</label>
                         <input type="color" id="accent-color-picker">
                     </div>
-                    <div class="color-picker-group" style="gap: 5px; margin-bottom: 0;">
-                        <label for="bg-color-picker" style="margin-bottom: 0;">Background:</label>
+                    <div class="color-picker-group" style="display: flex; flex-direction: column; align-items: center; gap: 5px;">
+                        <label for="bg-color-picker" style="font-size: 0.75rem; margin: 0;">Background</label>
                         <input type="color" id="bg-color-picker">
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="font-size: 0.8rem; opacity: 0.7; text-align: right; line-height: 1.2;">
+                        Save your current<br>setup
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <button type="button" id="export-data-btn" class="settings-btn-item">Export Data</button>
+                        <button type="button" id="import-data-btn" class="settings-btn-item">Import Data</button>
                     </div>
                 </div>
             </div>
 
             <!-- Section 3: Bookmarks -->
-            <div class="settings-section">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <div style="font-size: 0.8rem; color: var(--text-color); opacity: 0.9;">
-                        Select the bookmark root folder
-                    </div>
-                    <div class="root-folder-selector" style="display: flex; align-items: center; gap: 5px;">
-                        <label for="extension-root-folder-select" style="margin:0; font-size: 0.8rem;">Root:</label>
-                        <select id="extension-root-folder-select" style="min-width: 120px;">
-                            <option value="1">Bookmark Bar</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div style="display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px;">
-                    <button type="button" id="sort-bookmarks-btn" class="settings-btn-item" style="font-size: 0.8rem;">Sort Root</button>
-                    <button type="button" id="import-all-bookmarks-btn" class="settings-btn-item" style="font-size: 0.8rem;">Import All Bookmark Folders from Root</button>
-                </div>
 
-                <!-- Sorting Options Row -->
-                <div style="display: flex; align-items: center; gap: 30px; font-size: 0.85rem;">
-                    <div style="display: flex; gap: 15px;">
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                            <input type="radio" name="sort-order" value="mixed" checked> mixed sort
-                        </label>
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                            <input type="radio" name="sort-order" value="foldersFirst"> 'folder first' sort
-                        </label>
-                    </div>
-                    <label style="cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                        <input type="checkbox" id="sort-recursively-checkbox"> Sort subfolders as well
-                    </label>
-                </div>
-            </div>
 
             <!-- Section 5: Swap Content (Reduced Padding) -->
             <div class="settings-section">
@@ -170,17 +142,17 @@
             <!-- Section 6: Data Management -->
             <div class="settings-section">
                 <div class="data-controls"
-                    style="display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%;">
-                    <div style="display: flex; gap: 8px;">
-                        <button type="button" id="theme-toggle-btn" class="settings-btn-item">Theme: Light</button>
-                        <button type="button" id="battery-toggle-btn" class="settings-btn-item">Show Battery</button>
-                    </div>
-                    <div class="data-buttons" style="display: flex; gap: 10px;">
-                        <button type="button" id="export-data-btn" class="settings-btn-item">Export Data</button>
-                        <button type="button" id="import-data-btn" class="settings-btn-item">Import Data</button>
+                    style="display: flex; align-items: center; justify-content: flex-start; gap: 15px; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <select id="sidebar-folder-select" style="min-width: 180px;">
+                            <option value="">Select a Sidebar Folder</option>
+                        </select>
+                        <select id="extension-root-folder-select" style="min-width: 180px;">
+                            <option value="">Select Root Folder</option>
+                        </select>
                     </div>
                 </div>
-                <p style="margin: 5px 0 0 0; text-align: right; font-size: 0.8rem; opacity: 0.7;">Save your current setup / Load setup</p>
+
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
 
@@ -190,7 +162,7 @@
                     <button id="close-settings-btn">Cancel</button>
                 </div>
                 <div class="startup-options">
-                    <span>Open on startup:</span>
+                    <span>on startup:</span>
                     <label>
                         <input type="checkbox" id="startup-check-A"> A
                     </label>

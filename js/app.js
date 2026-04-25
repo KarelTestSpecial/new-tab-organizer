@@ -1197,7 +1197,7 @@ function applySettings(settings) {
         document.documentElement.style.setProperty('--panel-bg', settings.sidebarBg);
         document.documentElement.style.setProperty('--border-color', settings.accentColor);
         document.documentElement.style.setProperty('--accent-color', settings.accentColor);
-        document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
+
     } else {
         // Clear custom styles when switching back to a predefined theme
         document.documentElement.style.setProperty('--bg-color', '');
@@ -1206,7 +1206,7 @@ function applySettings(settings) {
         document.documentElement.style.setProperty('--panel-bg', '');
         document.documentElement.style.setProperty('--border-color', '');
         document.documentElement.style.setProperty('--accent-color', '');
-        document.documentElement.style.setProperty('--primary-color', '');
+
     }
     document.documentElement.setAttribute('data-theme', settings.theme || 'light');
 
