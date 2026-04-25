@@ -270,5 +270,11 @@
   },
   "placeholder_notes_name": {
     "message": "Notes title"
+  },
+  "notification_title": {
+    "message": "New Tab Organizer Updated to v"
+  },
+  "notification_message": {
+    "message": "New features: Full multilingual support and improved date display in the sidebar!"
   }
 }

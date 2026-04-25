@@ -41,8 +41,8 @@ document.addEventListener('i18nReady', () => {
             chrome.notifications.create('', {
                 type: 'basic',
                 iconUrl: 'assets/icon.png',
-                title: `New Tab Organizer Updated to v${version}!`,
-                message: 'The extension has been updated to the latest version.',
+                title: `${I18N.getMessage('notification_title')}${version}!`,
+                message: I18N.getMessage('notification_message'),
                 priority: 2
             }, (id) => {
                 console.log("Notification created with ID:", id);

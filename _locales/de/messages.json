@@ -268,5 +268,11 @@
   },
   "placeholder_notes_name": {
     "message": "Notizentitel"
+  },
+  "notification_title": {
+    "message": "New Tab Organizer aktualisiert op v"
+  },
+  "notification_message": {
+    "message": "Neue Funktionen: Volle mehrsprachige Unterstützung und verbesserte Datumsanzeige!"
   }
 }

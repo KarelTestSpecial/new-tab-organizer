@@ -270,5 +270,11 @@
   },
   "placeholder_notes_name": {
     "message": "Notitietitel"
+  },
+  "notification_title": {
+    "message": "New Tab Organizer bijgewerkt naar v"
+  },
+  "notification_message": {
+    "message": "Nieuwe functies: Volledige meertalige ondersteuning en verbeterde datumweergave in de zijbalk!"
   }
 }
