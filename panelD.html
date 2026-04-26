@@ -234,16 +234,20 @@
                 <button class="modal-close-btn">&times;</button>
                 <h2 style="margin-bottom: 20px;" data-i18n="add_bookmark_title">Add New Bookmark Panel</h2>
                 
-                <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
-                    <div style="display: flex; align-items: center; gap: 10px; width: 100%; margin-bottom: 12px;">
-                        <input type="text" id="new-bookmark-folder-name" data-i18n-placeholder="add_bookmark_new_folder_placeholder" placeholder="Naam nieuwe map" style="flex-grow: 1; width: auto; min-width: 150px;">
-                        <button type="button" id="create-new-bookmark-folder-btn" class="settings-btn-item" style="padding: 6px 15px; font-weight: bold;" data-i18n="add_bookmark_new_folder">Maak Nieuwe Map</button>
-                    </div>
+                <!-- Global Organizer Toggle Section -->
+                <div style="margin-bottom: 20px; padding: 12px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <label style="margin:0; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                        <label style="margin:0; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                             <input type="checkbox" id="modal-use-organizer-folders-toggle"> <span data-i18n="label_use_organizer">4 mappen in Chrome Bookmarks</span>
                         </label>
                         <span class="info-icon" data-i18n-tooltip="add_bookmark_folder_info">ⓘ</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                    <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                        <input type="text" id="new-bookmark-folder-name" data-i18n-placeholder="add_bookmark_new_folder_placeholder" placeholder="Naam nieuwe map" style="flex-grow: 1; width: auto; min-width: 150px;">
+                        <button type="button" id="create-new-bookmark-folder-btn" class="settings-btn-item" style="padding: 6px 15px; font-weight: bold;" data-i18n="add_bookmark_new_folder">Maak Nieuwe Map</button>
                     </div>
                 </div>
 

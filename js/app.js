@@ -356,12 +356,41 @@ document.addEventListener('i18nReady', () => {
             const isChecked = e.target.checked;
             chrome.storage.local.get('settings', (data) => {
                 const settings = data.settings || {};
-                settings.useOrganizerFolders = isChecked;
-                chrome.storage.local.set({ settings }, () => {
-                    // Sync the settings panel toggle if it's currently open/exists
-                    const panelToggle = document.getElementById('use-organizer-folders-toggle');
-                    if (panelToggle) panelToggle.checked = isChecked;
-                });
+                const rootId = settings.rootFolderId || '1';
+                
+                if (isChecked) {
+                    const confirmed = confirm(I18N.getMessage('confirm_enable_folders'));
+                    if (confirmed) {
+                        settings.useOrganizerFolders = true;
+                        chrome.bookmarks.getChildren(rootId, (children) => {
+                            if (chrome.runtime.lastError) return;
+                            ['A', 'B', 'C', 'D'].forEach(v => {
+                                const folderName = `Organizer ${v}`;
+                                const exists = (children || []).some(c => !c.url && c.title === folderName);
+                                if (!exists) {
+                                    chrome.bookmarks.create({ parentId: rootId, title: folderName });
+                                }
+                            });
+                            // Mark upgrade modal as done so it doesn't show up again
+                            chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
+                                // Sync the settings panel toggle if it's currently open/exists
+                                const panelToggle = document.getElementById('use-organizer-folders-toggle');
+                                if (panelToggle) panelToggle.checked = true;
+                                if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
+                            });
+                        });
+                    } else {
+                        e.target.checked = false;
+                    }
+                } else {
+                    // Turn off
+                    alert(I18N.getMessage('alert_auto_move_off'));
+                    settings.useOrganizerFolders = false;
+                    chrome.storage.local.set({ settings: settings }, () => {
+                        const panelToggle = document.getElementById('use-organizer-folders-toggle');
+                        if (panelToggle) panelToggle.checked = false;
+                    });
+                }
             });
         });
     }

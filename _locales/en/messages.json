@@ -83,7 +83,7 @@
     "message": "Add New Bookmark Panel"
   },
   "add_bookmark_folder_info": {
-    "message": "When 'On', the new folder is created inside the Organizer folder (A, B, C or D). When 'Off', it is created in the root of the bookmark bar/other bookmarks."
+    "message": "Enable this to physically organize your bookmarks into 4 fixed folders (Organizer A, B, C, D) in Chrome. Both when creating new folders and importing existing ones, they will be automatically placed in the correct root folder. If these folders don't exist yet, they will be created immediately upon activation. (see settings panel)"
   },
   "label_use_organizer": {
     "message": "4 folders in Chrome Bookmarks"
