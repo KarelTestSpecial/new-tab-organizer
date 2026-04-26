@@ -49,6 +49,22 @@ const I18N = {
                 el.setAttribute('placeholder', translation);
             }
         });
+
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const key = el.getAttribute('data-i18n-title');
+            const translation = this.getMessage(key);
+            if (translation) {
+                el.setAttribute('title', translation);
+            }
+        });
+
+        document.querySelectorAll('[data-i18n-tooltip]').forEach(el => {
+            const key = el.getAttribute('data-i18n-tooltip');
+            const translation = this.getMessage(key);
+            if (translation) {
+                el.setAttribute('data-tooltip', translation);
+            }
+        });
     }
 };
 

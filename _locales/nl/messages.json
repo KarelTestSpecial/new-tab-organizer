@@ -46,6 +46,9 @@
   "settings_folders": {
     "message": "Mappen & Synchronisatie"
   },
+  "select_root_folder": {
+    "message": "Selecteer Hoofdmap"
+  },
   "settings_root_folder": {
     "message": "Waar wil je dat wij de Organizer mappen plaatsen?"
   },
@@ -53,7 +56,7 @@
     "message": "Maak 4 mappen in Chrome Bookmarks : Organizer A, Organizer B, Organizer C, Organizer D"
   },
   "settings_toggle_desc": {
-    "message": "Zet je dit uit, dan stopt het automatisch verplaatsen. Bestaande mappen in Chrome blijven behouden."
+    "message": "Zet je dit aan, dan worden bij het importeren van bookmarkfolders de Chrome Bookmarks mappen ook effectief verplaatst naar je Organizer folder. Ook bij verplaatsen van bookmarkpanelen tussen Organizers worden de mappen effectief verplaatst tussen Organizer mappen. Zet je dit uit, dan stopt het automatisch verplaatsen maar de mappen in Chrome Bookmarks blijven behouden tot je ze zelf wist."
   },
   "settings_swap": {
     "message": "Wissel Organizers"
@@ -78,6 +81,12 @@
   },
   "add_bookmark_title": {
     "message": "Nieuw Bladwijzer Paneel Toevoegen"
+  },
+  "add_bookmark_folder_info": {
+    "message": "Wanneer 'Aan', wordt de nieuwe map aangemaakt binnen de Organizer map (A, B, C of D). Wanneer 'Uit', wordt de map aangemaakt in de root van bladwijzerbalk/overige bladwijzers."
+  },
+  "label_use_organizer": {
+    "message": "4 mappen in Chrome Bookmarks"
   },
   "add_bookmark_new_folder": {
     "message": "Maak Nieuwe Map"
@@ -170,7 +179,7 @@
     "message": "Selecteer een map in de instellingen."
   },
   "save_current_setup": {
-    "message": "Sla je huidige layout op"
+    "message": "Sla huidige setup op"
   },
   "move_panels_rightclick": {
     "message": "Verplaats individuele panelen door rechts te klikken op de titel"
@@ -179,46 +188,46 @@
     "message": "Selecteer een Zijbalk Map"
   },
   "btn_hide_clock": {
-    "message": "Verberg Klok"
+    "message": "Klok"
   },
   "btn_show_clock": {
-    "message": "Toon Klok"
+    "message": "Klok"
   },
   "btn_hide_date": {
-    "message": "Verberg Datum"
+    "message": "Datum"
   },
   "btn_show_date": {
-    "message": "Toon Datum"
+    "message": "Datum"
   },
   "btn_hide_day": {
-    "message": "Verberg Dag"
+    "message": "Dag"
   },
   "btn_show_day": {
-    "message": "Toon Dag"
+    "message": "Dag"
   },
   "btn_hide_year": {
-    "message": "Verberg Jaar"
+    "message": "Jaar"
   },
   "btn_show_year": {
-    "message": "Toon Jaar"
+    "message": "Jaar"
   },
   "btn_theme_light": {
-    "message": "Thema: Licht"
+    "message": "Licht"
   },
   "btn_theme_dark": {
-    "message": "Thema: Donker"
+    "message": "Donker"
   },
   "btn_theme_custom": {
-    "message": "Thema: Aangepast"
+    "message": "Eigen"
   },
   "btn_hide_battery": {
-    "message": "Verberg Batterij"
+    "message": "Batterij"
   },
   "btn_show_battery": {
-    "message": "Toon Batterij"
+    "message": "Batterij"
   },
   "label_date_size": {
-    "message": "Datumgrootte:"
+    "message": "Datum:"
   },
   "btn_export_data": {
     "message": "Exporteer Data"

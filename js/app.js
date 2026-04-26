@@ -327,9 +327,14 @@ document.addEventListener('i18nReady', () => {
     });
 
     document.getElementById('add-bookmarks-panel-btn').addEventListener('click', () => {
-        chrome.storage.local.get('bookmarksPanelPosition', (data) => {
+        chrome.storage.local.get(['bookmarksPanelPosition', 'settings'], (data) => {
             const position = data.bookmarksPanelPosition || 'bottom';
             bookmarksForm.elements['bookmarks-position'].value = position;
+            
+            // Sync modal toggle with settings
+            const useFolders = data.settings && data.settings.useOrganizerFolders;
+            const modalToggle = document.getElementById('modal-use-organizer-folders-toggle');
+            if (modalToggle) modalToggle.checked = !!useFolders;
         });
         addBookmarksModal.classList.remove('hidden');
         // Reset recursive checkbox
@@ -343,6 +348,23 @@ document.addEventListener('i18nReady', () => {
         // Focus the selection field immediately so it's ready for interaction
         setTimeout(() => panelFolderSelect.focus(), 10);
     });
+
+    // Handle modal toggle change (Sync with settings)
+    const modalFolderToggle = document.getElementById('modal-use-organizer-folders-toggle');
+    if (modalFolderToggle) {
+        modalFolderToggle.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            chrome.storage.local.get('settings', (data) => {
+                const settings = data.settings || {};
+                settings.useOrganizerFolders = isChecked;
+                chrome.storage.local.set({ settings }, () => {
+                    // Sync the settings panel toggle if it's currently open/exists
+                    const panelToggle = document.getElementById('use-organizer-folders-toggle');
+                    if (panelToggle) panelToggle.checked = isChecked;
+                });
+            });
+        });
+    }
 
     const createNewFolderBtn = document.getElementById('create-new-bookmark-folder-btn');
     const newFolderNameInput = document.getElementById('new-bookmark-folder-name');
@@ -367,35 +389,57 @@ document.addEventListener('i18nReady', () => {
                             return;
                         }
                         // Add as a panel to the current view
-                        chrome.storage.local.get('bookmarksPanelPosition', (posData) => {
-                            const position = posData.bookmarksPanelPosition || 'bottom';
-                            const newPanelState = {
-                                id: `panel-${Date.now()}-${newFolder.id}-`,
-                                title: newFolder.title,
-                                type: 'bookmarks',
-                                folderId: newFolder.id,
-                                cards: []
-                            };
-                            const panelEl = createPanel(newPanelState, saveState);
-                            addPanelToContainer(panelEl, position);
-                            if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
-                            
-                            // Close modal
-                            addBookmarksModal.classList.add('hidden');
-                            newFolderNameInput.value = '';
-                        });
+                        const position = bookmarksForm.elements['bookmarks-position'].value || 'bottom';
+                        // Save the preference
+                        chrome.storage.local.set({ 'bookmarksPanelPosition': position });
+
+                        const newPanelState = {
+                            id: `panel-${Date.now()}-${newFolder.id}-`,
+                            title: newFolder.title,
+                            type: 'bookmarks',
+                            folderId: newFolder.id,
+                            cards: []
+                        };
+                        const panelEl = createPanel(newPanelState, saveState);
+                        addPanelToContainer(panelEl, position);
+                        if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
+                        
+                        // Don't close modal, just clear input
+                        newFolderNameInput.value = '';
                     });
                 };
 
                 if (isFoldersEnabled) {
                     const destFolderName = `Organizer ${CURRENT_VIEW}`;
-                    chrome.bookmarks.getChildren(baseRootId, (children) => {
-                        if (chrome.runtime.lastError) return;
-                        const destFolder = children.find(c => !c.url && c.title === destFolderName);
+                    chrome.bookmarks.search({ title: destFolderName }, (results) => {
+                        if (chrome.runtime.lastError) {
+                            createFolderAndPanel(baseRootId);
+                            return;
+                        }
+                        
+                        const folders = (results || []).filter(r => !r.url);
+                        
+                        // 1. Try to find exact match under the current baseRootId
+                        let destFolder = folders.find(f => f.title.trim() === destFolderName && f.parentId === baseRootId);
+                        
+                        // 2. If not found, try to find any folder that matches the name exactly (global search)
+                        if (!destFolder) {
+                            destFolder = folders.find(f => f.title.trim() === destFolderName);
+                        }
+                        
                         if (destFolder) {
                             createFolderAndPanel(destFolder.id);
                         } else {
-                            createFolderAndPanel(baseRootId); // Fallback
+                            // 3. Fallback: manual check of immediate children (search can sometimes be delayed)
+                            chrome.bookmarks.getChildren(baseRootId, (children) => {
+                                const manualMatch = (children || []).find(c => !c.url && c.title.trim() === destFolderName);
+                                if (manualMatch) {
+                                    createFolderAndPanel(manualMatch.id);
+                                } else {
+                                    // 4. Final fallback: use the root
+                                    createFolderAndPanel(baseRootId);
+                                }
+                            });
                         }
                     });
                 } else {
@@ -433,13 +477,9 @@ document.addEventListener('i18nReady', () => {
         });
     });
 
-    addNotesModal.querySelector('.cancel-btn').addEventListener('click', () => {
-        addNotesModal.classList.add('hidden');
-    });
+    
 
-    addBookmarksModal.querySelector('.cancel-btn').addEventListener('click', () => {
-        addBookmarksModal.classList.add('hidden');
-    });
+    
 
 
 
@@ -642,9 +682,7 @@ document.addEventListener('i18nReady', () => {
         });
     });
 
-    movePanelModal.querySelector('.cancel-btn').addEventListener('click', () => {
-        movePanelModal.classList.add('hidden');
-    });
+    
 
     document.getElementById('history-link').addEventListener('click', (e) => {
         e.preventDefault();
@@ -674,9 +712,7 @@ document.addEventListener('i18nReady', () => {
         confirmDeleteBtn.disabled = deleteConfirmInput.value.trim() !== folderNameToConfirm;
     });
 
-    deleteFolderModal.querySelector('.cancel-btn').addEventListener('click', () => {
-        deleteFolderModal.classList.add('hidden');
-    });
+    
 
     deleteFolderForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -699,6 +735,14 @@ document.addEventListener('i18nReady', () => {
             });
         }
         deleteFolderModal.classList.add('hidden');
+    });
+
+    // Unified Modal Close (X button and Cancel button)
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('cancel-btn') || e.target.classList.contains('modal-close-btn')) {
+            const modal = e.target.closest('.modal');
+            if (modal) modal.classList.add('hidden');
+        }
     });
 
     // --- Undo Logic ---
@@ -1351,8 +1395,9 @@ function applySettings(settings) {
         document.documentElement.style.setProperty('--text-color', settings.textColor);
         document.documentElement.style.setProperty('--sidebar-bg', settings.sidebarBg);
         document.documentElement.style.setProperty('--panel-bg', settings.sidebarBg);
-        document.documentElement.style.setProperty('--border-color', settings.accentColor);
-        document.documentElement.style.setProperty('--accent-color', settings.accentColor);
+        document.documentElement.style.setProperty('--border-color', settings.borderColor);
+        document.documentElement.style.setProperty('--accent-color', settings.btnColor);
+        document.documentElement.style.setProperty('--input-bg', settings.inputBgColor || (settings.theme === 'dark' ? '#333333' : '#ffffff'));
 
     } else {
         // Clear custom styles when switching back to a predefined theme
@@ -1362,7 +1407,7 @@ function applySettings(settings) {
         document.documentElement.style.setProperty('--panel-bg', '');
         document.documentElement.style.setProperty('--border-color', '');
         document.documentElement.style.setProperty('--accent-color', '');
-
+        document.documentElement.style.setProperty('--input-bg', '');
     }
     document.documentElement.setAttribute('data-theme', settings.theme || 'light');
 

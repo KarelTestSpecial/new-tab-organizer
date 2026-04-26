@@ -7,6 +7,7 @@
     --accent-color: #f0f0f0;
     --primary-color: #4a90e2;
     --button-text-color: #1c1e21;
+    --input-bg: #ffffff;
 }
 
 /* Global Box Sizing Reset */
@@ -389,24 +390,7 @@ body {
 
 
 /* Settings Panel */
-#settings-panel {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 500px;
-    max-width: 95%;
-    background-color: var(--sidebar-bg);
-    border: 2px solid #888;
-    border-radius: 8px;
-    padding: 20px;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
 
-[data-theme="dark"] #settings-panel {
-    border-color: #555;
-}
 
 .settings-footer {
     display: flex;
@@ -431,14 +415,11 @@ body {
     margin-bottom: 0 !important;
 }
 
-#settings-panel h2 {
-    margin-top: 0;
-}
 
 .settings-section {
     margin-bottom: 20px;
     padding-bottom: 20px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .settings-section:last-of-type {
@@ -449,26 +430,8 @@ body {
     margin-top: 15px;
 }
 
-#settings-panel label {
-    display: block;
-    margin-bottom: 5px;
-}
 
-#settings-panel select {
-    width: 100%;
-    padding: 8px;
-    background-color: var(--accent-color);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-size: 12px;
-}
 
-[data-theme="dark"] #settings-panel select {
-    background-color: #444 !important;
-    color: #eee !important;
-    border-color: #666 !important;
-}
 
 /* Settings Button Styles */
 .settings-buttons {
@@ -541,6 +504,14 @@ body {
     font-size: 24px;
     cursor: pointer;
     color: var(--text-color);
+    opacity: 0.6;
+    transition: opacity 0.2s, transform 0.2s;
+    line-height: 1;
+}
+
+.settings-close-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
 }
 
 .color-picker-group {
@@ -554,55 +525,104 @@ body {
     padding-left: 20px;
 }
 
+/* Modal Overlay (Background blur) */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(2px);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(5px);
     z-index: 999;
 }
 
-.modal {
+/* Base Modal Styling (Shared with Settings Panel) */
+.modal, #settings-panel {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 500px;
-    max-width: 90%;
-    background-color: var(--sidebar-bg);
+    max-width: 95%;
+    background-color: var(--panel-bg);
     border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 24px;
     z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    backdrop-filter: blur(10px);
+    color: var(--text-color);
 }
 
-.modal h2 {
+.modal h2, #settings-panel h2 {
     margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.25rem;
+    font-weight: 600;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
 }
 
-.form-group input[type="text"], .form-group select {
+/* Standardized Inputs and Selects */
+.modal input[type="text"], 
+.modal select,
+#settings-panel input[type="text"],
+#settings-panel select {
     width: 100%;
-    padding: 8px;
+    padding: 10px 12px;
+    background-color: var(--input-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 0.9rem;
     box-sizing: border-box;
-    font-size: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.modal input[type="text"]:focus, 
+.modal select:focus,
+#settings-panel input[type="text"]:focus,
+#settings-panel select:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(95, 146, 222, 0.2);
+    outline: none;
+}
+
+/* Form Actions (Buttons at bottom) */
 .form-actions {
-    text-align: right;
-    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+/* Close button for all modals */
+.modal-close-btn, .settings-close-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-color);
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    line-height: 1;
+}
+
+.modal-close-btn:hover, .settings-close-btn:hover {
+    opacity: 1;
 }
 
 .hidden {
@@ -618,6 +638,7 @@ body {
     --accent-color: #3a3b3c;
     --primary-color: #4a90e2;
     --button-text-color: #e4e6eb;
+    --input-bg: #333333;
 }
 
 #sidebar-bookmarks {
@@ -783,3 +804,89 @@ body {
     background-color: var(--accent-color);
 }
 
+
+/* Tooltip System for Info Icons */
+.info-icon {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+    margin-left: 8px;
+    font-size: 1.1rem;
+    vertical-align: middle;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.info-icon:hover {
+    opacity: 1;
+}
+
+.info-icon::after {
+    content: attr(data-tooltip);
+    visibility: hidden;
+    width: 320px;
+    background-color: var(--panel-bg);
+    color: var(--text-color);
+    text-align: left;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    position: absolute;
+    z-index: 9999;
+    bottom: 150%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    white-space: normal;
+    pointer-events: none;
+}
+
+.info-icon:hover::after {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+/* Tooltip Arrow */
+.info-icon::before {
+    content: "";
+    visibility: hidden;
+    position: absolute;
+    bottom: 150%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 8px;
+    border-style: solid;
+    border-color: var(--border-color) transparent transparent transparent;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 10000;
+    margin-bottom: -15px;
+}
+
+.info-icon:hover::before {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(-50%) translateY(-5px);
+}
+
+/* Active state for toggle buttons */
+.settings-btn-item.active {
+    background-color: var(--accent-color) !important;
+    color: var(--text-color) !important;
+    border-color: var(--accent-color) !important;
+}
+
+/* Special styling for the Theme button to distinguish it */
+.theme-btn-special {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    border-style: double; /* Subtle but distinct border style */
+    border-width: 3px;
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+}

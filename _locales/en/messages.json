@@ -14,7 +14,7 @@
     "message": "Language"
   },
   "settings_language_auto": {
-    "message": "Auto (Browser Default)"
+    "message": "Auto"
   },
   "settings_visual": {
     "message": "Visual Settings"
@@ -45,6 +45,9 @@
   },
   "settings_folders": {
     "message": "Folders & Syncing"
+  },
+  "select_root_folder": {
+    "message": "Select Root Folder"
   },
   "settings_root_folder": {
     "message": "Where should the Organizer folders be placed?"
@@ -78,6 +81,12 @@
   },
   "add_bookmark_title": {
     "message": "Add New Bookmark Panel"
+  },
+  "add_bookmark_folder_info": {
+    "message": "When 'On', the new folder is created inside the Organizer folder (A, B, C or D). When 'Off', it is created in the root of the bookmark bar/other bookmarks."
+  },
+  "label_use_organizer": {
+    "message": "4 folders in Chrome Bookmarks"
   },
   "add_bookmark_new_folder": {
     "message": "Create New Folder"
@@ -179,46 +188,46 @@
     "message": "Select a Sidebar Folder"
   },
   "btn_hide_clock": {
-    "message": "Hide Clock"
+    "message": "Clock"
   },
   "btn_show_clock": {
-    "message": "Show Clock"
+    "message": "Clock"
   },
   "btn_hide_date": {
-    "message": "Hide Date"
+    "message": "Date"
   },
   "btn_show_date": {
-    "message": "Show Date"
+    "message": "Date"
   },
   "btn_hide_day": {
-    "message": "Hide Day"
+    "message": "Day"
   },
   "btn_show_day": {
-    "message": "Show Day"
+    "message": "Day"
   },
   "btn_hide_year": {
-    "message": "Hide Year"
+    "message": "Year"
   },
   "btn_show_year": {
-    "message": "Show Year"
+    "message": "Year"
   },
   "btn_theme_light": {
-    "message": "Theme: Light"
+    "message": "Light"
   },
   "btn_theme_dark": {
-    "message": "Theme: Dark"
+    "message": "Dark"
   },
   "btn_theme_custom": {
-    "message": "Theme: Custom"
+    "message": "Custom"
   },
   "btn_hide_battery": {
-    "message": "Hide Battery"
+    "message": "Battery"
   },
   "btn_show_battery": {
-    "message": "Show Battery"
+    "message": "Battery"
   },
   "label_date_size": {
-    "message": "Date Size:"
+    "message": "Date:"
   },
   "btn_export_data": {
     "message": "Export Data"

@@ -1,6 +1,7 @@
 function getStorageKey(view) {
     if (view === 'B') return 'panelsState_B';
     if (view === 'C') return 'panelsState_C';
+    if (view === 'D') return 'panelsState_D';
     return 'panelsState'; // Default for A
 }
 
@@ -9,6 +10,7 @@ document.addEventListener('i18nReady', () => {
     const settingsBtn = document.getElementById('settings-btn');
     const closeBtn = document.getElementById('close-settings-btn');
     const saveBtn = document.getElementById('save-settings-btn');
+    const closeX = document.getElementById('close-settings-x');
 
     // --- Element Definitions ---
     const sidebarFolderSelect = document.getElementById('sidebar-folder-select');
@@ -19,6 +21,7 @@ document.addEventListener('i18nReady', () => {
     const dateToggleBtn = document.getElementById('date-toggle-btn');
     const yearToggleBtn = document.getElementById('year-toggle-btn');
     const dayToggleBtn = document.getElementById('day-toggle-btn');
+    const languageSelect = document.getElementById('language-select');
 
     const dateFontSizeSlider = document.getElementById('date-font-size-slider');
     const dateFontSizeValue = document.getElementById('date-font-size-value');
@@ -32,7 +35,9 @@ document.addEventListener('i18nReady', () => {
 
     const bgColorPicker = document.getElementById('bg-color-picker');
     const textColorPicker = document.getElementById('text-color-picker');
-    const accentColorPicker = document.getElementById('accent-color-picker');
+    const btnColorPicker = document.getElementById('btn-color-picker');
+    const borderColorPicker = document.getElementById('border-color-picker');
+    const inputBgColorPicker = document.getElementById('input-bg-color-picker');
 
     // Check for battery presence
     if (navigator.getBattery) {
@@ -57,7 +62,7 @@ document.addEventListener('i18nReady', () => {
         if (settingsPanel.classList.contains('hidden')) {
             settingsPanel.classList.remove('hidden');
         } else {
-            saveSettings();
+            saveSettings(true);
         }
     });
 
@@ -66,7 +71,8 @@ document.addEventListener('i18nReady', () => {
         loadSettings();
     };
 
-    closeBtn.addEventListener('click', closeSettingsPanel);
+    if (closeBtn) closeBtn.addEventListener('click', closeSettingsPanel);
+    if (closeX) closeX.addEventListener('click', closeSettingsPanel);
 
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && !settingsPanel.classList.contains('hidden')) {
@@ -92,32 +98,34 @@ document.addEventListener('i18nReady', () => {
                         });
                         // Mark upgrade modal as done so it doesn't show up again
                         chrome.storage.local.set({ foldersUpgradeDone: true });
+                        saveSettings(false);
                     });
                 } else {
                     e.target.checked = false;
                     tempSettings.useOrganizerFolders = false;
+                    saveSettings(false);
                 }
             } else {
                 alert(I18N.getMessage('alert_auto_move_off'));
                 tempSettings.useOrganizerFolders = false;
+                saveSettings(false);
             }
         });
     }
 
     sidebarFolderSelect.addEventListener('change', () => {
         tempSettings.sidebarFolderId = sidebarFolderSelect.value;
-        const currentFontSize = dateFontSizeSlider ? `${dateFontSizeSlider.value}px` : '11px';
-        applySettings({ ...tempSettings, dateFontSize: currentFontSize });
+        saveSettings(false);
     });
 
     extensionRootFolderSelect.addEventListener('change', () => {
         tempSettings.rootFolderId = extensionRootFolderSelect.value;
+        saveSettings(false);
     });
 
     batteryToggleBtn.addEventListener('click', () => {
         tempSettings.showBattery = !tempSettings.showBattery;
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+        saveSettings(false);
     });
 
     function populateFolderDropdowns() {
@@ -125,7 +133,7 @@ document.addEventListener('i18nReady', () => {
             sidebarFolderSelect.innerHTML = '<option value="">' + I18N.getMessage('select_sidebar_folder') + '</option>';
 
             // Root Selector: Only specific main folders
-            extensionRootFolderSelect.innerHTML = '<option value="">Select Root Folder</option>';
+            extensionRootFolderSelect.innerHTML = '<option value="">' + I18N.getMessage('select_root_folder') + '</option>';
             const barOption = document.createElement('option');
             barOption.value = '1';
             barOption.textContent = 'Bookmark Bar';
@@ -151,44 +159,60 @@ document.addEventListener('i18nReady', () => {
         });
     }
 
-    function updateButtonText() {
-        clockToggleBtn.textContent = tempSettings.showClock ? I18N.getMessage('btn_hide_clock') : I18N.getMessage('btn_show_clock');
-        dateToggleBtn.textContent = tempSettings.showDate ? I18N.getMessage('btn_hide_date') : I18N.getMessage('btn_show_date');
-        dayToggleBtn.textContent = tempSettings.showDayOfWeek ? I18N.getMessage('btn_hide_day') : I18N.getMessage('btn_show_day');
-        yearToggleBtn.textContent = tempSettings.showYear ? I18N.getMessage('btn_hide_year') : I18N.getMessage('btn_show_year');
-        batteryToggleBtn.textContent = tempSettings.showBattery ? I18N.getMessage('btn_hide_battery') : I18N.getMessage('btn_show_battery');
+        function updateButtonText() {
+        if (clockToggleBtn) {
+            clockToggleBtn.textContent = I18N.getMessage('btn_show_clock');
+            clockToggleBtn.classList.toggle('active', tempSettings.showClock);
+        }
+        if (dateToggleBtn) {
+            dateToggleBtn.textContent = I18N.getMessage('btn_show_date');
+            dateToggleBtn.classList.toggle('active', tempSettings.showDate);
+        }
+        if (dayToggleBtn) {
+            dayToggleBtn.textContent = I18N.getMessage('btn_show_day');
+            dayToggleBtn.classList.toggle('active', tempSettings.showDayOfWeek);
+        }
+        if (yearToggleBtn) {
+            yearToggleBtn.textContent = I18N.getMessage('btn_show_year');
+            yearToggleBtn.classList.toggle('active', tempSettings.showYear);
+        }
+        if (batteryToggleBtn) {
+            batteryToggleBtn.textContent = I18N.getMessage('btn_show_battery');
+            batteryToggleBtn.classList.toggle('active', tempSettings.showBattery);
+        }
 
-        if (tempSettings.theme === 'light') {
-            themeBtn.textContent = I18N.getMessage('btn_theme_light');
-        } else if (tempSettings.theme === 'dark') {
-            themeBtn.textContent = I18N.getMessage('btn_theme_dark');
-        } else {
-            themeBtn.textContent = I18N.getMessage('btn_theme_custom');
+        if (themeBtn) {
+            let icon = '🎨';
+            if (tempSettings.theme === 'light') icon = '☀️';
+            else if (tempSettings.theme === 'dark') icon = '🌙';
+
+            const themeMsg = tempSettings.theme === 'light' ? I18N.getMessage('btn_theme_light') :
+                             tempSettings.theme === 'dark' ? I18N.getMessage('btn_theme_dark') :
+                             I18N.getMessage('btn_theme_custom');
+            
+            themeBtn.innerHTML = `${icon} ${themeMsg}`;
+            themeBtn.classList.toggle('active', tempSettings.theme !== 'light');
         }
     }
 
     dateToggleBtn.addEventListener('click', () => {
         tempSettings.showDate = !tempSettings.showDate;
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+        saveSettings(false);
     });
 
     clockToggleBtn.addEventListener('click', () => {
         tempSettings.showClock = !tempSettings.showClock;
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+        saveSettings(false);
     });
 
     yearToggleBtn.addEventListener('click', () => {
         tempSettings.showYear = !tempSettings.showYear;
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+        saveSettings(false);
     });
 
     dayToggleBtn.addEventListener('click', () => {
         tempSettings.showDayOfWeek = !tempSettings.showDayOfWeek;
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+        saveSettings(false);
     });
 
     themeBtn.addEventListener('click', () => {
@@ -199,14 +223,13 @@ document.addEventListener('i18nReady', () => {
         } else {
             tempSettings.theme = 'light';
         }
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+        saveSettings(false);
     });
 
     dateFontSizeSlider.addEventListener('input', () => {
         const size = `${dateFontSizeSlider.value}px`;
         dateFontSizeValue.textContent = size;
-        applySettings({ ...tempSettings, dateFontSize: size });
+        saveSettings(false);
     });
 
 
@@ -215,25 +238,28 @@ document.addEventListener('i18nReady', () => {
         tempSettings.bgColor = bgColorPicker.value;
         tempSettings.sidebarBg = bgColorPicker.value;
         tempSettings.theme = 'custom';
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+        saveSettings(false);
     });
 
     textColorPicker.addEventListener('input', () => {
         tempSettings.textColor = textColorPicker.value;
         tempSettings.theme = 'custom';
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+        saveSettings(false);
     });
 
-    accentColorPicker.addEventListener('input', () => {
-        tempSettings.accentColor = accentColorPicker.value;
+    btnColorPicker.addEventListener('input', () => {
+        tempSettings.btnColor = btnColorPicker.value;
         tempSettings.theme = 'custom';
-        updateButtonText();
-        applySettings({ ...tempSettings, dateFontSize: `${dateFontSizeSlider.value}px` });
+        saveSettings(false);
     });
 
-    function saveSettings() {
+    borderColorPicker.addEventListener('input', () => {
+        tempSettings.borderColor = borderColorPicker.value;
+        tempSettings.theme = 'custom';
+        saveSettings(false);
+    });
+
+    function saveSettings(hidePanel = false) {
         let valA = startupCheckA.checked;
         let valB = startupCheckB.checked;
         let valC = startupCheckC.checked;
@@ -260,7 +286,8 @@ document.addEventListener('i18nReady', () => {
             bgColor: bgColorPicker.value,
             sidebarBg: bgColorPicker.value,
             textColor: textColorPicker.value,
-            accentColor: accentColorPicker.value,
+            btnColor: btnColorPicker.value,
+            borderColor: borderColorPicker.value,
 
         };
         chrome.storage.local.set({ settings: settingsToSave }, () => {
@@ -268,7 +295,10 @@ document.addEventListener('i18nReady', () => {
                 location.reload();
                 return;
             }
-            settingsPanel.classList.add('hidden');
+            if (hidePanel) {
+                settingsPanel.classList.add('hidden');
+            }
+            updateButtonText();
             applySettings(settingsToSave);
             if (window.populateBookmarkFolderDropdown) {
                 window.populateBookmarkFolderDropdown();
@@ -301,18 +331,18 @@ document.addEventListener('i18nReady', () => {
                 bgColor: currentSettings.bgColor || '#f0f2f5',
                 sidebarBg: currentSettings.sidebarBg || '#ffffff',
                 textColor: currentSettings.textColor || '#1c1e21',
-                accentColor: currentSettings.accentColor || '#e0e0e0',
+                btnColor: currentSettings.btnColor || currentSettings.accentColor || '#f0f0f0',
+                borderColor: currentSettings.borderColor || currentSettings.accentColor || '#dddfe2',
+                inputBgColor: currentSettings.inputBgColor || (currentSettings.theme === 'dark' ? '#333333' : '#ffffff'),
                 language: currentSettings.language || 'auto',
 
             };
 
-    const languageSelect = document.getElementById('language-select');
     if (languageSelect) {
         languageSelect.value = tempSettings.language || 'auto';
         languageSelect.addEventListener('change', () => {
             tempSettings.language = languageSelect.value;
-            saveSettings(); // Immediate reload
-            // Immediate effect requires reload, but we'll let saveSettings handle it
+            saveSettings(false); // Immediate reload if language changed
         });
     }
 
@@ -321,10 +351,22 @@ document.addEventListener('i18nReady', () => {
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
             extensionRootFolderSelect.value = tempSettings.rootFolderId;
 
-            if (startupCheckA) startupCheckA.checked = tempSettings.startupA;
-            if (startupCheckB) startupCheckB.checked = tempSettings.startupB;
-            if (startupCheckC) startupCheckC.checked = tempSettings.startupC;
-            if (startupCheckD) startupCheckD.checked = tempSettings.startupD;
+            if (startupCheckA) {
+                startupCheckA.checked = tempSettings.startupA;
+                startupCheckA.addEventListener('change', () => saveSettings(false));
+            }
+            if (startupCheckB) {
+                startupCheckB.checked = tempSettings.startupB;
+                startupCheckB.addEventListener('change', () => saveSettings(false));
+            }
+            if (startupCheckC) {
+                startupCheckC.checked = tempSettings.startupC;
+                startupCheckC.addEventListener('change', () => saveSettings(false));
+            }
+            if (startupCheckD) {
+                startupCheckD.checked = tempSettings.startupD;
+                startupCheckD.addEventListener('change', () => saveSettings(false));
+            }
             if (useOrganizerFoldersToggle) useOrganizerFoldersToggle.checked = tempSettings.useOrganizerFolders;
 
             let fontSize = currentSettings.dateFontSize || '11px';
@@ -337,7 +379,8 @@ document.addEventListener('i18nReady', () => {
 
             bgColorPicker.value = tempSettings.bgColor;
             textColorPicker.value = tempSettings.textColor;
-            accentColorPicker.value = tempSettings.accentColor;
+            btnColorPicker.value = tempSettings.btnColor;
+            borderColorPicker.value = tempSettings.borderColor;
 
 
 
@@ -345,7 +388,7 @@ document.addEventListener('i18nReady', () => {
         });
     }
 
-    saveBtn.addEventListener('click', saveSettings);
+    if (saveBtn) saveBtn.addEventListener('click', () => saveSettings(true));
 
     const exportBtn = document.getElementById('export-data-btn');
     const importBtn = document.getElementById('import-data-btn');
