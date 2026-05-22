@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const dir = '/home/kareltestspecial/0-IT/5-Personal/extensies/newtaborganizer/new-tab-organizer/js/';
+const dir = '/home/kareltestspecial/1-IT/5-Personal/extensies/newtaborganizer/new-tab-organizer/js/';
 
 let app = fs.readFileSync(dir + 'app.js', 'utf8');
 app = app.replace(/"Vul een naam in voor de nieuwe map\."/, "I18N.getMessage('alert_provide_name')");

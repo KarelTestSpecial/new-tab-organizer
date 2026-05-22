@@ -105,19 +105,19 @@
     "message": "Notizen-Panel Hinzufügen"
   },
   "upgrade_title": {
-    "message": "Neue Funktion: Organizer-Ordner"
+    "message": "Organizer-Ordner aktivieren"
   },
   "upgrade_desc1": {
-    "message": "Upgrade: Die Erweiterung funktioniert jetzt mit speziellen Ordnern! Das Prinzip: Was Sie in der Erweiterung sehen, haben Sie auch in Chrome."
+    "message": "Jeder Organizer (A, B, C, D) erhält einen eigenen Ordner in den Chrome-Lesezeichen."
   },
   "upgrade_desc2": {
-    "message": "Jeder Organizer (A, B, C und D) erhält seinen eigenen physischen Ordner in Ihren Chrome-Lesezeichen. Dies hält alles sauber getrennt. Wenn Sie ein Panel später verschieben, verschiebt die Erweiterung automatisch den entsprechenden Ordner in Chrome."
+    "message": "Verschiebungen und Änderungen von Panels werden direkt mit Chrome synchronisiert."
   },
   "upgrade_where": {
-    "message": "Wo sollen wir die 4 Hauptordner für Sie erstellen?"
+    "message": "Wählen Sie den übergeordneten Ordner aus, in dem die 4 Ordner erstellt werden sollen:"
   },
   "upgrade_btn_ok": {
-    "message": "Ordner erstellen & Starten"
+    "message": "Ordner erstellen"
   },
   "upgrade_btn_cancel": {
     "message": "Nicht jetzt"
@@ -270,9 +270,9 @@
     "message": "Notizentitel"
   },
   "notification_title": {
-    "message": "New Tab Organizer aktualisiert op v"
+    "message": "New Tab Organizer aktualisiert auf v"
   },
   "notification_message": {
-    "message": "Neue Funktionen: Volle mehrsprachige Unterstützung und verbesserte Datumsanzeige!"
+    "message": "Neue Funktionen: Erstellen Sie neue Ordner direkt aus den Einstellungen und verschieben Sie Ihre Organizer-Ordner ganz einfach!"
   }
 }

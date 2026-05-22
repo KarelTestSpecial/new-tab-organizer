@@ -87,18 +87,11 @@ document.addEventListener('i18nReady', () => {
                 if (confirmed) {
                     tempSettings.useOrganizerFolders = true;
                     const rootId = extensionRootFolderSelect.value || '1';
-                    chrome.bookmarks.getChildren(rootId, (children) => {
-                        if (chrome.runtime.lastError) return;
-                        ['A', 'B', 'C', 'D'].forEach(v => {
-                            const folderName = `Organizer ${v}`;
-                            const exists = children.some(c => !c.url && c.title === folderName);
-                            if (!exists) {
-                                chrome.bookmarks.create({ parentId: rootId, title: folderName });
-                            }
-                        });
+                    window.ensureOrganizerFolders(rootId, () => {
                         // Mark upgrade modal as done so it doesn't show up again
-                        chrome.storage.local.set({ foldersUpgradeDone: true });
-                        saveSettings(false);
+                        chrome.storage.local.set({ foldersUpgradeDone: true }, () => {
+                            saveSettings(false);
+                        });
                     });
                 } else {
                     e.target.checked = false;
@@ -113,20 +106,169 @@ document.addEventListener('i18nReady', () => {
         });
     }
 
-    sidebarFolderSelect.addEventListener('change', () => {
-        tempSettings.sidebarFolderId = sidebarFolderSelect.value;
-        saveSettings(false);
-    });
+    if (sidebarFolderSelect) {
+        sidebarFolderSelect.addEventListener('change', () => {
+            if (sidebarFolderSelect.value === '__new_folder__') {
+                const promptMsg = I18N.getMessage('alert_provide_name') || 'Vul een naam in voor de nieuwe map:';
+                const name = prompt(promptMsg);
+                if (name && name.trim()) {
+                    const parentId = tempSettings.rootFolderId || '1';
+                    chrome.bookmarks.create({ parentId: parentId, title: name.trim() }, (newFolder) => {
+                        if (chrome.runtime.lastError) {
+                            alert((I18N.getMessage('alert_error_creating') || 'Fout bij het aanmaken van de map: ') + chrome.runtime.lastError.message);
+                            sidebarFolderSelect.value = tempSettings.sidebarFolderId || '';
+                            return;
+                        }
+                        tempSettings.sidebarFolderId = newFolder.id;
+                        populateFolderDropdowns();
+                        saveSettings(false);
+                    });
+                } else {
+                    sidebarFolderSelect.value = tempSettings.sidebarFolderId || '';
+                }
+            } else {
+                tempSettings.sidebarFolderId = sidebarFolderSelect.value;
+                saveSettings(false);
+            }
+        });
+    }
 
-    extensionRootFolderSelect.addEventListener('change', () => {
-        tempSettings.rootFolderId = extensionRootFolderSelect.value;
-        saveSettings(false);
-    });
+    function moveFoldersList(foldersList, destinationParentId, callback) {
+        if (!foldersList || foldersList.length === 0) {
+            if (callback) callback();
+            return;
+        }
+
+        let moveChain = Promise.resolve();
+        foldersList.forEach(folder => {
+            moveChain = moveChain.then(() => new Promise(resolve => {
+                chrome.bookmarks.move(folder.id, { parentId: destinationParentId }, () => {
+                    resolve();
+                });
+            }));
+        });
+
+        moveChain.then(() => {
+            if (callback) callback();
+        });
+    }
+
+    if (extensionRootFolderSelect) {
+        extensionRootFolderSelect.addEventListener('change', () => {
+            const newRootId = extensionRootFolderSelect.value;
+            const oldRootId = tempSettings.rootFolderId || '1';
+            
+            if (newRootId === oldRootId) return;
+
+            const isChecked = useOrganizerFoldersToggle && useOrganizerFoldersToggle.checked;
+
+            const proceedSave = () => {
+                tempSettings.rootFolderId = newRootId;
+                saveSettings(false);
+                updateCheckboxText();
+            };
+
+            if (isChecked) {
+                const lang = tempSettings.language || 'auto';
+                let activeLang = lang;
+                if (activeLang === 'auto') {
+                    const uiLang = chrome.i18n.getUILanguage();
+                    activeLang = uiLang ? uiLang.split('-')[0].toLowerCase() : 'en';
+                }
+
+                let confirmMsg = '';
+                if (activeLang === 'nl') {
+                    confirmMsg = 'Wil je de bestaande 4 Organizer mappen (A, B, C, D) verhuizen naar de nieuwe hoofdmap?';
+                } else if (activeLang === 'fr') {
+                    confirmMsg = 'Voulez-vous déplacer les 4 dossiers Organizer existants (A, B, C, D) vers le nouveau dossier parent ?';
+                } else if (activeLang === 'de') {
+                    confirmMsg = 'Möchten Sie die bestehenden 4 Organizer-Ordner (A, B, C, D) in den neuen Hauptordner verschieben?';
+                } else if (activeLang === 'es') {
+                    confirmMsg = '¿Desea mover las 4 carpetas Organizer existentes (A, B, C, D) a la nueva carpeta principal?';
+                } else if (activeLang === 'pt') {
+                    confirmMsg = 'Deseja mover as 4 pastas Organizer existentes (A, B, C, D) para a nova pasta principal?';
+                } else {
+                    confirmMsg = 'Do you want to move the existing 4 Organizer folders (A, B, C, D) to the new root folder?';
+                }
+
+                const wantToMove = confirm(confirmMsg);
+                if (wantToMove) {
+                    chrome.bookmarks.getChildren(oldRootId, (children) => {
+                        if (chrome.runtime.lastError || !children) {
+                            chrome.bookmarks.getTree((tree) => {
+                                const foundFolders = [];
+                                function traverse(node) {
+                                    if (!node.url && ['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D'].includes(node.title)) {
+                                        foundFolders.push(node);
+                                    }
+                                    if (node.children) node.children.forEach(traverse);
+                                }
+                                if (tree && tree[0]) traverse(tree[0]);
+
+                                moveFoldersList(foundFolders, newRootId, proceedSave);
+                            });
+                            return;
+                        }
+
+                        const foldersToMove = children.filter(c => !c.url && ['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D'].includes(c.title));
+                        moveFoldersList(foldersToMove, newRootId, proceedSave);
+                    });
+                } else {
+                    proceedSave();
+                }
+            } else {
+                proceedSave();
+            }
+        });
+    }
 
     batteryToggleBtn.addEventListener('click', () => {
         tempSettings.showBattery = !tempSettings.showBattery;
         saveSettings(false);
     });
+
+    function updateCheckboxText() {
+        const toggleLabelSpan = document.querySelector('[data-i18n="settings_toggle_folders"]');
+        if (!toggleLabelSpan || !extensionRootFolderSelect) return;
+
+        const baseText = I18N.getMessage('settings_toggle_folders') || "Maak 4 mappen in Chrome Bookmarks : Organizer A, Organizer B, Organizer C, Organizer D";
+        const selectedIndex = extensionRootFolderSelect.selectedIndex;
+        
+        if (selectedIndex <= 0 || !extensionRootFolderSelect.value) {
+            toggleLabelSpan.textContent = baseText;
+            return;
+        }
+
+        const selectedText = extensionRootFolderSelect.options[selectedIndex].text;
+
+        let newText = baseText;
+        const placeholders = [
+            'Chrome Bookmarks',
+            'les favoris Chrome',
+            'Chrome-Lesezeichen',
+            'Marcadores de Chrome',
+            'Favoritos do Chrome'
+        ];
+
+        let replaced = false;
+        for (const placeholder of placeholders) {
+            if (newText.includes(placeholder)) {
+                newText = newText.replace(placeholder, selectedText);
+                replaced = true;
+                break;
+            }
+        }
+
+        if (!replaced) {
+            if (newText.includes('Chrome')) {
+                newText = newText.replace('Chrome', selectedText);
+            } else {
+                newText = `Maak 4 mappen in ${selectedText}: Organizer A, Organizer B, Organizer C, Organizer D`;
+            }
+        }
+
+        toggleLabelSpan.textContent = newText;
+    }
 
     function populateFolderDropdowns() {
         getBookmarkFolders(folders => {
@@ -136,12 +278,38 @@ document.addEventListener('i18nReady', () => {
             extensionRootFolderSelect.innerHTML = '<option value="">' + I18N.getMessage('select_root_folder') + '</option>';
             const barOption = document.createElement('option');
             barOption.value = '1';
-            barOption.textContent = 'Bookmark Bar';
-            extensionRootFolderSelect.appendChild(barOption);
-
+            
             const otherOption = document.createElement('option');
             otherOption.value = '2';
-            otherOption.textContent = 'Other Bookmarks';
+
+            const lang = tempSettings.language || 'auto';
+            let activeLang = lang;
+            if (activeLang === 'auto') {
+                const uiLang = chrome.i18n.getUILanguage();
+                activeLang = uiLang ? uiLang.split('-')[0].toLowerCase() : 'en';
+            }
+
+            if (activeLang === 'nl') {
+                barOption.textContent = 'Bladwijzerbalk';
+                otherOption.textContent = 'Andere bladwijzers';
+            } else if (activeLang === 'fr') {
+                barOption.textContent = 'Barre de favoris';
+                otherOption.textContent = 'Autres favoris';
+            } else if (activeLang === 'de') {
+                barOption.textContent = 'Lesezeichenleiste';
+                otherOption.textContent = 'Andere Lesezeichen';
+            } else if (activeLang === 'es') {
+                barOption.textContent = 'Barra de marcadores';
+                otherOption.textContent = 'Otros marcadores';
+            } else if (activeLang === 'pt') {
+                barOption.textContent = 'Barra de favoritos';
+                otherOption.textContent = 'Outros favoritos';
+            } else {
+                barOption.textContent = 'Bookmark Bar';
+                otherOption.textContent = 'Other Bookmarks';
+            }
+
+            extensionRootFolderSelect.appendChild(barOption);
             extensionRootFolderSelect.appendChild(otherOption);
 
             folders.forEach(folder => {
@@ -151,11 +319,31 @@ document.addEventListener('i18nReady', () => {
                 const sidebarOption = document.createElement('option');
                 sidebarOption.value = folder.id;
                 sidebarOption.textContent = folder.title;
-                sidebarFolderSelect.appendChild(sidebarOption);
+                if (sidebarFolderSelect) sidebarFolderSelect.appendChild(sidebarOption);
             });
 
-            if (tempSettings.sidebarFolderId) sidebarFolderSelect.value = tempSettings.sidebarFolderId;
-            if (tempSettings.rootFolderId) extensionRootFolderSelect.value = tempSettings.rootFolderId;
+            // Let's add the "+ nieuwe map" option at the end of the dropdown
+            const newFolderOption = document.createElement('option');
+            newFolderOption.value = '__new_folder__';
+            if (activeLang === 'nl') {
+                newFolderOption.textContent = '+ Nieuwe map...';
+            } else if (activeLang === 'fr') {
+                newFolderOption.textContent = '+ Nouveau dossier...';
+            } else if (activeLang === 'de') {
+                newFolderOption.textContent = '+ Neuer Ordner...';
+            } else if (activeLang === 'es') {
+                newFolderOption.textContent = '+ Nueva carpeta...';
+            } else if (activeLang === 'pt') {
+                newFolderOption.textContent = '+ Nova pasta...';
+            } else {
+                newFolderOption.textContent = '+ New folder...';
+            }
+            if (sidebarFolderSelect) sidebarFolderSelect.appendChild(newFolderOption);
+
+            if (sidebarFolderSelect && tempSettings.sidebarFolderId) sidebarFolderSelect.value = tempSettings.sidebarFolderId;
+            if (extensionRootFolderSelect && tempSettings.rootFolderId) extensionRootFolderSelect.value = tempSettings.rootFolderId;
+
+            updateCheckboxText();
         });
     }
 
@@ -350,6 +538,7 @@ document.addEventListener('i18nReady', () => {
             updateButtonText();
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
             extensionRootFolderSelect.value = tempSettings.rootFolderId;
+            updateCheckboxText();
 
             if (startupCheckA) {
                 startupCheckA.checked = tempSettings.startupA;

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const dir = '/home/kareltestspecial/0-IT/5-Personal/extensies/newtaborganizer/new-tab-organizer/';
+const dir = '/home/kareltestspecial/1-IT/5-Personal/extensies/newtaborganizer/new-tab-organizer/';
 const files = ['panelA.html', 'panelB.html', 'panelC.html', 'panelD.html'];
 
 files.forEach(file => {

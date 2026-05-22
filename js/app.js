@@ -30,6 +30,74 @@ function getStorageKey(view) {
 const CURRENT_VIEW = getCurrentView();
 const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
 
+// --- Smart Folder Checker and Organizer Helper ---
+window.ensureOrganizerFolders = function(rootId, callback) {
+    chrome.bookmarks.getTree((tree) => {
+        if (chrome.runtime.lastError || !tree || !tree[0]) {
+            // Fallback to simple creation/checking if tree traversal fails
+            chrome.bookmarks.getChildren(rootId, (children) => {
+                if (chrome.runtime.lastError) {
+                    if (callback) callback();
+                    return;
+                }
+                const views = ['A', 'B', 'C', 'D'];
+                let promises = views.map(v => {
+                    return new Promise((resolve) => {
+                        const folderName = `Organizer ${v}`;
+                        const exists = children.some(c => !c.url && c.title === folderName);
+                        if (!exists) {
+                            chrome.bookmarks.create({ parentId: rootId, title: folderName }, () => resolve());
+                        } else {
+                            resolve();
+                        }
+                    });
+                });
+                Promise.all(promises).then(() => {
+                    if (callback) callback();
+                });
+            });
+            return;
+        }
+
+        const foundFolders = {};
+        function traverse(node) {
+            if (!node.url && ['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D'].includes(node.title)) {
+                foundFolders[node.title] = node;
+            }
+            if (node.children) node.children.forEach(traverse);
+        }
+        traverse(tree[0]);
+
+        const views = ['A', 'B', 'C', 'D'];
+        let promises = views.map(v => {
+            return new Promise((resolve) => {
+                const folderName = `Organizer ${v}`;
+                const existingFolder = foundFolders[folderName];
+                if (existingFolder) {
+                    if (existingFolder.parentId === rootId) {
+                        // Already in correct root
+                        resolve();
+                    } else {
+                        // Move existing folder (keeps all bookmarks inside it!)
+                        chrome.bookmarks.move(existingFolder.id, { parentId: rootId }, () => {
+                            resolve();
+                        });
+                    }
+                } else {
+                    // Create new empty folder
+                    chrome.bookmarks.create({ parentId: rootId, title: folderName }, () => {
+                        resolve();
+                    });
+                }
+            });
+        });
+
+        Promise.all(promises).then(() => {
+            if (callback) callback();
+        });
+    });
+};
+
 document.addEventListener('i18nReady', () => {
     // --- Update Notification (Dynamic) ---
     const version = chrome.runtime.getManifest().version;
@@ -68,8 +136,86 @@ document.addEventListener('i18nReady', () => {
                     const upgradeRootSelect = document.getElementById('upgrade-root-select');
                     const upgradeCancelBtn = document.getElementById('upgrade-cancel-btn');
 
-                    if (upgradeModal && upgradeForm) {
+                    if (upgradeModal && upgradeForm && upgradeRootSelect) {
+                        // Populate upgradeRootSelect dynamically based on current language
+                        upgradeRootSelect.innerHTML = '';
+                        const barOption = document.createElement('option');
+                        barOption.value = '1';
+                        
+                        const otherOption = document.createElement('option');
+                        otherOption.value = '2';
+
+                        const lang = settings.language || 'auto';
+                        let activeLang = lang;
+                        if (activeLang === 'auto') {
+                            const uiLang = chrome.i18n.getUILanguage();
+                            activeLang = uiLang ? uiLang.split('-')[0].toLowerCase() : 'en';
+                        }
+
+                        if (activeLang === 'nl') {
+                            barOption.textContent = 'Bladwijzerbalk';
+                            otherOption.textContent = 'Andere bladwijzers';
+                        } else if (activeLang === 'fr') {
+                            barOption.textContent = 'Barre de favoris';
+                            otherOption.textContent = 'Autres favoris';
+                        } else if (activeLang === 'de') {
+                            barOption.textContent = 'Lesezeichenleiste';
+                            otherOption.textContent = 'Andere Lesezeichen';
+                        } else if (activeLang === 'es') {
+                            barOption.textContent = 'Barra de marcadores';
+                            otherOption.textContent = 'Otros marcadores';
+                        } else if (activeLang === 'pt') {
+                            barOption.textContent = 'Barra de favoritos';
+                            otherOption.textContent = 'Outros favoritos';
+                        } else {
+                            barOption.textContent = 'Bookmark Bar';
+                            otherOption.textContent = 'Other Bookmarks';
+                        }
+
+                        upgradeRootSelect.appendChild(barOption);
+                        upgradeRootSelect.appendChild(otherOption);
+
                         upgradeRootSelect.value = rootId; // Set default selection to current setting
+
+                        // Dynamic text replacement listener
+                        const updateUpgradeText = () => {
+                            const descSpan = document.querySelector('[data-i18n="upgrade_desc1"]');
+                            if (!descSpan) return;
+                            const baseText = I18N.getMessage('upgrade_desc1') || "Elke Organizer (A, B, C, D) krijgt een eigen map in Chrome Bookmarks.";
+                            const selectedIndex = upgradeRootSelect.selectedIndex;
+                            if (selectedIndex < 0) return;
+                            const selectedText = upgradeRootSelect.options[selectedIndex].text;
+
+                            let newText = baseText;
+                            const placeholders = [
+                                'Chrome Bookmarks',
+                                'les favoris Chrome',
+                                'Chrome-Lesezeichen',
+                                'Marcadores de Chrome',
+                                'Favoritos do Chrome'
+                            ];
+
+                            let replaced = false;
+                            for (const placeholder of placeholders) {
+                                if (newText.includes(placeholder)) {
+                                    newText = newText.replace(placeholder, selectedText);
+                                    replaced = true;
+                                    break;
+                                }
+                            }
+                            if (!replaced) {
+                                if (newText.includes('Chrome')) {
+                                    newText = newText.replace('Chrome', selectedText);
+                                } else {
+                                    newText = `Elke Organizer (A, B, C, D) krijgt een eigen map in ${selectedText}.`;
+                                }
+                            }
+                            descSpan.textContent = newText;
+                        };
+
+                        upgradeRootSelect.addEventListener('change', updateUpgradeText);
+                        updateUpgradeText(); // Run initially
+
                         upgradeModal.classList.remove('hidden');
 
                         const handleSubmit = (e) => {
@@ -80,21 +226,13 @@ document.addEventListener('i18nReady', () => {
                             settings.rootFolderId = selectedRoot;
                             settings.useOrganizerFolders = true;
                             chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
-                                // Create missing folders
-                                chrome.bookmarks.getChildren(selectedRoot, (selectedChildren) => {
-                                    if (chrome.runtime.lastError) return;
-                                    views.forEach(v => {
-                                        const folderName = `Organizer ${v}`;
-                                        const exists = selectedChildren.some(c => !c.url && c.title === folderName);
-                                        if (!exists) {
-                                            chrome.bookmarks.create({ parentId: selectedRoot, title: folderName });
-                                        }
-                                    });
+                                // Smart folder ensure/move
+                                window.ensureOrganizerFolders(selectedRoot, () => {
+                                    upgradeModal.classList.add('hidden');
+                                    if (window.populateBookmarkFolderDropdown) {
+                                        window.populateBookmarkFolderDropdown(); // Refresh UI
+                                    }
                                 });
-                                upgradeModal.classList.add('hidden');
-                                if (window.populateBookmarkFolderDropdown) {
-                                    window.populateBookmarkFolderDropdown(); // Refresh UI
-                                }
                             });
                         };
 
@@ -362,15 +500,7 @@ document.addEventListener('i18nReady', () => {
                     const confirmed = confirm(I18N.getMessage('confirm_enable_folders'));
                     if (confirmed) {
                         settings.useOrganizerFolders = true;
-                        chrome.bookmarks.getChildren(rootId, (children) => {
-                            if (chrome.runtime.lastError) return;
-                            ['A', 'B', 'C', 'D'].forEach(v => {
-                                const folderName = `Organizer ${v}`;
-                                const exists = (children || []).some(c => !c.url && c.title === folderName);
-                                if (!exists) {
-                                    chrome.bookmarks.create({ parentId: rootId, title: folderName });
-                                }
-                            });
+                        window.ensureOrganizerFolders(rootId, () => {
                             // Mark upgrade modal as done so it doesn't show up again
                             chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
                                 // Sync the settings panel toggle if it's currently open/exists

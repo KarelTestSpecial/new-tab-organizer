@@ -116,22 +116,22 @@
     "message": "Voeg Notitie Paneel Toe"
   },
   "upgrade_title": {
-    "message": "Nieuwe Functie: Organizer Mappen"
+    "message": "Activeer Organizer Mappen"
   },
   "upgrade_desc1": {
-    "message": "Upgrade: Vanaf nu werkt de extensie met speciale mappen! We hanteren het principe: Wat je in de extensie ziet, is wat je in Chrome hebt."
+    "message": "Elke Organizer (A, B, C, D) krijgt een eigen map in Chrome Bookmarks."
   },
   "upgrade_desc2": {
-    "message": "Elke Organizer (A, B, C en D) krijgt zijn eigen fysieke map in je Chrome bladwijzers. Dit houdt alles netjes gescheiden. Wanneer je straks een bladwijzerpaneel verplaatst (via het rechtermuisklik-menu of door inhoud te wisselen in de instellingen), zal de extensie ook automatisch de bijbehorende fysieke map in Chrome verplaatsen."
+    "message": "Panelen en mappen worden zo direct gesynchroniseerd met Chrome."
   },
   "upgrade_where": {
-    "message": "Waar wil je dat wij de 4 hoofdmappen voor jou aanmaken?"
+    "message": "Kies de hoofdmap waarin de 4 mappen aangemaakt moeten worden:"
   },
   "upgrade_btn_ok": {
-    "message": "Maak Mappen & Start"
+    "message": "Mappen aanmaken"
   },
   "upgrade_btn_cancel": {
-    "message": "Niet nu"
+    "message": "Nu niet"
   },
   "alert_provide_name": {
     "message": "Vul een naam in voor de nieuwe map."
@@ -284,6 +284,6 @@
     "message": "New Tab Organizer bijgewerkt naar v"
   },
   "notification_message": {
-    "message": "Nieuwe functies: Volledige meertalige ondersteuning en verbeterde datumweergave in de zijbalk!"
+    "message": "Nieuwe functies: Creëer direct nieuwe mappen vanuit de instellingen en verplaats je Organizer-mappen eenvoudig mee!"
   }
 }

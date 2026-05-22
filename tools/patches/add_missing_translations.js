@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const localesDir = '/home/kareltestspecial/0-IT/5-Personal/extensies/newtaborganizer/new-tab-organizer/_locales/';
+const localesDir = '/home/kareltestspecial/1-IT/5-Personal/extensies/newtaborganizer/new-tab-organizer/_locales/';
 
 const newTranslations = {
   en: {

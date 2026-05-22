@@ -105,19 +105,19 @@
     "message": "Adicionar Painel de Notas"
   },
   "upgrade_title": {
-    "message": "Novo Recurso: Pastas Organizer"
+    "message": "Ativar pastas do Organizer"
   },
   "upgrade_desc1": {
-    "message": "Atualização: A extensão agora funciona com pastas especiais! O princípio: O que você vê na extensão é o que você tem no Chrome."
+    "message": "Cada Organizer (A, B, C, D) recebe sua própria pasta nos favoritos do Chrome."
   },
   "upgrade_desc2": {
-    "message": "Cada Organizer (A, B, C e D) possui sua própria pasta física em seus favoritos do Chrome. Quando você mover um painel, a extensão moverá automaticamente a pasta correspondente no Chrome."
+    "message": "Mover ou alterar os painéis sincroniza automaticamente com o Chrome."
   },
   "upgrade_where": {
-    "message": "Onde você quer que criemos as 4 pastas principais?"
+    "message": "Escolha a pasta principal para criar essas 4 pastas:"
   },
   "upgrade_btn_ok": {
-    "message": "Criar Pastas e Iniciar"
+    "message": "Criar pastas"
   },
   "upgrade_btn_cancel": {
     "message": "Agora não"
@@ -273,6 +273,6 @@
     "message": "New Tab Organizer atualizado para v"
   },
   "notification_message": {
-    "message": "Novas funcionalidades: Suporte multilíngue completo e exibição de data aprimorada!"
+    "message": "Novas funcionalidades: Crie novas pastas diretamente das configurações e mova facilmente suas pastas do Organizer!"
   }
 }

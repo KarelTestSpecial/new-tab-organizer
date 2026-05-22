@@ -105,19 +105,19 @@
     "message": "Añadir panel de notas"
   },
   "upgrade_title": {
-    "message": "Nueva Función: Carpetas Organizer"
+    "message": "Activar carpetas de Organizer"
   },
   "upgrade_desc1": {
-    "message": "Actualización: ¡La extensión ahora funciona con carpetas especiales! El principio: Lo que ves en la extensión es lo que tienes en Chrome."
+    "message": "Cada Organizer (A, B, C, D) tiene su propia carpeta en los marcadores de Chrome."
   },
   "upgrade_desc2": {
-    "message": "Cada Organizer (A, B, C y D) tiene su propia carpeta física en tus marcadores de Chrome. Cuando muevas un panel, la extensión moverá automáticamente la carpeta en Chrome."
+    "message": "Mover o cambiar los paneles se sincroniza automáticamente con Chrome."
   },
   "upgrade_where": {
-    "message": "¿Dónde quieres que creemos las 4 carpetas principales?"
+    "message": "Elige la carpeta principal para crear estas 4 carpetas:"
   },
   "upgrade_btn_ok": {
-    "message": "Crear Carpetas e Iniciar"
+    "message": "Crear carpetas"
   },
   "upgrade_btn_cancel": {
     "message": "Ahora no"
@@ -273,6 +273,6 @@
     "message": "New Tab Organizer actualizado a v"
   },
   "notification_message": {
-    "message": "Nuevas funciones: Soporte multilingue completo y visualización de fecha mejorada."
+    "message": "Nuevas funciones: ¡Cree carpetas nuevas directamente desde la configuración y mueva fácilmente sus carpetas de Organizer!"
   }
 }

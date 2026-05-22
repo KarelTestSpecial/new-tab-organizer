@@ -96,6 +96,8 @@
             </div>
 
 
+            <!-- Section 3: Bookmarks -->
+
 
             <!-- Section 5: Swap Content (Reduced Padding) -->
             <div class="settings-section">
@@ -126,14 +128,15 @@
             <div class="settings-section">
                 <div class="data-controls"
                     style="display: flex; align-items: center; justify-content: flex-start; gap: 15px; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                        <input type="text" id="new-bookmark-folder-name" data-i18n-placeholder="add_bookmark_new_folder_placeholder" placeholder="Naam nieuwe map" style="flex-grow: 1; width: auto; min-width: 150px;">
-                        <button type="button" id="create-new-bookmark-folder-btn" class="settings-btn-item" style="padding: 6px 15px; font-weight: bold;" data-i18n="add_bookmark_new_folder">Maak Nieuwe Map</button>
-                        <div style="display: flex; align-items: center; gap: 8px; border-left: 1px solid var(--border-color); padding-left: 10px; margin-left: 5px; white-space: nowrap;">
-                            <label style="margin:0; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" id="modal-use-organizer-folders-toggle"> <span data-i18n="label_use_organizer">Folders</span>
-                            </label>
-                            <span class="info-icon" data-i18n-tooltip="add_bookmark_folder_info">ⓘ</span>
+                    <div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            
+                            <select id="sidebar-folder-select" >
+                                <option value="">Select Sidebar Folder</option>
+                            </select>
+                            <select id="extension-root-folder-select" >
+                                <option value="">Selecteer Hoofdmap</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -312,8 +315,8 @@
                         </select>
                     </div>
                     <div class="form-actions" style="display: flex; justify-content: space-between;">
-                        <button type="submit" class="settings-btn-item" style="font-weight: bold;">Toestaan en Mappen Aanmaken</button>
-                        <button type="button" id="upgrade-cancel-btn" class="cancel-btn">Nu niet</button>
+                        <button type="submit" class="settings-btn-item" style="font-weight: bold;" data-i18n="upgrade_btn_ok">Toestaan en Mappen Aanmaken</button>
+                        <button type="button" id="upgrade-cancel-btn" class="cancel-btn" data-i18n="upgrade_btn_cancel">Nu niet</button>
                     </div>
                 </form>
             </div>

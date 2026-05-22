@@ -105,19 +105,19 @@
     "message": "Ajouter un panneau de notes"
   },
   "upgrade_title": {
-    "message": "Nouvelle fonctionnalité : Dossiers Organizer"
+    "message": "Activer les dossiers de l'organiseur"
   },
   "upgrade_desc1": {
-    "message": "Mise à niveau : L'extension fonctionne désormais avec des dossiers spéciaux ! Le principe : Ce que vous voyez dans l'extension, c'est ce que vous avez dans Chrome."
+    "message": "Chaque organiseur (A, B, C, D) reçoit son propre dossier dans les favoris Chrome."
   },
   "upgrade_desc2": {
-    "message": "Chaque Organizer (A, B, C et D) a son propre dossier physique dans vos favoris Chrome. Cela permet de garder tout séparé proprement. Lorsque vous déplacerez un panneau, l'extension déplacera automatiquement le dossier correspondant dans Chrome."
+    "message": "Le déplacement ou la modification de panneaux est automatiquement synchronisé avec Chrome."
   },
   "upgrade_where": {
-    "message": "Où voulez-vous que nous créions les 4 dossiers principaux ?"
+    "message": "Choisissez le dossier parent pour créer ces 4 dossiers :"
   },
   "upgrade_btn_ok": {
-    "message": "Créer les dossiers & Démarrer"
+    "message": "Créer des dossiers"
   },
   "upgrade_btn_cancel": {
     "message": "Pas maintenant"
@@ -273,6 +273,6 @@
     "message": "New Tab Organizer mis à jour vers v"
   },
   "notification_message": {
-    "message": "Nouvelles fonctionnalités : Support multilingue complet et affichage de la date amélioré !"
+    "message": "Nouvelles fonctionnalités : Créez de nouveaux dossiers directement depuis les paramètres et déplacez facilement vos dossiers Organizer !"
   }
 }
