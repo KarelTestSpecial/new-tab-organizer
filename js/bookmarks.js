@@ -58,6 +58,13 @@ function deleteBookmark(id, callback) {
  */
 function sortBookmarksInFolder(folderId, options, callback) {
     const sortChildrenOfNode = (nodeId, done) => {
+        // Exclude specific folders from being sorted if they are in the options.excludeFolderIds list,
+        // unless it is the top-level folder explicitly selected for sorting.
+        if (nodeId !== folderId && options && options.excludeFolderIds && options.excludeFolderIds.includes(nodeId)) {
+            if (done) done();
+            return;
+        }
+
         chrome.bookmarks.getChildren(nodeId, (children) => {
             if (!children) {
                 if (done) done();

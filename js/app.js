@@ -99,26 +99,6 @@ window.ensureOrganizerFolders = function(rootId, callback) {
 };
 
 document.addEventListener('i18nReady', () => {
-    // --- Update Notification (Dynamic) ---
-    const version = chrome.runtime.getManifest().version;
-    const notificationKey = `notified_v${version}`;
-
-    chrome.storage.local.get(notificationKey, (data) => {
-        console.log(`Checking update notification for v${version}. Already notified?`, data[notificationKey]);
-        if (!data[notificationKey]) {
-            chrome.notifications.create('', {
-                type: 'basic',
-                iconUrl: 'assets/icon.png',
-                title: `${I18N.getMessage('notification_title')}${version}!`,
-                message: I18N.getMessage('notification_message'),
-                priority: 2
-            }, (id) => {
-                console.log("Notification created with ID:", id);
-                chrome.storage.local.set({ [notificationKey]: true });
-            });
-        }
-    });
-
     // --- Organizer Folders Upgrade Logic ---
     chrome.storage.local.get(['foldersUpgradeDone', 'settings'], (data) => {
         if (!data.foldersUpgradeDone) {
@@ -293,43 +273,50 @@ document.addEventListener('i18nReady', () => {
 
     // --- State Management ---
     const saveState = () => {
-        const panels = [];
-        const imagesToSaveLocally = {};
+        chrome.storage.local.get(STORAGE_KEY, (data) => {
+            const existingPanels = data[STORAGE_KEY] || [];
+            const panels = [];
+            const imagesToSaveLocally = {};
 
-        document.querySelectorAll('.panel').forEach(panelEl => {
-            const panel = {
-                id: panelEl.dataset.id,
-                title: panelEl.querySelector('h3').textContent,
-                type: panelEl.dataset.type,
-                folderId: panelEl.dataset.folderId,
-                cards: []
-            };
+            document.querySelectorAll('.panel').forEach(panelEl => {
+                const panelId = panelEl.dataset.id;
+                const existingPanel = existingPanels.find(p => p.id === panelId);
 
-            if (panel.type === 'notes') {
-                panelEl.querySelectorAll('.card').forEach(cardEl => {
-                    const cardData = {
-                        id: cardEl.id,
-                        text: cardEl.querySelector('p').textContent,
-                        imageUrl: null
-                    };
-                    const img = cardEl.querySelector('img');
-                    if (img && img.src.startsWith('data:image')) {
-                        imagesToSaveLocally[cardData.id] = img.src;
-                        cardData.imageUrl = 'local';
-                    } else if (img) {
-                        cardData.imageUrl = 'local';
-                    }
-                    panel.cards.push(cardData);
-                });
+                const panel = {
+                    id: panelId,
+                    title: panelEl.querySelector('h3').textContent,
+                    type: panelEl.dataset.type,
+                    folderId: panelEl.dataset.folderId,
+                    cards: [],
+                    bookmarkOrder: (existingPanel && existingPanel.bookmarkOrder) ? existingPanel.bookmarkOrder : []
+                };
+
+                if (panel.type === 'notes') {
+                    panelEl.querySelectorAll('.card').forEach(cardEl => {
+                        const cardData = {
+                            id: cardEl.id,
+                            text: cardEl.querySelector('p').textContent,
+                            imageUrl: null
+                        };
+                        const img = cardEl.querySelector('img');
+                        if (img && img.src.startsWith('data:image')) {
+                            imagesToSaveLocally[cardData.id] = img.src;
+                            cardData.imageUrl = 'local';
+                        } else if (img) {
+                            cardData.imageUrl = 'local';
+                        }
+                        panel.cards.push(cardData);
+                    });
+                }
+                panels.push(panel);
+            });
+
+            if (Object.keys(imagesToSaveLocally).length > 0) {
+                chrome.storage.local.set(imagesToSaveLocally);
             }
-            panels.push(panel);
+
+            chrome.storage.local.set({ [STORAGE_KEY]: panels });
         });
-
-        if (Object.keys(imagesToSaveLocally).length > 0) {
-            chrome.storage.local.set(imagesToSaveLocally);
-        }
-
-        chrome.storage.local.set({ [STORAGE_KEY]: panels });
     };
 
     const loadState = () => {
@@ -643,7 +630,7 @@ document.addEventListener('i18nReady', () => {
 
 
     document.getElementById('sort-bookmarks-popup-btn').addEventListener('click', () => {
-        chrome.storage.local.get('settings', (data) => {
+        chrome.storage.local.get(['settings', 'panelsState', 'panelsState_B', 'panelsState_C', 'panelsState_D'], (data) => {
             const settings = data.settings || {};
             const rootId = settings.rootFolderId || '1';
             
@@ -654,10 +641,22 @@ document.addEventListener('i18nReady', () => {
             const foldersToSort = selectedFolderIds.length > 0 ? selectedFolderIds : [rootId];
             const targetName = selectedFolderIds.length > 0 ? "selected folder(s)" : (rootId === '1' ? 'Bookmark Bar' : 'Other Bookmarks');
 
+            // Find all active bookmark panel folder IDs across all views to exclude them from recursive/general sorting
+            const activeFolderIds = [];
+            ['panelsState', 'panelsState_B', 'panelsState_C', 'panelsState_D'].forEach(key => {
+                const panels = data[key] || [];
+                panels.forEach(panel => {
+                    if (panel.type === 'bookmarks' && panel.folderId) {
+                        activeFolderIds.push(panel.folderId);
+                    }
+                });
+            });
+
             if (confirm(`Are you sure you want to sort the subfolders within the ${targetName}? This action cannot be undone.`)) {
                 const sortOptions = {
                     recursive: isRecursive,
                     sortOrder: settings.sortOrder || 'mixed',
+                    excludeFolderIds: activeFolderIds
                 };
                 
                 let sortChain = Promise.resolve();

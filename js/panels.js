@@ -432,16 +432,77 @@ function createPanel(panelState, onStateChange) {
             const children = [...contentContainer.querySelectorAll('.bookmark-item')];
             const dropIndex = afterElement ? children.indexOf(afterElement) : children.length;
 
-            moveBookmark(bookmarkId, { parentId: destinationFolderId, index: dropIndex }, () => {
-                // Refresh all bookmark panels/sidebar
-                window.bookmarkRefreshCallbacks.forEach(cb => cb());
+            const currentStorageKey = typeof STORAGE_KEY !== 'undefined' ? STORAGE_KEY : 'panelsState';
+
+            const updateLocalOrder = (callback) => {
+                chrome.storage.local.get(currentStorageKey, (data) => {
+                    const panels = data[currentStorageKey] || [];
+                    const panelIndex = panels.findIndex(p => p.id === id);
+                    if (panelIndex > -1) {
+                        const panelState = panels[panelIndex];
+                        let order = panelState.bookmarkOrder || [];
+
+                        const proceedWithOrder = (currentOrder) => {
+                            const idx = currentOrder.indexOf(bookmarkId);
+                            if (idx > -1) {
+                                currentOrder.splice(idx, 1);
+                            }
+                            currentOrder.splice(dropIndex, 0, bookmarkId);
+
+                            panelState.bookmarkOrder = currentOrder;
+                            panels[panelIndex] = panelState;
+                            chrome.storage.local.set({ [currentStorageKey]: panels }, callback);
+                        };
+
+                        if (order.length === 0) {
+                            chrome.bookmarks.getChildren(destinationFolderId, (children) => {
+                                const currentOrder = (children || []).map(c => c.id);
+                                proceedWithOrder(currentOrder);
+                            });
+                        } else {
+                            proceedWithOrder(order);
+                        }
+                    } else {
+                        if (callback) callback();
+                    }
+                });
+            };
+
+            updateLocalOrder(() => {
+                moveBookmark(bookmarkId, { parentId: destinationFolderId, index: dropIndex }, () => {
+                    // Refresh all bookmark panels/sidebar
+                    window.bookmarkRefreshCallbacks.forEach(cb => cb());
+                });
             });
         });
 
         if (folderId) {
             const refreshPanel = () => {
-                getBookmarksInFolder(folderId, (bookmarks) => {
-                    renderBookmarks(contentContainer, bookmarks, folderId, refreshPanel);
+                const currentStorageKey = typeof STORAGE_KEY !== 'undefined' ? STORAGE_KEY : 'panelsState';
+                chrome.storage.local.get(currentStorageKey, (data) => {
+                    const panels = data[currentStorageKey] || [];
+                    const currentPanel = panels.find(p => p.id === id);
+                    const bookmarkOrder = (currentPanel && currentPanel.bookmarkOrder) ? currentPanel.bookmarkOrder : [];
+
+                    getBookmarksInFolder(folderId, (bookmarks) => {
+                        if (bookmarkOrder.length > 0) {
+                            const orderMap = {};
+                            bookmarkOrder.forEach((bId, idx) => {
+                                orderMap[bId] = idx;
+                            });
+                            bookmarks.sort((a, b) => {
+                                const idxA = orderMap[a.id];
+                                const idxB = orderMap[b.id];
+                                if (idxA !== undefined && idxB !== undefined) {
+                                    return idxA - idxB;
+                                }
+                                if (idxA !== undefined) return -1;
+                                if (idxB !== undefined) return 1;
+                                return a.title.localeCompare(b.title);
+                            });
+                        }
+                        renderBookmarks(contentContainer, bookmarks, folderId, refreshPanel);
+                    });
                 });
             };
             // Register this refresh function globally
