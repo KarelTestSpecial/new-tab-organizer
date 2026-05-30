@@ -895,6 +895,29 @@ document.addEventListener('i18nReady', () => {
         deleteFolderModal.classList.add('hidden');
     });
 
+    // Global pointerdown listener to clear focus and selection when clicking on empty space
+    document.addEventListener('pointerdown', (e) => {
+        // Find if they clicked on any interactive or card element
+        const isInteractive = e.target.closest('.card, .bookmark-item, button, input, select, textarea, h3, a, .context-menu');
+        
+        if (!isInteractive) {
+            // Clicked on empty space! Clear focus and text selections
+            if (document.activeElement && document.activeElement.isContentEditable) {
+                document.activeElement.blur();
+            }
+            const selection = window.getSelection();
+            if (selection) {
+                selection.removeAllRanges();
+            }
+            
+            // If they clicked on a container that might auto-focus children (like the panel or cards container),
+            // prevent the default focus behavior.
+            if (e.target.closest('#panels-container, .cards-container, .panel')) {
+                e.preventDefault();
+            }
+        }
+    });
+
     // Unified Modal Close (X button and Cancel button)
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('cancel-btn') || e.target.classList.contains('modal-close-btn')) {
