@@ -622,6 +622,13 @@ function createCard(cardsContainer, cardState, onStateChange) {
             });
             if (typeof redoStack !== 'undefined') redoStack.length = 0;
         }
+
+        // Clear selection highlights on blur
+        const selection = window.getSelection();
+        if (selection) {
+            selection.removeAllRanges();
+        }
+
         onStateChange();
     });
 
