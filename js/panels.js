@@ -322,6 +322,20 @@ function createPanel(panelState, onStateChange) {
         addCardButton.className = 'add-card-btn';
         addCardButton.addEventListener('click', () => {
             const newCard = createCard(contentContainer, { id: `card-${Date.now()}`, text: 'New Card' }, onStateChange);
+            
+            // Auto-focus and select the newly created card's text
+            const newCardText = newCard.querySelector('p');
+            if (newCardText) {
+                newCardText.focus();
+                setTimeout(() => {
+                    const range = document.createRange();
+                    range.selectNodeContents(newCardText);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }, 0);
+            }
+
             undoStack.push({
                 itemType: 'create-card',
                 cardId: newCard.id,
@@ -546,6 +560,17 @@ function createCard(cardsContainer, cardState, onStateChange) {
     cardText.addEventListener('focus', () => {
         originalText = cardText.textContent;
         cardText.dataset.originalText = originalText;
+        
+        // Select all text when focused via keyboard (Tab)
+        if (cardText.matches(':focus-visible')) {
+            setTimeout(() => {
+                const range = document.createRange();
+                range.selectNodeContents(cardText);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }, 0);
+        }
     });
 
     card.appendChild(cardText);
@@ -604,8 +629,78 @@ function createCard(cardsContainer, cardState, onStateChange) {
         // For Enter (but not Shift+Enter), and Escape
         if ((e.key === 'Enter' && !e.shiftKey) || e.key === 'Escape') {
             e.preventDefault();
+            
+            if (e.key === 'Enter') {
+                const parentPanel = card.closest('.panel');
+                let nextCard = card.nextElementSibling;
+                while (nextCard && !nextCard.classList.contains('card')) {
+                    nextCard = nextCard.nextElementSibling;
+                }
+                
+                if (nextCard) {
+                    const nextCardText = nextCard.querySelector('p');
+                    if (nextCardText) {
+                        nextCardText.focus();
+                        // For keyboard users, make sure it's fully selected on Enter navigation
+                        setTimeout(() => {
+                            const range = document.createRange();
+                            range.selectNodeContents(nextCardText);
+                            const selection = window.getSelection();
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                        }, 0);
+                        return; // Prevent default blur
+                    }
+                } else if (parentPanel) {
+                    const addCardBtn = parentPanel.querySelector('.add-card-btn');
+                    if (addCardBtn) {
+                        addCardBtn.focus();
+                        return; // Prevent default blur
+                    }
+                }
+            }
+            
             e.target.blur();
         }
+    });
+
+    card.addEventListener('pointerdown', (e) => {
+        // Only trigger for primary button (left click / touch)
+        if (e.button !== 0) return;
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+
+        const onPointerMove = (moveEvent) => {
+            const diffX = Math.abs(moveEvent.clientX - startX);
+            const diffY = Math.abs(moveEvent.clientY - startY);
+            
+            // If pointer moves more than 3 pixels, the user is dragging
+            if (diffX > 3 || diffY > 3) {
+                // Exit edit mode and clear selection to allow clean card dragging
+                const activeEl = document.activeElement;
+                if (activeEl && activeEl.tagName === 'P' && card.contains(activeEl)) {
+                    activeEl.blur();
+                }
+                const selection = window.getSelection();
+                if (selection) {
+                    selection.removeAllRanges();
+                }
+                cleanup();
+            }
+        };
+
+        const onPointerUp = () => {
+            cleanup();
+        };
+
+        const cleanup = () => {
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+        };
+
+        window.addEventListener('pointermove', onPointerMove);
+        window.addEventListener('pointerup', onPointerUp);
     });
 
     card.addEventListener('dragstart', e => {
