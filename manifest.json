@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "4.8.3",
+  "version": "5.0",
   "description": "__MSG_extDesc__",
   "default_locale": "nl",
   "permissions": [
@@ -15,9 +15,7 @@
       "resources": [
         "panelA.html",
         "panelB.html",
-        "panelB-inner.html",
         "panelC.html",
-        "panelC-inner.html",
         "panelD.html"
       ],
       "matches": [

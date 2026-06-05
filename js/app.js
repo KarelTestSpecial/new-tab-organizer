@@ -912,7 +912,8 @@ document.addEventListener('i18nReady', () => {
             
             // If they clicked on a container that might auto-focus children (like the panel or cards container),
             // prevent the default focus behavior.
-            if (e.target.closest('#panels-container, .cards-container, .panel')) {
+            // DO NOT prevent default if clicking the drag-handle, as it breaks SortableJS pointer events.
+            if (e.target.closest('#panels-container, .cards-container, .panel') && !e.target.closest('.drag-handle')) {
                 e.preventDefault();
             }
         }

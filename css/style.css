@@ -231,7 +231,7 @@ body {
 
 .panel.editing {
     position: relative;
-    z-index: 10;
+    z-index: 20; /* Raise above hovered cards (z-index 10) in adjacent panels */
 }
 
 .panel-header {
