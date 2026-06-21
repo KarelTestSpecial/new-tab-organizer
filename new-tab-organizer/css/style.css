@@ -651,6 +651,9 @@ body {
 .bookmark-item {
     justify-content: space-between;
 }
+#sidebar-bookmarks .bookmark-item {
+    margin-bottom: 2px;
+}
 
 .bookmark-item:hover {
     background-color: var(--accent-color);
