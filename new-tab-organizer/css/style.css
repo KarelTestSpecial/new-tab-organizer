@@ -35,18 +35,21 @@ body {
     min-width: 120px;
     max-width: 180px;
     background-color: var(--sidebar-bg);
-    padding: 15px;
+    padding: 15px 8px;
     border-right: 1px solid var(--border-color);
     overflow-y: auto;
-    flex-shrink: 0; /* Prevent the sidebar from shrinking */
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    scrollbar-width: thin;
+}
+#sidebar::-webkit-scrollbar {
+    width: 4px;
 }
 
 #sidebar-header {
-    padding-top: 5px;
-    padding-bottom: 10px;
-
+    padding: 5px 0 10px 0;
     text-align: center;
 }
 
@@ -78,7 +81,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 0 0 8px; /* No right padding */
+    padding-left: 0;
     margin-bottom: 10px;
 }
 
@@ -341,7 +344,7 @@ body {
 
 .card {
     border: none;
-    padding: 0; /* Inner p handles padding */
+    padding: 0;
     cursor: grab;
 }
 
@@ -355,7 +358,7 @@ body {
     color: var(--text-color);
     text-decoration: none;
     display: block;
-    word-break: break-word; /* Prevent overflow */
+    word-break: break-word;
 }
 
 .card.dragging {
@@ -643,12 +646,10 @@ body {
 
 #sidebar-bookmarks {
     flex-grow: 1;
-    overflow-y: auto;
 }
 
 .bookmark-item {
     justify-content: space-between;
-    /* margin, border-radius, align-items handled in shared block */
 }
 
 .bookmark-item:hover {
@@ -660,14 +661,18 @@ body {
 }
 
 .bookmark-actions {
-    visibility: hidden;
-    padding-right: 8px;
-    display: flex;
+    display: none;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
     gap: 4px;
+    background-color: var(--panel-bg);
+    padding: 0 4px;
 }
 
 .bookmark-item:hover .bookmark-actions {
-    visibility: visible;
+    display: flex;
 }
 
 .bookmark-item.dragging {
@@ -684,6 +689,10 @@ body {
     font-weight: bold;
     padding: 2px 4px;
     border-radius: 2px;
+    opacity: 0.55;
+}
+.edit-bookmark-btn:hover, .delete-bookmark-btn:hover {
+    opacity: 1;
 }
 
 .edit-bookmark-btn:hover, .delete-bookmark-btn:hover {
