@@ -30,10 +30,11 @@ function getBookmarkFolders(callback) {
     });
 }
 
-function getBookmarksInFolder(folderId, callback) {
+function getBookmarksInFolder(folderId, callback, folderTitleContext) {
     chrome.bookmarks.getChildren(folderId, (children) => {
         if (chrome.runtime.lastError) {
-            console.warn(`Bookmark folder not found for ID: ${folderId}. It might have been deleted.`);
+            const contextMsg = folderTitleContext ? ` (Panel/Map: "${folderTitleContext}")` : '';
+            console.warn(`Bookmark folder not found for ID: ${folderId}${contextMsg}. It might have been deleted.`);
             return callback([]);
         }
         callback(children || []);
