@@ -202,20 +202,22 @@ body {
 
 /* Panels */
 #panels-container {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start; /* Align panels to the top */
+    column-width: 300px;
+    column-gap: 10px;
     padding: 10px;
-    gap: 10px;
 }
 
 .panel {
     background-color: var(--panel-bg);
     border-radius: 8px;
     border: 1px solid var(--border-color);
-    width: 300px;
-    display: flex;
+    width: 100%;
+    margin-bottom: 10px;
+    display: inline-flex;
     flex-direction: column;
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    page-break-inside: avoid;
     transition: opacity 0.2s;
 }
 
