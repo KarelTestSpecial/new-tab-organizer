@@ -2,6 +2,7 @@
 
 function getBookmarks(callback) {
     chrome.bookmarks.getTree((bookmarkTree) => {
+        if (chrome.runtime.lastError) return callback([]);
         callback(bookmarkTree);
     });
 }
@@ -28,12 +29,14 @@ function getBookmarkFolders(callback) {
 
 function getBookmarksInFolder(folderId, callback) {
     chrome.bookmarks.getChildren(folderId, (children) => {
+        if (chrome.runtime.lastError) return callback([]);
         callback(children || []);
     });
 }
 
 function getSubFolders(parentId, callback) {
     chrome.bookmarks.getChildren(parentId, (children) => {
+        if (chrome.runtime.lastError) return callback([]);
         const folders = (children || []).filter(node => !node.url);
         callback(folders.map(node => ({
             id: node.id,
@@ -44,6 +47,7 @@ function getSubFolders(parentId, callback) {
 
 function deleteBookmark(id, callback) {
     chrome.bookmarks.remove(id, () => {
+        if (chrome.runtime.lastError) console.error(chrome.runtime.lastError);
         if (callback) callback();
     });
 }
@@ -145,12 +149,14 @@ function sortBookmarksInFolder(folderId, options, callback) {
 function moveBookmark(id, destination, callback) {
     // destination should be an object like { parentId: '...', index: ... }
     chrome.bookmarks.move(id, destination, () => {
+        if (chrome.runtime.lastError) console.error(chrome.runtime.lastError);
         if (callback) callback();
     });
 }
 
 function updateBookmark(id, changes, callback) {
     chrome.bookmarks.update(id, changes, () => {
+        if (chrome.runtime.lastError) console.error(chrome.runtime.lastError);
         if (callback) callback();
     });
 }
@@ -162,6 +168,7 @@ function updateBookmark(id, changes, callback) {
  */
 function findBookmarkFolderByTitle(title, callback) {
     chrome.bookmarks.getTree((bookmarkTree) => {
+        if (chrome.runtime.lastError) return callback(null);
         let foundFolder = null;
         function search(nodes) {
             for (const node of nodes) {

@@ -499,6 +499,7 @@ function createPanel(panelState, onStateChange) {
 
                         if (order.length === 0) {
                             chrome.bookmarks.getChildren(destinationFolderId, (children) => {
+                                if (chrome.runtime.lastError) return proceedWithOrder([]);
                                 const currentOrder = (children || []).map(c => c.id);
                                 proceedWithOrder(currentOrder);
                             });
