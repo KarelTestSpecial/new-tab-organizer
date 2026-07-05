@@ -2,7 +2,10 @@
 
 function getBookmarks(callback) {
     chrome.bookmarks.getTree((bookmarkTree) => {
-        if (chrome.runtime.lastError) return callback([]);
+        if (chrome.runtime.lastError) {
+            console.warn(`Failed to get bookmark tree:`, chrome.runtime.lastError);
+            return callback([]);
+        }
         callback(bookmarkTree);
     });
 }
@@ -29,14 +32,20 @@ function getBookmarkFolders(callback) {
 
 function getBookmarksInFolder(folderId, callback) {
     chrome.bookmarks.getChildren(folderId, (children) => {
-        if (chrome.runtime.lastError) return callback([]);
+        if (chrome.runtime.lastError) {
+            console.warn(`Bookmark folder not found for ID: ${folderId}. It might have been deleted.`);
+            return callback([]);
+        }
         callback(children || []);
     });
 }
 
 function getSubFolders(parentId, callback) {
     chrome.bookmarks.getChildren(parentId, (children) => {
-        if (chrome.runtime.lastError) return callback([]);
+        if (chrome.runtime.lastError) {
+            console.warn(`Subfolders not found for parent ID: ${parentId}. It might have been deleted.`);
+            return callback([]);
+        }
         const folders = (children || []).filter(node => !node.url);
         callback(folders.map(node => ({
             id: node.id,
@@ -47,7 +56,9 @@ function getSubFolders(parentId, callback) {
 
 function deleteBookmark(id, callback) {
     chrome.bookmarks.remove(id, () => {
-        if (chrome.runtime.lastError) console.error(chrome.runtime.lastError);
+        if (chrome.runtime.lastError) {
+            console.warn(`Error deleting bookmark ${id}:`, chrome.runtime.lastError.message);
+        }
         if (callback) callback();
     });
 }
@@ -149,14 +160,18 @@ function sortBookmarksInFolder(folderId, options, callback) {
 function moveBookmark(id, destination, callback) {
     // destination should be an object like { parentId: '...', index: ... }
     chrome.bookmarks.move(id, destination, () => {
-        if (chrome.runtime.lastError) console.error(chrome.runtime.lastError);
+        if (chrome.runtime.lastError) {
+            console.warn(`Error moving bookmark ${id}:`, chrome.runtime.lastError.message);
+        }
         if (callback) callback();
     });
 }
 
 function updateBookmark(id, changes, callback) {
     chrome.bookmarks.update(id, changes, () => {
-        if (chrome.runtime.lastError) console.error(chrome.runtime.lastError);
+        if (chrome.runtime.lastError) {
+            console.warn(`Error updating bookmark ${id}:`, chrome.runtime.lastError.message);
+        }
         if (callback) callback();
     });
 }
@@ -168,7 +183,10 @@ function updateBookmark(id, changes, callback) {
  */
 function findBookmarkFolderByTitle(title, callback) {
     chrome.bookmarks.getTree((bookmarkTree) => {
-        if (chrome.runtime.lastError) return callback(null);
+        if (chrome.runtime.lastError) {
+            console.warn(`Failed to find folder by title '${title}':`, chrome.runtime.lastError);
+            return callback(null);
+        }
         let foundFolder = null;
         function search(nodes) {
             for (const node of nodes) {
