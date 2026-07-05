@@ -207,6 +207,22 @@ body {
     padding: 10px;
 }
 
+#panels-container.row-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    align-items: start;
+    gap: 10px;
+    column-width: auto;
+    column-gap: normal;
+}
+
+#panels-container.row-layout .panel {
+    width: auto;
+    break-inside: auto;
+    -webkit-column-break-inside: auto;
+    page-break-inside: auto;
+}
+
 .panel {
     background-color: var(--panel-bg);
     border-radius: 8px;

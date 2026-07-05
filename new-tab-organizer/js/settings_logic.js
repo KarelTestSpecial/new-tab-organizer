@@ -35,6 +35,11 @@ document.addEventListener('i18nReady', () => {
     const startupCheckC = document.getElementById('startup-check-C');
     const startupCheckD = document.getElementById('startup-check-D');
 
+    const layoutRowA = document.getElementById('layout-row-A');
+    const layoutRowB = document.getElementById('layout-row-B');
+    const layoutRowC = document.getElementById('layout-row-C');
+    const layoutRowD = document.getElementById('layout-row-D');
+
     const useOrganizerFoldersToggle = document.getElementById('use-organizer-folders-toggle');
 
     const bgColorPicker = document.getElementById('bg-color-picker');
@@ -472,6 +477,10 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
         let valB = startupCheckB.checked;
         let valC = startupCheckC.checked;
         let valD = startupCheckD.checked;
+        let layoutA = layoutRowA ? layoutRowA.checked : false;
+        let layoutB = layoutRowB ? layoutRowB.checked : false;
+        let layoutC = layoutRowC ? layoutRowC.checked : false;
+        let layoutD = layoutRowD ? layoutRowD.checked : false;
         let sideWidth = window.currentSidebarWidth || 142;
         let markFont = bookmarkFontSizeSlider ? parseInt(bookmarkFontSizeSlider.value) : 12;
 
@@ -492,6 +501,10 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             startupB: valB,
             startupC: valC,
             startupD: valD,
+            layoutRowA: layoutA,
+            layoutRowB: layoutB,
+            layoutRowC: layoutC,
+            layoutRowD: layoutD,
             useOrganizerFolders: tempSettings.useOrganizerFolders,
             language: tempSettings.language,
 
@@ -538,6 +551,10 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                 startupB: typeof currentSettings.startupB === 'boolean' ? currentSettings.startupB : false,
                 startupC: typeof currentSettings.startupC === 'boolean' ? currentSettings.startupC : false,
                 startupD: typeof currentSettings.startupD === 'boolean' ? currentSettings.startupD : false,
+                layoutRowA: typeof currentSettings.layoutRowA === 'boolean' ? currentSettings.layoutRowA : false,
+                layoutRowB: typeof currentSettings.layoutRowB === 'boolean' ? currentSettings.layoutRowB : false,
+                layoutRowC: typeof currentSettings.layoutRowC === 'boolean' ? currentSettings.layoutRowC : false,
+                layoutRowD: typeof currentSettings.layoutRowD === 'boolean' ? currentSettings.layoutRowD : false,
                 useOrganizerFolders: typeof currentSettings.useOrganizerFolders === 'boolean' ? currentSettings.useOrganizerFolders : false,
 
                 bgColor: currentSettings.bgColor || '#f0f2f5',
@@ -580,6 +597,24 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                 startupCheckD.checked = tempSettings.startupD;
                 startupCheckD.addEventListener('change', () => saveSettings(false));
             }
+            
+            if (layoutRowA) {
+                layoutRowA.checked = tempSettings.layoutRowA;
+                layoutRowA.addEventListener('change', () => saveSettings(false));
+            }
+            if (layoutRowB) {
+                layoutRowB.checked = tempSettings.layoutRowB;
+                layoutRowB.addEventListener('change', () => saveSettings(false));
+            }
+            if (layoutRowC) {
+                layoutRowC.checked = tempSettings.layoutRowC;
+                layoutRowC.addEventListener('change', () => saveSettings(false));
+            }
+            if (layoutRowD) {
+                layoutRowD.checked = tempSettings.layoutRowD;
+                layoutRowD.addEventListener('change', () => saveSettings(false));
+            }
+
             if (useOrganizerFoldersToggle) useOrganizerFoldersToggle.checked = tempSettings.useOrganizerFolders;
 
             let fontSize = currentSettings.dateFontSize || '11px';

@@ -1632,6 +1632,16 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
 function applySettings(settings) {
     if (!settings) return;
 
+    const container = document.getElementById('panels-container');
+    if (container) {
+        const isRowLayout = settings[`layoutRow${CURRENT_VIEW}`];
+        if (isRowLayout) {
+            container.classList.add('row-layout');
+        } else {
+            container.classList.remove('row-layout');
+        }
+    }
+
     // Handle theme and custom colors
     if (settings.theme === 'custom') {
         document.documentElement.style.setProperty('--bg-color', settings.bgColor);
