@@ -2,6 +2,28 @@ const undoStack = [];
 const redoStack = []; // Global Redo Stack
 window.redoStack = redoStack; // Expose for panels.js to clear it
 window.bookmarkRefreshCallbacks = [];
+
+window.currentSidebarWidth = 142;
+window.updateSidebarWidthGlobally = function(w) {
+    window.currentSidebarWidth = w;
+    if (typeof adjustSidebarWidth === 'function') adjustSidebarWidth();
+};
+chrome.storage.local.get('settings', data => {
+    if (data.settings) {
+        
+        if (data.settings.bookmarkFontSize) document.documentElement.style.setProperty('--bookmark-font-size', data.settings.bookmarkFontSize);
+        if (data.settings.headerFontSize) document.documentElement.style.setProperty('--header-font-size', data.settings.headerFontSize);
+    }
+});
+chrome.storage.onChanged.addListener((changes, namespace) => {
+    if (namespace === 'local' && changes.settings && changes.settings.newValue) {
+        
+        if (changes.settings.newValue.bookmarkFontSize) document.documentElement.style.setProperty('--bookmark-font-size', changes.settings.newValue.bookmarkFontSize);
+        if (changes.settings.newValue.headerFontSize) document.documentElement.style.setProperty('--header-font-size', changes.settings.newValue.headerFontSize);
+        if (typeof adjustSidebarWidth === 'function') adjustSidebarWidth();
+    }
+});
+
 // Global settings for the date, defaults
 window.currentDateSettings = {
     showYear: true,
@@ -382,6 +404,7 @@ document.addEventListener('i18nReady', () => {
 
             function getFoldersRecursive(parentId, depth, callback) {
                 chrome.bookmarks.getSubTree(parentId, (results) => {
+                    if (chrome.runtime.lastError) return callback && callback([]);
                     const folders = [];
                     function traverse(node, currentDepth) {
                         if (!node.url) {
@@ -637,6 +660,7 @@ document.addEventListener('i18nReady', () => {
             const selectedOptions = Array.from(document.getElementById('panel-folder-select').selectedOptions);
             const selectedFolderIds = selectedOptions.map(opt => opt.value).filter(id => id !== "");
             const isRecursive = document.getElementById('sort-recursive-popup-checkbox').checked;
+            const sortBookmarks = document.getElementById('sort-bookmarks-popup-checkbox') ? document.getElementById('sort-bookmarks-popup-checkbox').checked : false;
             
             const foldersToSort = selectedFolderIds.length > 0 ? selectedFolderIds : [rootId];
             const targetName = selectedFolderIds.length > 0 ? "selected folder(s)" : (rootId === '1' ? 'Bookmark Bar' : 'Other Bookmarks');
@@ -656,6 +680,7 @@ document.addEventListener('i18nReady', () => {
                 const sortOptions = {
                     recursive: isRecursive,
                     sortOrder: settings.sortOrder || 'mixed',
+                    sortBookmarks: sortBookmarks,
                     excludeFolderIds: activeFolderIds
                 };
                 
@@ -755,7 +780,7 @@ document.addEventListener('i18nReady', () => {
                     addPanel(fId, parentTitle, 'parent');
 
                     chrome.bookmarks.getSubTree(fId, (results) => {
-                        if (results && results[0] && results[0].children) {
+                        if (chrome.runtime.lastError || !results && results[0] && results[0].children) {
                             const processNode = (node) => {
                                 if (!node.url) {
                                     // skip sidebar folder
@@ -1373,16 +1398,63 @@ document.addEventListener('i18nReady', () => {
     });
 
     // --- Dynamic Sidebar Adjustment ---
-    function adjustSidebarWidth() {
+    
+    // --- Draggable Sidebar Resizer ---
+    const resizer = document.getElementById('sidebar-resizer');
+    const sidebar = document.getElementById('sidebar');
+    let isResizing = false;
+
+    if (resizer && sidebar) {
+        chrome.storage.local.get('sidebarWidth', (data) => {
+            if (data.sidebarWidth) {
+                window.currentSidebarWidth = data.sidebarWidth;
+                sidebar.style.width = `${data.sidebarWidth}px`;
+                sidebar.style.minWidth = `${data.sidebarWidth}px`;
+                sidebar.style.flexBasis = `${data.sidebarWidth}px`;
+                if (typeof adjustSidebarWidth === 'function') adjustSidebarWidth();
+            }
+        });
+
+        resizer.addEventListener('mousedown', (e) => {
+            isResizing = true;
+            resizer.classList.add('dragging');
+            document.body.style.cursor = 'col-resize';
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isResizing) return;
+            let newWidth = e.clientX;
+            if (newWidth < 120) newWidth = 120;
+            if (newWidth > window.innerWidth / 2) newWidth = window.innerWidth / 2;
+            
+            sidebar.style.width = `${newWidth}px`;
+            sidebar.style.minWidth = `${newWidth}px`;
+            sidebar.style.flexBasis = `${newWidth}px`;
+            window.currentSidebarWidth = newWidth;
+            if (typeof adjustSidebarWidth === 'function') adjustSidebarWidth();
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isResizing) {
+                isResizing = false;
+                resizer.classList.remove('dragging');
+                document.body.style.cursor = '';
+                chrome.storage.local.set({ sidebarWidth: window.currentSidebarWidth });
+            }
+        });
+    }
+
+    window.adjustSidebarWidth = function() {
         requestAnimationFrame(() => {
+            if (!window.adjustSidebarWidth) window.adjustSidebarWidth = window.adjustSidebarWidth || adjustSidebarWidth;
             const sidebar = document.getElementById('sidebar');
             const panelsContainer = document.getElementById('panels-container');
             if (!sidebar || !panelsContainer) return;
 
             // Updated User Constraints
-            const minSidebar = 142; // User set this manually
-            const maxSidebar = 225; // Soft target
-            const absoluteMaxSidebar = 280; // Hard cap
+            const minSidebar = window.currentSidebarWidth || 142; // Configurable
+            const maxSidebar = minSidebar + 83; // Soft target
+            const absoluteMaxSidebar = minSidebar + 138; // Hard cap
 
             const panelWidth = 300;
             const gap = 10;
@@ -1407,29 +1479,18 @@ document.addEventListener('i18nReady', () => {
 
             if (totalExcessSpace < 0) totalExcessSpace = 0;
 
-            // 4. Distribute space logic (4-way split)
+            // 4. Distribute space logic (3-way split)
             // Weights:
-            // Sidebar: 40%
-            // Gap Left (Padding Left): 16%
-            // Gap between panels: 10%
-            // Right Margin: 34% (implicit via paddingRight)
+            // Gap Left (Padding Left): 40%
+            // Gap between panels: 20%
+            // Right Margin: 40% (implicit via paddingRight)
 
-            let sidebarExtra = totalExcessSpace * 0.40;
-            let paddingLeftExtra = totalExcessSpace * 0.16;
-            let gapExtraPool = totalExcessSpace * 0.10;
-            let paddingRightExtra = totalExcessSpace * 0.34;
+            let paddingLeftExtra = totalExcessSpace * 0.40;
+            let gapExtraPool = totalExcessSpace * 0.20;
+            let paddingRightExtra = totalExcessSpace * 0.40;
 
-            // Calculate new Sidebar Width
-            let targetSidebarWidth = minSidebar + sidebarExtra;
-
-            // Soft Limit Logic for Sidebar
-            if (targetSidebarWidth > maxSidebar) {
-                const excess = targetSidebarWidth - maxSidebar;
-                targetSidebarWidth = maxSidebar + (excess * 0.3);
-            }
-            if (targetSidebarWidth > absoluteMaxSidebar) {
-                targetSidebarWidth = absoluteMaxSidebar;
-            }
+            // Calculate new Sidebar Width (fixed to user choice)
+            let targetSidebarWidth = minSidebar;
 
             // Calculate new Padding Left
             const targetPaddingLeft = basePadding + paddingLeftExtra;

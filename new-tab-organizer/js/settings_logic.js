@@ -24,6 +24,10 @@ document.addEventListener('i18nReady', () => {
     const languageSelect = document.getElementById('language-select');
 
     const dateFontSizeSlider = document.getElementById('date-font-size-slider');
+    const headerFontSizeSlider = document.getElementById('header-font-size-slider');
+    const headerFontSizeValue = document.getElementById('header-font-size-value');
+    const bookmarkFontSizeSlider = document.getElementById('bookmark-font-size-slider');
+    const bookmarkFontSizeValue = document.getElementById('bookmark-font-size-value');
     const dateFontSizeValue = document.getElementById('date-font-size-value');
 
     const startupCheckA = document.getElementById('startup-check-A');
@@ -80,6 +84,22 @@ document.addEventListener('i18nReady', () => {
         }
     });
 
+
+    if (headerFontSizeSlider) {
+        headerFontSizeSlider.addEventListener('input', (e) => {
+            headerFontSizeValue.textContent = e.target.value + 'px';
+            tempSettings.headerFontSize = e.target.value + 'px';
+document.documentElement.style.setProperty('--header-font-size', e.target.value + 'px');
+            
+        });
+    }
+    if (bookmarkFontSizeSlider) {
+        bookmarkFontSizeSlider.addEventListener('input', (e) => {
+            bookmarkFontSizeValue.textContent = e.target.value + 'px';
+            tempSettings.bookmarkFontSize = e.target.value + 'px';
+            document.documentElement.style.setProperty('--bookmark-font-size', e.target.value + 'px');
+        });
+    }
     if (useOrganizerFoldersToggle) {
         useOrganizerFoldersToggle.addEventListener('change', (e) => {
             if (e.target.checked) {
@@ -452,6 +472,8 @@ document.addEventListener('i18nReady', () => {
         let valB = startupCheckB.checked;
         let valC = startupCheckC.checked;
         let valD = startupCheckD.checked;
+        let sideWidth = window.currentSidebarWidth || 142;
+        let markFont = bookmarkFontSizeSlider ? parseInt(bookmarkFontSizeSlider.value) : 12;
 
         if (!valA && !valB && !valC && !valD) {
             valA = true;
@@ -464,6 +486,8 @@ document.addEventListener('i18nReady', () => {
             rootFolderId: extensionRootFolderSelect.value,
             showBattery: tempSettings.showBattery,
             dateFontSize: `${dateFontSizeSlider.value}px`,
+            headerFontSize: tempSettings.headerFontSize,
+            bookmarkFontSize: `${markFont}px`,
             startupA: valA,
             startupB: valB,
             startupC: valC,
@@ -565,6 +589,20 @@ document.addEventListener('i18nReady', () => {
             dateFontSizeSlider.value = numericSize;
             dateFontSizeValue.textContent = `${numericSize}px`;
 
+            if (headerFontSizeSlider) {
+                let hfSize = currentSettings.headerFontSize ? parseInt(currentSettings.headerFontSize.replace('px', '')) : 15;
+                if (isNaN(hfSize)) hfSize = 15;
+                headerFontSizeSlider.value = hfSize;
+                headerFontSizeValue.textContent = `${hfSize}px`;
+            }
+
+            if (bookmarkFontSizeSlider) {
+                let bmSize = currentSettings.bookmarkFontSize ? parseInt(currentSettings.bookmarkFontSize.replace('px', '')) : 12;
+                if (isNaN(bmSize)) bmSize = 12;
+                bookmarkFontSizeSlider.value = bmSize;
+                bookmarkFontSizeValue.textContent = `${bmSize}px`;
+            }
+
 
             bgColorPicker.value = tempSettings.bgColor;
             textColorPicker.value = tempSettings.textColor;
@@ -573,7 +611,11 @@ document.addEventListener('i18nReady', () => {
 
 
 
-            applySettings({ ...tempSettings, dateFontSize: `${numericSize}px` });
+            let hfSize = currentSettings.headerFontSize ? parseInt(currentSettings.headerFontSize.replace('px', '')) : 15;
+            let bmSize = currentSettings.bookmarkFontSize ? parseInt(currentSettings.bookmarkFontSize.replace('px', '')) : 12;
+            if (isNaN(hfSize)) hfSize = 15;
+            if (isNaN(bmSize)) bmSize = 12;
+            applySettings({ ...tempSettings, dateFontSize: `${numericSize}px`, headerFontSize: `${hfSize}px`, bookmarkFontSize: `${bmSize}px` });
         });
     }
 

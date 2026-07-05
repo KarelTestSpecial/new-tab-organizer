@@ -47,6 +47,7 @@
             </div>
             <div id="sidebar-bookmarks"></div>
         </aside>
+        <div id="sidebar-resizer"></div>
         <main id="main-content">
             <div id="panels-container">
                 <!-- Panels will be dynamically inserted here -->
@@ -82,17 +83,20 @@
                         <input type="color" id="input-bg-color-picker" title="Input/Dropdown Background" style="width: 26px; height: 26px; padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--panel-bg); cursor: pointer;">
                     </div>
                 </div>
-            </div>
+                <!-- Row 3: Width & Font Size Sliders -->
+                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 10px;">
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                        <label for="header-font-size-slider" style="margin:0; white-space: nowrap; font-size: 0.8rem;" data-i18n="label_header_font_size">Titles:</label>
+                        <input type="range" id="header-font-size-slider" min="12" max="24" step="1" style="flex-grow: 1; cursor: pointer; min-width: 0;">
+                        <span id="header-font-size-value" style="min-width: 38px; text-align: right; font-size: 0.8rem; flex-shrink: 0;">15px</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; margin-left: 15px;">
+                        <label for="bookmark-font-size-slider" style="margin:0; white-space: nowrap; font-size: 0.8rem;" data-i18n="label_bookmark_font_size">Text:</label>
+                        <input type="range" id="bookmark-font-size-slider" min="10" max="20" step="1" style="flex-grow: 1; cursor: pointer; min-width: 0;">
+                        <span id="bookmark-font-size-value" style="min-width: 32px; text-align: right; font-size: 0.8rem; flex-shrink: 0;">12px</span>
+                    </div>
+                </div>
 
-            <!-- Section 2: Import/Export (Label Left, Buttons Right) -->
-            <div class="settings-section" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <div style="font-size: 0.8rem; opacity: 0.7;">
-                    <span data-i18n="save_current_setup">Sla huidige setup op</span>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" id="export-data-btn" class="settings-btn-item" data-i18n="btn_export_data" style="font-size: 0.8rem; padding: 5px 10px;">Export Data</button>
-                    <button type="button" id="import-data-btn" class="settings-btn-item" data-i18n="btn_import_data" style="font-size: 0.8rem; padding: 5px 10px;">Import Data</button>
-                </div>
             </div>
 
             <!-- Section 3: Bookmarks -->
@@ -143,6 +147,19 @@
                     
                 </div>
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
+            </div>
+
+            
+            <!-- Section: Backup & Restore Panels -->
+            <div class="settings-section" style="margin-bottom: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                <div style="font-size: 0.8rem; margin-bottom: 8px;">
+                    <strong style="color: var(--text-color);">Backup & Restore View</strong><br>
+                    <span style="opacity: 0.7;">Sla op welke panelen en bladwijzermappen er in dit venster getoond worden, en hun exacte positie. Dit is een layout-backup, geen backup van de bladwijzers zelf.</span>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" id="export-data-btn" class="settings-btn-item" data-i18n="btn_export_data" style="font-size: 0.8rem; padding: 5px 10px;">Export Data</button>
+                    <button type="button" id="import-data-btn" class="settings-btn-item" data-i18n="btn_import_data" style="font-size: 0.8rem; padding: 5px 10px;">Import Data</button>
+                </div>
             </div>
 
             <div class="settings-footer" style="display: flex; justify-content: space-between; align-items: center;">
@@ -259,6 +276,9 @@
                             <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 5px 12px; font-size: 0.8rem; font-weight: bold;" data-i18n="btn_sort_root_folder">Sort Root Folder</button>
                             <label style="font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
                                 <input type="checkbox" id="sort-recursive-popup-checkbox"> <span data-i18n="label_recursive">Recursive</span>
+                                </label>
+                                <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; margin-top: 5px;">
+                                    <input type="checkbox" id="sort-bookmarks-popup-checkbox"> <span data-i18n="label_sort_bookmarks">Sorteer ook bladwijzers (niet enkel mappen)</span>
                                 </label>
                             </div>
                         </div>

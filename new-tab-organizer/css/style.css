@@ -88,7 +88,7 @@ body {
 #sidebar .sidebar-links h2 {
     margin: 0;
     padding: 0;
-    font-size: 15px;
+    font-size: var(--header-font-size, 15px);
 }
 
 #history-link,
@@ -254,7 +254,7 @@ body {
 
 .panel-header h3 {
     margin: 0;
-    font-size: 15px;
+    font-size: var(--header-font-size, 15px);
 }
 
 .panel-actions {
@@ -355,7 +355,7 @@ body {
     flex-grow: 1;
     margin: 0;
     padding: 4px 2px;
-    font-size: 12px;
+    font-size: var(--bookmark-font-size, 12px);
     line-height: 1.4;
     color: var(--text-color);
     text-decoration: none;
@@ -409,7 +409,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    font-size: 12px;
+    font-size: var(--bookmark-font-size, 12px);
 }
 
 .startup-options label {
@@ -726,7 +726,7 @@ body {
     border: none;
     border-radius: 3px;
     padding: 4px 8px;
-    font-size: 12px;
+    font-size: var(--bookmark-font-size, 12px);
     cursor: pointer;
 }
 
@@ -903,4 +903,18 @@ body {
     border-width: 3px;
     padding-top: 3px !important;
     padding-bottom: 3px !important;
+}
+
+#sidebar-resizer {
+    width: 6px;
+    background-color: transparent;
+    cursor: col-resize;
+    position: relative;
+    z-index: 100;
+    transition: background-color 0.2s;
+    margin-left: -3px;
+    margin-right: -3px;
+}
+#sidebar-resizer:hover, #sidebar-resizer.dragging {
+    background-color: var(--accent-color, #007bff);
 }

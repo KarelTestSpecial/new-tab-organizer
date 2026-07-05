@@ -66,22 +66,43 @@ function sortBookmarksInFolder(folderId, options, callback) {
         }
 
         chrome.bookmarks.getChildren(nodeId, (children) => {
-            if (!children) {
+            if (chrome.runtime.lastError || !children) {
                 if (done) done();
                 return;
             }
 
-            const sortedChildren = [...children].sort((a, b) => {
-                const aIsFolder = !a.url;
-                const bIsFolder = !b.url;
+            let sortedChildren;
+            if (options.sortBookmarks) {
+                sortedChildren = [...children].sort((a, b) => {
+                    const aIsFolder = !a.url;
+                    const bIsFolder = !b.url;
 
-                if (options.sortOrder === 'foldersFirst') {
-                    if (aIsFolder && !bIsFolder) return -1;
-                    if (!aIsFolder && bIsFolder) return 1;
+                    if (options.sortOrder === 'foldersFirst') {
+                        if (aIsFolder && !bIsFolder) return -1;
+                        if (!aIsFolder && bIsFolder) return 1;
+                    }
+
+                    return a.title.localeCompare(b.title);
+                });
+            } else {
+                const folders = children.filter(c => !c.url);
+                const bookmarks = children.filter(c => c.url);
+                folders.sort((a, b) => a.title.localeCompare(b.title));
+                
+                if (options.sortOrder === 'mixed') {
+                    // Preserve original folder indices but with sorted folders
+                    sortedChildren = [...children];
+                    let folderIndex = 0;
+                    for (let i = 0; i < sortedChildren.length; i++) {
+                        if (!sortedChildren[i].url) {
+                            sortedChildren[i] = folders[folderIndex++];
+                        }
+                    }
+                } else {
+                    // foldersFirst: put sorted folders at the top, then bookmarks in original order
+                    sortedChildren = [...folders, ...bookmarks];
                 }
-
-                return a.title.localeCompare(b.title);
-            });
+            }
 
             // Move bookmarks one by one
             let moveChain = Promise.resolve();
