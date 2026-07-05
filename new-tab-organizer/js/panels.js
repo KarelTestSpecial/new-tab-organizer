@@ -160,7 +160,8 @@ function createPanel(panelState, onStateChange) {
                     const settings = data.settings || {};
                     const sortOptions = {
                         recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
-                        sortOrder: settings.sortOrder || 'mixed'
+                        sortOrder: settings.sortOrder || 'mixed',
+                        sortBookmarks: false
                     };
 
                     if (typeof sortBookmarksInFolder === 'function') {
@@ -175,6 +176,34 @@ function createPanel(panelState, onStateChange) {
                 menu.remove();
             });
             menu.appendChild(sortItem);
+
+            const sortBookmarksItem = document.createElement('div');
+            sortBookmarksItem.className = 'context-menu-item';
+            sortBookmarksItem.textContent = 'Sort Folder & Bookmarks';
+            sortBookmarksItem.addEventListener('click', () => {
+                const folderId = panel.dataset.folderId;
+                if (!folderId) return;
+
+                chrome.storage.local.get('settings', (data) => {
+                    const settings = data.settings || {};
+                    const sortOptions = {
+                        recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
+                        sortOrder: settings.sortOrder || 'mixed',
+                        sortBookmarks: true
+                    };
+
+                    if (typeof sortBookmarksInFolder === 'function') {
+                        sortBookmarksInFolder(folderId, sortOptions, () => {
+                            // Trigger all refresh callbacks to ensure UI consistency
+                            if (window.bookmarkRefreshCallbacks) {
+                                window.bookmarkRefreshCallbacks.forEach(cb => cb());
+                            }
+                        });
+                    }
+                });
+                menu.remove();
+            });
+            menu.appendChild(sortBookmarksItem);
 
             const deleteItem = document.createElement('div');
             deleteItem.className = 'context-menu-item';

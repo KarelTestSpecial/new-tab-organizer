@@ -104,11 +104,21 @@ function sortBookmarksInFolder(folderId, options, callback) {
                 }
             }
 
-            // Move bookmarks one by one
+            // Use currentIds to track shifting indices safely
+            let currentIds = children.map(c => c.id);
             let moveChain = Promise.resolve();
-            sortedChildren.forEach((node, index) => {
+            sortedChildren.forEach((node, targetIndex) => {
                 moveChain = moveChain.then(() => new Promise(resolve => {
-                    chrome.bookmarks.move(node.id, { parentId: nodeId, index: index }, resolve);
+                    const currentIndex = currentIds.indexOf(node.id);
+                    if (currentIndex !== targetIndex) {
+                        currentIds.splice(currentIndex, 1);
+                        currentIds.splice(targetIndex, 0, node.id);
+                        chrome.bookmarks.move(node.id, { parentId: nodeId, index: targetIndex }, () => {
+                            resolve();
+                        });
+                    } else {
+                        resolve();
+                    }
                 }));
             });
 
