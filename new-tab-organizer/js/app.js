@@ -1729,7 +1729,7 @@ function applySettings(settings) {
         const refreshSidebar = () => {
             getBookmarksInFolder(settings.sidebarFolderId, (bookmarks) => {
                 renderBookmarks(sidebarBookmarks, bookmarks, settings.sidebarFolderId, refreshSidebar);
-            });
+            }, 'Sidebar');
         };
         window.bookmarkRefreshCallbacks.push(refreshSidebar);
         refreshSidebar();

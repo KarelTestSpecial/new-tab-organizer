@@ -531,6 +531,7 @@ function createPanel(panelState, onStateChange) {
                     const currentPanel = panels.find(p => p.id === id);
                     const bookmarkOrder = (currentPanel && currentPanel.bookmarkOrder) ? currentPanel.bookmarkOrder : [];
 
+                    const titleContext = currentPanel ? currentPanel.title : '';
                     getBookmarksInFolder(folderId, (bookmarks) => {
                         if (bookmarkOrder.length > 0) {
                             const orderMap = {};
@@ -549,7 +550,7 @@ function createPanel(panelState, onStateChange) {
                             });
                         }
                         renderBookmarks(contentContainer, bookmarks, folderId, refreshPanel);
-                    });
+                    }, titleContext);
                 });
             };
             // Register this refresh function globally
