@@ -113,9 +113,10 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                     tempSettings.useOrganizerFolders = true;
                     const rootId = extensionRootFolderSelect.value || '1';
                     window.ensureOrganizerFolders(rootId, () => {
-                        // Mark upgrade modal as done so it doesn't show up again
-                        chrome.storage.local.set({ foldersUpgradeDone: true }, () => {
-                            saveSettings(false);
+                        window.ensureSidebarFolder(rootId, tempSettings, () => {
+                            chrome.storage.local.set({ foldersUpgradeDone: true }, () => {
+                                saveSettings(false);
+                            });
                         });
                     });
                 } else {
@@ -137,7 +138,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                 const promptMsg = I18N.getMessage('alert_provide_name') || 'Vul een naam in voor de nieuwe map:';
                 const name = prompt(promptMsg);
                 if (name && name.trim()) {
-                    const parentId = tempSettings.rootFolderId || '1';
+                    const parentId = tempSettings.useOrganizerFolders ? (tempSettings.rootFolderId || '1') : '2';
                     chrome.bookmarks.create({ parentId: parentId, title: name.trim() }, (newFolder) => {
                         if (chrome.runtime.lastError) {
                             alert((I18N.getMessage('alert_error_creating') || 'Fout bij het aanmaken van de map: ') + chrome.runtime.lastError.message);
@@ -226,6 +227,9 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                                     if (!node.url && ['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D'].includes(node.title)) {
                                         foundFolders.push(node);
                                     }
+                                    if (node.id === tempSettings.sidebarFolderId) {
+                                        foundFolders.push(node);
+                                    }
                                     if (node.children) node.children.forEach(traverse);
                                 }
                                 if (tree && tree[0]) traverse(tree[0]);
@@ -236,6 +240,8 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                         }
 
                         const foldersToMove = children.filter(c => !c.url && ['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D'].includes(c.title));
+                        const sidebarChild = children.find(c => c.id === tempSettings.sidebarFolderId);
+                        if (sidebarChild) foldersToMove.push(sidebarChild);
                         moveFoldersList(foldersToMove, newRootId, proceedSave);
                     });
                 } else {
@@ -256,7 +262,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
         const toggleLabelSpan = document.querySelector('[data-i18n="settings_toggle_folders"]');
         if (!toggleLabelSpan || !extensionRootFolderSelect) return;
 
-        const baseText = I18N.getMessage('settings_toggle_folders') || "Maak 4 mappen in Chrome Bookmarks : Organizer A, Organizer B, Organizer C, Organizer D";
+        const baseText = I18N.getMessage('settings_toggle_folders') || "Beheer Organizer mappen (A–D) + zijbalk-map in Chrome Bookmarks";
         const selectedIndex = extensionRootFolderSelect.selectedIndex;
         
         if (selectedIndex <= 0 || !extensionRootFolderSelect.value) {
@@ -288,7 +294,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             if (newText.includes('Chrome')) {
                 newText = newText.replace('Chrome', selectedText);
             } else {
-                newText = `Maak 4 mappen in ${selectedText}: Organizer A, Organizer B, Organizer C, Organizer D`;
+                newText = `Beheer Organizer mappen (A–D) + zijbalk-map in ${selectedText}`;
             }
         }
 

@@ -44,14 +44,17 @@
   "settings_folders": {
     "message": "Carpetas y Sincronización"
   },
+  "select_root_folder": {
+    "message": "Seleccionar carpeta raíz"
+  },
   "settings_root_folder": {
     "message": "¿Dónde quieres que coloquemos las carpetas Organizer?"
   },
   "settings_toggle_folders": {
-    "message": "Crear 4 carpetas en Marcadores de Chrome: Organizer A, Organizer B, Organizer C, Organizer D"
+    "message": "Gestionar carpetas Organizer (A–D) + carpeta Sidebar en Marcadores de Chrome"
   },
   "settings_toggle_desc": {
-    "message": "Si está desactivado, el movimiento automático se detiene. Las carpetas existentes en Chrome se conservan."
+    "message": "Controla la colocación automática de las 4 carpetas Organizer (A–D) y su carpeta Sidebar en Chrome. Las carpetas existentes se conservan al desactivarse."
   },
   "settings_swap": {
     "message": "Intercambiar Organizers"
@@ -76,6 +79,12 @@
   },
   "add_bookmark_title": {
     "message": "Añadir Panel de Marcadores"
+  },
+  "add_bookmark_folder_info": {
+    "message": "Active esto para organizar físicamente sus marcadores en 4 carpetas fijas (Organizer A, B, C, D) en Chrome. Su carpeta Sidebar también se colocará en la misma carpeta raíz. Tanto al crear nuevas carpetas como al importar carpetas existentes, se colocarán automáticamente en la carpeta raíz correcta. Si estas carpetas aún no existen, se crearán inmediatamente al activarlas. (ver panel de configuración)"
+  },
+  "label_use_organizer": {
+    "message": "Carpetas Organizer + Sidebar en Marcadores de Chrome"
   },
   "add_bookmark_new_folder": {
     "message": "Crear nueva carpeta"

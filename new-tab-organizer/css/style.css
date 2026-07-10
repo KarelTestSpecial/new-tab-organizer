@@ -454,35 +454,312 @@ body {
 
 
 
-/* Settings Button Styles */
-.settings-buttons {
+/* --- Settings Panel Redesign --- */
+
+#settings-panel {
     display: flex;
-    gap: 10px;
-    justify-content: flex-start;
+    flex-direction: column;
+    padding: 24px;
+    border: 3px solid var(--border-color);
+    max-height: 90vh;
+    overflow: hidden;
 }
 
-#save-settings-btn,
-#close-settings-btn {
+#settings-panel.hidden {
+    display: none;
+}
+
+.settings-scroll {
+    overflow-y: auto;
+    flex: 1;
+    scrollbar-width: thin;
+}
+
+.settings-scroll::-webkit-scrollbar {
+    width: 4px;
+}
+
+.settings-card {
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+}
+
+.settings-card-header {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-color);
+    letter-spacing: 0.3px;
+}
+
+/* Toggle buttons row */
+.settings-toggles-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.settings-toggle-btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 7px 4px;
+    font-size: 0.8rem;
     background-color: var(--accent-color);
     color: var(--text-color);
     border: 1px solid var(--border-color);
-    padding: 6px 12px;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 13px;
+    transition: all 0.15s;
+    white-space: nowrap;
 }
 
-[data-theme="dark"] #save-settings-btn,
-[data-theme="dark"] #close-settings-btn {
+.settings-toggle-btn:hover {
+    filter: brightness(93%);
+}
+
+.settings-toggle-btn.active {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+.settings-toggle-divider {
+    width: 1px;
+    height: 20px;
+    background: var(--border-color);
+    margin: 0 4px;
+    flex-shrink: 0;
+}
+
+/* Slider rows */
+.settings-slider-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.settings-slider-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.settings-slider-group label {
+    min-width: 80px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.settings-slider-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.settings-slider-control input[type="range"] {
+    flex: 1;
+    cursor: pointer;
+    min-width: 0;
+}
+
+.settings-slider-control span {
+    min-width: 34px;
+    text-align: right;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+    font-weight: 600;
+}
+
+/* Color picker row */
+.settings-color-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: flex-start;
+}
+
+.settings-color-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.settings-color-label input[type="color"] {
+    width: 30px;
+    height: 30px;
+    padding: 2px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--panel-bg);
+    cursor: pointer;
+}
+
+/* Startup/Layout rows */
+.settings-startup-row,
+.settings-setting-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+
+.settings-last-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settings-startup-row label,
+.settings-setting-row label,
+.settings-last-row label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.settings-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    min-width: 80px;
+}
+
+.settings-select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 0.85rem;
+}
+
+/* Folders row */
+.settings-folders-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.settings-folders-row select {
+    flex: 1;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 0.85rem;
+}
+
+.settings-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 8px 10px;
+    background: var(--accent-color);
+    border-radius: 6px;
+    margin-top: 4px;
+}
+
+/* Swap row */
+.settings-swap-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.settings-swap-row select {
+    flex: 1;
+    min-width: 100px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 0.85rem;
+}
+
+.settings-swap-arrow {
+    font-size: 1.2rem;
+    opacity: 0.6;
+    flex-shrink: 0;
+}
+
+/* Backup row */
+.settings-backup-row {
+    display: flex;
+    gap: 10px;
+}
+
+/* Hint text */
+.settings-hint {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin: 0 0 10px 0;
+    line-height: 1.4;
+}
+
+/* Footer buttons */
+.settings-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border-color);
+}
+
+.settings-save-btn {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    padding: 9px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: filter 0.15s;
+}
+
+.settings-save-btn:hover {
+    filter: brightness(110%);
+}
+
+.settings-cancel-btn {
     background-color: var(--accent-color);
     color: var(--text-color);
+    border: 1px solid var(--border-color);
+    padding: 9px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: filter 0.15s;
 }
 
-#save-settings-btn:hover,
-#close-settings-btn:hover {
+.settings-cancel-btn:hover {
     filter: brightness(90%);
 }
 
+/* Legacy: keep existing button class for modals etc. */
 .settings-btn-item,
 #download-btn,
 .sidebar-footer button {
@@ -490,9 +767,9 @@ body {
     color: var(--text-color);
     border: 1px solid var(--border-color);
     padding: 6px 10px;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 0.85rem;
     transition: all 0.2s;
 }
 
@@ -528,6 +805,7 @@ body {
     opacity: 0.6;
     transition: opacity 0.2s, transform 0.2s;
     line-height: 1;
+    z-index: 10;
 }
 
 .settings-close-btn:hover {
@@ -627,11 +905,14 @@ body {
     margin-top: 25px;
 }
 
-/* Close button for all modals */
-.modal-close-btn, .settings-close-btn {
+/* Close buttons */
+.modal-close-btn {
     position: absolute;
     top: 15px;
     right: 15px;
+}
+
+.modal-close-btn, .settings-close-btn {
     background: transparent;
     border: none;
     font-size: 24px;
@@ -851,57 +1132,28 @@ body {
     opacity: 1;
 }
 
-.info-icon::after {
-    content: attr(data-tooltip);
-    visibility: hidden;
-    width: 320px;
+/* Fixed-position tooltip (avoids overflow clipping in panels) */
+.info-tooltip-fixed {
+    position: fixed;
+    z-index: 99999;
+    width: 400px;
+    max-width: 90vw;
     background-color: var(--panel-bg);
     color: var(--text-color);
     text-align: left;
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 12px;
-    position: absolute;
-    z-index: 9999;
-    bottom: 150%;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.3s, transform 0.3s;
     font-size: 0.8rem;
     line-height: 1.5;
     box-shadow: 0 10px 25px rgba(0,0,0,0.2);
     white-space: normal;
     pointer-events: none;
-}
-
-.info-icon:hover::after {
-    visibility: visible;
-    opacity: 1;
-    transform: translateX(-50%) translateY(-5px);
-}
-
-/* Tooltip Arrow */
-.info-icon::before {
-    content: "";
-    visibility: hidden;
-    position: absolute;
-    bottom: 150%;
-    left: 50%;
-    transform: translateX(-50%);
-    border-width: 8px;
-    border-style: solid;
-    border-color: var(--border-color) transparent transparent transparent;
     opacity: 0;
-    transition: opacity 0.3s, transform 0.3s;
-    z-index: 10000;
-    margin-bottom: -15px;
+    transition: opacity 0.2s ease;
 }
-
-.info-icon:hover::before {
-    visibility: visible;
+.info-tooltip-fixed.visible {
     opacity: 1;
-    transform: translateX(-50%) translateY(-5px);
 }
 
 /* Active state for toggle buttons */

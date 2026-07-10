@@ -55,143 +55,104 @@
         </main>
         <div id="settings-panel" class="hidden">
             <button id="close-settings-x" class="settings-close-btn">&times;</button>
-            <!-- Section 1: Toggles, Colors, Size & Language -->
-            <div class="settings-section" style="margin-bottom: 15px;">
-                <!-- Row 1: All Toggles -->
-                <div class="settings-buttons" style="margin-bottom: 12px; display: flex; align-items: center; gap: 4px;">
-                    <button type="button" id="clock-toggle-btn" class="settings-btn-item" style="flex: 1; padding: 5px 2px; font-size: 0.75rem;">Clock</button>
-                    <button type="button" id="date-toggle-btn" class="settings-btn-item" style="flex: 1; padding: 5px 2px; font-size: 0.75rem;">Date</button>
-                    <button type="button" id="day-toggle-btn" class="settings-btn-item" style="flex: 1; padding: 5px 2px; font-size: 0.75rem;">Day</button>
-                    <button type="button" id="year-toggle-btn" class="settings-btn-item" style="flex: 1; padding: 5px 2px; font-size: 0.75rem;">Year</button>
-                    <button type="button" id="battery-toggle-btn" class="settings-btn-item" style="flex: 1; padding: 5px 2px; font-size: 0.75rem;" data-i18n="btn_show_battery">Battery</button>
-                    <div style="width: 1px; height: 16px; background: var(--border-color); margin: 0 4px;"></div>
-                    <button type="button" id="theme-toggle-btn" class="settings-btn-item theme-btn-special" style="flex: 1; padding: 5px 2px; font-size: 0.75rem;" data-i18n="btn_theme_light">☀️ Light</button>
+            <div class="settings-scroll">
+            <!-- Card: Backup (top, most used) -->
+            <div class="settings-card">
+                <div class="settings-card-header" style="display: flex; align-items: center; gap: 6px;">
+                    <span>💾 Backup & Restore</span>
+                    <span class="info-icon" data-i18n-tooltip="Save which panels and bookmark folders are shown in this view, and their exact positions. This is a layout backup, not a backup of the bookmarks themselves.">ⓘ</span>
                 </div>
-
-                <!-- Row 2: Date Size & Color Pickers -->
-                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 8px; flex: 0 0 170px;">
-                        <label for="date-font-size-slider" style="margin:0; white-space: nowrap; font-size: 0.8rem;" data-i18n="label_date_size">Date:</label>
-                        <input type="range" id="date-font-size-slider" min="8" max="18" step="1" style="flex-grow: 1; cursor: pointer; min-width: 0;">
-                        <span id="date-font-size-value" style="min-width: 30px; text-align: right; font-size: 0.8rem;">11px</span>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center; margin-left: 10px;">
-                        <input type="color" id="bg-color-picker" title="Background Color" style="width: 26px; height: 26px; padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--panel-bg); cursor: pointer;">
-                        <input type="color" id="text-color-picker" title="Text Color" style="width: 26px; height: 26px; padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--panel-bg); cursor: pointer;">
-                        <input type="color" id="btn-color-picker" title="Buttons Color" style="width: 26px; height: 26px; padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--panel-bg); cursor: pointer;">
-                        <input type="color" id="border-color-picker" title="Borders/Lines Color" style="width: 26px; height: 26px; padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--panel-bg); cursor: pointer;">
-                        <input type="color" id="input-bg-color-picker" title="Input/Dropdown Background" style="width: 26px; height: 26px; padding: 2px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--panel-bg); cursor: pointer;">
-                    </div>
-                </div>
-                <!-- Row 3: Width & Font Size Sliders -->
-                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 10px;">
-                    <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
-                        <label for="header-font-size-slider" style="margin:0; white-space: nowrap; font-size: 0.8rem;" data-i18n="label_header_font_size">Titles:</label>
-                        <input type="range" id="header-font-size-slider" min="12" max="24" step="1" style="flex-grow: 1; cursor: pointer; min-width: 0;">
-                        <span id="header-font-size-value" style="min-width: 38px; text-align: right; font-size: 0.8rem; flex-shrink: 0;">15px</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px; flex: 1; margin-left: 15px;">
-                        <label for="bookmark-font-size-slider" style="margin:0; white-space: nowrap; font-size: 0.8rem;" data-i18n="label_bookmark_font_size">Text:</label>
-                        <input type="range" id="bookmark-font-size-slider" min="10" max="20" step="1" style="flex-grow: 1; cursor: pointer; min-width: 0;">
-                        <span id="bookmark-font-size-value" style="min-width: 32px; text-align: right; font-size: 0.8rem; flex-shrink: 0;">12px</span>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Section 3: Bookmarks -->
-
-
-            <!-- Section 5: Swap Content (Reduced Padding) -->
-            <div class="settings-section">
-                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; width: 100%;">
-                        <button id="swap-organizers-btn" class="settings-btn-item" style="font-size: 0.8rem;"><span data-i18n="settings_swap_btn">Swap content between</span></button>
-                        <div class="swap-controls" style="display: flex; align-items: center; gap: 5px;">
-                            <select id="swap-select-1" style="min-width: 140px;">
-                                <option value="A">Organizer A</option>
-                                <option value="B">Organizer B</option>
-                                <option value="C">Organizer C</option>
-                                <option value="D">Organizer D</option>
-                            </select>
-                            <span>><</span>
-                            <select id="swap-select-2" style="min-width: 140px;">
-                                <option value="A">Organizer A</option>
-                                <option value="B">Organizer B</option>
-                                <option value="C">Organizer C</option>
-                                <option value="D">Organizer D</option>
-                            </select>
-                        </div>
-                    </div>
-                    <p style="text-align: left; margin: 0;" data-i18n="move_panels_rightclick">Move Individual Panels by Rightclicking Panel Header&nbsp;&nbsp;&nbsp;</p>
-                </div>
-            </div>
-
-            <!-- Section 6: Data Management -->
-            <div class="settings-section">
-                <div class="data-controls"
-                    style="display: flex; align-items: center; justify-content: flex-start; gap: 15px; width: 100%;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <select id="sidebar-folder-select" style="min-flex: 0 0 170px;">
-                            <option value="" data-i18n="select_sidebar_folder">Select a Sidebar Folder</option>
-                        </select>
-                        <select id="extension-root-folder-select" style="min-flex: 0 0 170px;">
-                            <option value="">Selecteer Hoofdmap</option>
-                        </select>
-                    </div>
-                </div>
-                <div style="margin-top: 15px;">
-                    <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 6px;">
-                        <input type="checkbox" id="use-organizer-folders-toggle"> <span data-i18n="settings_toggle_folders">Maak 4 mappen in Chrome Bookmarks : Organizer A , Organizer B , Organizer C , Organizer D</span> <span class="info-icon" data-i18n-tooltip="settings_toggle_desc">ⓘ</span>
-                    </label>
-                    
+                <div class="settings-backup-row">
+                    <button type="button" id="export-data-btn" class="settings-btn-item" data-i18n="btn_export_data">📤 Export</button>
+                    <button type="button" id="import-data-btn" class="settings-btn-item" data-i18n="btn_import_data">📥 Import</button>
                 </div>
                 <input type="file" id="import-file-input" class="hidden" accept=".json">
             </div>
 
-            
-            <!-- Section: Backup & Restore Panels -->
-            <div class="settings-section" style="margin-bottom: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                <div style="font-size: 0.8rem; margin-bottom: 8px;">
-                    <strong style="color: var(--text-color);">Backup & Restore View</strong><br>
-                    <span style="opacity: 0.7;">Sla op welke panelen en bladwijzermappen er in dit venster getoond worden, en hun exacte positie. Dit is een layout-backup, geen backup van de bladwijzers zelf.</span>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <button type="button" id="export-data-btn" class="settings-btn-item" data-i18n="btn_export_data" style="font-size: 0.8rem; padding: 5px 10px;">Export Data</button>
-                    <button type="button" id="import-data-btn" class="settings-btn-item" data-i18n="btn_import_data" style="font-size: 0.8rem; padding: 5px 10px;">Import Data</button>
-                </div>
-            </div>
-
-            <!-- Section: Layouts -->
-            <div class="settings-section" style="margin-bottom: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                <div style="font-size: 0.8rem; margin-bottom: 8px;">
-                    <strong style="color: var(--text-color);">Layouts (Rij-voor-rij i.p.v. Brickwork)</strong><br>
-                </div>
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <label style="font-size: 0.8rem; cursor: pointer;"><input type="checkbox" id="layout-row-A"> A</label>
-                    <label style="font-size: 0.8rem; cursor: pointer;"><input type="checkbox" id="layout-row-B"> B</label>
-                    <label style="font-size: 0.8rem; cursor: pointer;"><input type="checkbox" id="layout-row-C"> C</label>
-                    <label style="font-size: 0.8rem; cursor: pointer;"><input type="checkbox" id="layout-row-D"> D</label>
+            <!-- Card: Display -->
+            <div class="settings-card">
+                <div class="settings-card-header">🖥️ Display</div>
+                <div class="settings-toggles-row">
+                    <button type="button" id="clock-toggle-btn" class="settings-toggle-btn" data-i18n="btn_show_clock">🕐 Clock</button>
+                    <button type="button" id="date-toggle-btn" class="settings-toggle-btn" data-i18n="btn_show_date">📅 Date</button>
+                    <button type="button" id="day-toggle-btn" class="settings-toggle-btn" data-i18n="btn_show_day">📆 Day</button>
+                    <button type="button" id="year-toggle-btn" class="settings-toggle-btn" data-i18n="btn_show_year">📋 Year</button>
+                    <button type="button" id="battery-toggle-btn" class="settings-toggle-btn" data-i18n="btn_show_battery">🔋 Battery</button>
+                    <div class="settings-toggle-divider"></div>
+                    <button type="button" id="theme-toggle-btn" class="settings-toggle-btn theme-btn-special" data-i18n="btn_theme_light">☀️ Light</button>
                 </div>
             </div>
 
-            <div class="settings-footer" style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="startup-options">
-                    <span data-i18n="label_on_startup">on startup:</span>
-                    <label>
-                        <input type="checkbox" id="startup-check-A"> A
+            <!-- Section: Colors & Fonts -->
+            <div class="settings-card">
+                <div class="settings-card-header">🎨 Colors & Fonts</div>
+                <div class="settings-slider-row">
+                    <div class="settings-slider-group">
+                        <label for="date-font-size-slider">📏 Date size</label>
+                        <div class="settings-slider-control">
+                            <input type="range" id="date-font-size-slider" min="8" max="18" step="1">
+                            <span id="date-font-size-value">11px</span>
+                        </div>
+                    </div>
+                    <div class="settings-slider-group">
+                        <label for="header-font-size-slider">📏 Titles</label>
+                        <div class="settings-slider-control">
+                            <input type="range" id="header-font-size-slider" min="12" max="24" step="1">
+                            <span id="header-font-size-value">15px</span>
+                        </div>
+                    </div>
+                    <div class="settings-slider-group">
+                        <label for="bookmark-font-size-slider">📏 Text</label>
+                        <div class="settings-slider-control">
+                            <input type="range" id="bookmark-font-size-slider" min="10" max="20" step="1">
+                            <span id="bookmark-font-size-value">12px</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-color-row">
+                    <label class="settings-color-label" title="Background">
+                        <span>Background</span>
+                        <input type="color" id="bg-color-picker">
                     </label>
-                    <label>
-                        <input type="checkbox" id="startup-check-B"> B
+                    <label class="settings-color-label" title="Text">
+                        <span>Text</span>
+                        <input type="color" id="text-color-picker">
                     </label>
-                    <label>
-                        <input type="checkbox" id="startup-check-C"> C
+                    <label class="settings-color-label" title="Buttons">
+                        <span>Buttons</span>
+                        <input type="color" id="btn-color-picker">
                     </label>
-                    <label>
-                        <input type="checkbox" id="startup-check-D"> D
+                    <label class="settings-color-label" title="Borders">
+                        <span>Borders</span>
+                        <input type="color" id="border-color-picker">
+                    </label>
+                    <label class="settings-color-label" title="Inputs">
+                        <span>Inputs</span>
+                        <input type="color" id="input-bg-color-picker">
                     </label>
                 </div>
-                <select id="language-select" class="settings-select" style="width: 85px; padding: 4px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-color); font-size: 0.8rem;">
+            </div>
+
+            <!-- Section: Layouts & Startup -->
+            <div class="settings-card">
+                <div class="settings-card-header">🧩 Layout & Startup</div>
+                <div class="settings-startup-row">
+                    <span class="settings-label">On startup:</span>
+                    <label><input type="checkbox" id="startup-check-A"> A</label>
+                    <label><input type="checkbox" id="startup-check-B"> B</label>
+                    <label><input type="checkbox" id="startup-check-C"> C</label>
+                    <label><input type="checkbox" id="startup-check-D"> D</label>
+                </div>
+                <div class="settings-setting-row">
+                    <span class="settings-label">Row layout:</span>
+                    <label><input type="checkbox" id="layout-row-A"> A</label>
+                    <label><input type="checkbox" id="layout-row-B"> B</label>
+                    <label><input type="checkbox" id="layout-row-C"> C</label>
+                    <label><input type="checkbox" id="layout-row-D"> D</label>
+                </div>
+                <div class="settings-last-row">
+                    <span class="settings-label">Language:</span>
+                    <select id="language-select" class="settings-select">
                         <option value="auto" data-i18n="settings_language_auto">Auto</option>
                         <option value="en">English</option>
                         <option value="nl">Nederlands</option>
@@ -200,6 +161,53 @@
                         <option value="es">Español</option>
                         <option value="pt">Português</option>
                     </select>
+                </div>
+            </div>
+
+            <!-- Section: Bookmarks -->
+            <div class="settings-card">
+                <div class="settings-card-header">📂 Bookmarks</div>
+                <div class="settings-folders-row">
+                    <select id="sidebar-folder-select">
+                        <option value="">Sidebar folder</option>
+                    </select>
+                    <select id="extension-root-folder-select">
+                        <option value="">Root folder</option>
+                    </select>
+                </div>
+                <label class="settings-checkbox-label">
+                    <input type="checkbox" id="use-organizer-folders-toggle">
+                    <span data-i18n="settings_toggle_folders">📁 Use Organizer folders (A–D)</span>
+                    <span class="info-icon" data-i18n-tooltip="settings_toggle_desc">ⓘ</span>
+                </label>
+            </div>
+
+            <!-- Section: Swap Organizers -->
+            <div class="settings-card">
+                <div class="settings-card-header">🔀 Swap Organizers</div>
+                <div class="settings-swap-row">
+                    <select id="swap-select-1">
+                        <option value="A">Organizer A</option>
+                        <option value="B">Organizer B</option>
+                        <option value="C">Organizer C</option>
+                        <option value="D">Organizer D</option>
+                    </select>
+                    <span class="settings-swap-arrow">⇄</span>
+                    <select id="swap-select-2">
+                        <option value="A">Organizer A</option>
+                        <option value="B">Organizer B</option>
+                        <option value="C">Organizer C</option>
+                        <option value="D">Organizer D</option>
+                    </select>
+                    <button type="button" id="swap-organizers-btn" class="settings-btn-item">Swap</button>
+                </div>
+                <p class="settings-hint" data-i18n="move_panels_rightclick">💡 Right-click a panel title to move it individually</p>
+            </div>
+
+            <div class="settings-footer">
+                <button id="save-settings-btn" class="settings-save-btn">Save Settings</button>
+                <button id="close-settings-btn" class="settings-cancel-btn">Cancel</button>
+            </div>
             </div>
         </div>
 

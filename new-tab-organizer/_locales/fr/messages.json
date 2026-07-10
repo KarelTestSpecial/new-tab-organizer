@@ -44,14 +44,17 @@
   "settings_folders": {
     "message": "Dossiers & Synchronisation"
   },
+  "select_root_folder": {
+    "message": "Sélectionner le dossier racine"
+  },
   "settings_root_folder": {
     "message": "Où voulez-vous que nous placions les dossiers Organizer ?"
   },
   "settings_toggle_folders": {
-    "message": "Créer 4 dossiers dans les favoris Chrome : Organizer A, Organizer B, Organizer C, Organizer D"
+    "message": "Gérer les dossiers Organizer (A–D) + dossier Sidebar dans les favoris Chrome"
   },
   "settings_toggle_desc": {
-    "message": "Si désactivé, le déplacement automatique s'arrête. Les dossiers existants dans Chrome sont conservés."
+    "message": "Contrôle le placement automatique des 4 dossiers Organizer (A–D) et de votre dossier Sidebar dans Chrome. Les dossiers existants sont conservés lorsqu'ils sont désactivés."
   },
   "settings_swap": {
     "message": "Échanger les Organizers"
@@ -76,6 +79,12 @@
   },
   "add_bookmark_title": {
     "message": "Ajouter un Panneau de Favoris"
+  },
+  "add_bookmark_folder_info": {
+    "message": "Activez cette option pour organiser physiquement vos favoris dans 4 dossiers fixes (Organizer A, B, C, D) dans Chrome. Votre dossier Sidebar sera également placé dans le même dossier racine. Lors de la création de nouveaux dossiers ou de l'importation de dossiers existants, ils seront automatiquement placés dans le dossier racine correct. Si ces dossiers n'existent pas encore, ils seront créés immédiatement lors de l'activation. (voir le panneau des paramètres)"
+  },
+  "label_use_organizer": {
+    "message": "Dossiers Organizer + Sidebar dans les favoris Chrome"
   },
   "add_bookmark_new_folder": {
     "message": "Créer un nouveau dossier"

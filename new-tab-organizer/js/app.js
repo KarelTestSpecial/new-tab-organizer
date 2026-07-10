@@ -120,6 +120,42 @@ window.ensureOrganizerFolders = function(rootId, callback) {
     });
 };
 
+window.ensureSidebarFolder = function(rootId, settingsObj, callback) {
+    const findOrCreateSidebar = () => {
+        const lang = settingsObj.language || 'auto';
+        let activeLang = lang;
+        if (activeLang === 'auto') {
+            const uiLang = chrome.i18n.getUILanguage();
+            activeLang = uiLang ? uiLang.split('-')[0].toLowerCase() : 'en';
+        }
+        const folderName = activeLang === 'nl' ? 'Zijbalk' : 'Sidebar';
+        chrome.bookmarks.create({ parentId: rootId, title: folderName }, (newFolder) => {
+            if (!chrome.runtime.lastError && newFolder) {
+                settingsObj.sidebarFolderId = newFolder.id;
+            }
+            if (callback) callback();
+        });
+    };
+
+    const sidebarId = settingsObj.sidebarFolderId;
+    if (!sidebarId) {
+        findOrCreateSidebar();
+        return;
+    }
+
+    chrome.bookmarks.get(sidebarId, (results) => {
+        if (chrome.runtime.lastError || !results || !results[0]) {
+            findOrCreateSidebar();
+        } else if (results[0].parentId !== rootId) {
+            chrome.bookmarks.move(sidebarId, { parentId: rootId }, () => {
+                if (callback) callback();
+            });
+        } else {
+            if (callback) callback();
+        }
+    });
+};
+
 document.addEventListener('i18nReady', () => {
     // --- Organizer Folders Upgrade Logic ---
     chrome.storage.local.get(['foldersUpgradeDone', 'settings'], (data) => {
@@ -230,10 +266,12 @@ document.addEventListener('i18nReady', () => {
                             chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
                                 // Smart folder ensure/move
                                 window.ensureOrganizerFolders(selectedRoot, () => {
-                                    upgradeModal.classList.add('hidden');
-                                    if (window.populateBookmarkFolderDropdown) {
-                                        window.populateBookmarkFolderDropdown(); // Refresh UI
-                                    }
+                                    window.ensureSidebarFolder(selectedRoot, settings, () => {
+                                        upgradeModal.classList.add('hidden');
+                                        if (window.populateBookmarkFolderDropdown) {
+                                            window.populateBookmarkFolderDropdown(); // Refresh UI
+                                        }
+                                    });
                                 });
                             });
                         };
@@ -397,10 +435,18 @@ document.addEventListener('i18nReady', () => {
     }
 
     function populateBookmarkFolderDropdown() {
-        chrome.storage.local.get('settings', (data) => {
+        chrome.storage.local.get(['settings', STORAGE_KEY], (data) => {
             const settings = data.settings || {};
-            // Default to '1' (Bookmark Bar) if not set
             const targetRootId = settings.rootFolderId || '1';
+
+            const existingPanels = data[STORAGE_KEY] || [];
+            const usedFolderIds = new Set();
+            existingPanels.forEach(panel => {
+                if (panel.type === 'bookmarks' && panel.folderId) {
+                    usedFolderIds.add(panel.folderId);
+                }
+            });
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
 
             function getFoldersRecursive(parentId, depth, callback) {
                 chrome.bookmarks.getSubTree(parentId, (results) => {
@@ -429,12 +475,23 @@ document.addEventListener('i18nReady', () => {
 
             getFoldersRecursive(targetRootId, 0, folders => {
                 panelFolderSelect.innerHTML = '<option value="">' + I18N.getMessage('select_folders_prompt') + '</option>';
+                const organizerNames = new Set(['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D']);
+                const skipIds = new Set();
+                if (settings.sidebarFolderId) skipIds.add(settings.sidebarFolderId);
                 folders.forEach(folder => {
+                    if (skipIds.has(folder.id)) return;
                     const option = document.createElement('option');
                     option.value = folder.id;
-                    // Use \u00A0 (non-breaking space) for indentation
                     const indent = '\u00A0'.repeat(folder.depth * 4);
-                    option.textContent = indent + folder.title;
+                    const alreadyAdded = usedFolderIds.has(folder.id);
+                    const isOrganizer = organizerNames.has(folder.title);
+                    option.textContent = indent + folder.title + (isOrganizer ? '' : '') + (alreadyAdded && !isOrganizer ? ' ✓' : '');
+                    if (alreadyAdded && !isOrganizer) {
+                        option.style.color = isDark ? '#999' : '#888';
+                    }
+                    if (isOrganizer) {
+                        option.dataset.isOrganizer = 'true';
+                    }
                     panelFolderSelect.appendChild(option);
                 });
             });
@@ -511,12 +568,12 @@ document.addEventListener('i18nReady', () => {
                     if (confirmed) {
                         settings.useOrganizerFolders = true;
                         window.ensureOrganizerFolders(rootId, () => {
-                            // Mark upgrade modal as done so it doesn't show up again
-                            chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
-                                // Sync the settings panel toggle if it's currently open/exists
-                                const panelToggle = document.getElementById('use-organizer-folders-toggle');
-                                if (panelToggle) panelToggle.checked = true;
-                                if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
+                            window.ensureSidebarFolder(rootId, settings, () => {
+                                chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
+                                    const panelToggle = document.getElementById('use-organizer-folders-toggle');
+                                    if (panelToggle) panelToggle.checked = true;
+                                    if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
+                                });
                             });
                         });
                     } else {
@@ -732,6 +789,12 @@ document.addEventListener('i18nReady', () => {
 
             const selectedOptions = Array.from(panelFolderSelect.selectedOptions);
             const folderIds = selectedOptions.map(opt => opt.value).filter(val => val !== "");
+
+            const hasOrganizer = selectedOptions.some(opt => opt.dataset.isOrganizer === 'true');
+            if (hasOrganizer) {
+                alert('Organizer folders cannot be added as bookmark panels. Select them only for sorting.');
+                return;
+            }
 
             if (folderIds.length === 0) {
                 alert(I18N.getMessage('alert_select_one_folder'));

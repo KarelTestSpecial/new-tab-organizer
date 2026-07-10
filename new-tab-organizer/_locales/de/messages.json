@@ -44,14 +44,17 @@
   "settings_folders": {
     "message": "Ordner & Synchronisation"
   },
+  "select_root_folder": {
+    "message": "Hauptordner auswählen"
+  },
   "settings_root_folder": {
     "message": "Wo sollen die Organizer-Ordner abgelegt werden?"
   },
   "settings_toggle_folders": {
-    "message": "Erstellen Sie 4 Ordner in Chrome-Lesezeichen: Organizer A, Organizer B, Organizer C, Organizer D"
+    "message": "Organizer-Ordner (A–D) + Sidebar-Ordner in Chrome-Lesezeichen verwalten"
   },
   "settings_toggle_desc": {
-    "message": "Wenn diese Option deaktiviert ist, wird das automatische Verschieben gestoppt. Bestehende Ordner in Chrome bleiben erhalten."
+    "message": "Steuert die automatische Platzierung der 4 Organizer-Ordner (A–D) und Ihres Sidebar-Ordners in Chrome. Bestehende Ordner bleiben beim Deaktivieren erhalten."
   },
   "settings_swap": {
     "message": "Organizer Tauschen"
@@ -76,6 +79,12 @@
   },
   "add_bookmark_title": {
     "message": "Neues Lesezeichen-Panel Hinzufügen"
+  },
+  "add_bookmark_folder_info": {
+    "message": "Aktivieren Sie diese Option, um Ihre Lesezeichen physisch in 4 festgelegten Ordnern (Organizer A, B, C, D) in Chrome zu organisieren. Ihr Sidebar-Ordner wird ebenfalls im selben Hauptordner platziert. Beim Erstellen neuer Ordner oder beim Importieren vorhandener Ordner werden diese automatisch im richtigen Hauptordner abgelegt. Falls diese Ordner noch nicht existieren, werden sie bei der Aktivierung sofort erstellt. (siehe Einstellungen)"
+  },
+  "label_use_organizer": {
+    "message": "Organizer-Ordner + Sidebar in Chrome-Lesezeichen"
   },
   "add_bookmark_new_folder": {
     "message": "Neuen Ordner erstellen"

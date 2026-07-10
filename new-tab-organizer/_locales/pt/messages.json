@@ -44,14 +44,17 @@
   "settings_folders": {
     "message": "Pastas e Sincronização"
   },
+  "select_root_folder": {
+    "message": "Selecionar pasta raiz"
+  },
   "settings_root_folder": {
     "message": "Onde você deseja que coloquemos as pastas do Organizer?"
   },
   "settings_toggle_folders": {
-    "message": "Criar 4 pastas nos Favoritos do Chrome: Organizer A, Organizer B, Organizer C, Organizer D"
+    "message": "Gerenciar pastas Organizer (A–D) + pasta Sidebar nos Favoritos do Chrome"
   },
   "settings_toggle_desc": {
-    "message": "Se desativado, o movimento automático é interrompido. As pastas existentes no Chrome são preservadas."
+    "message": "Controla o posicionamento automático das 4 pastas Organizer (A–D) e sua pasta Sidebar no Chrome. As pastas existentes são preservadas quando desativadas."
   },
   "settings_swap": {
     "message": "Trocar Organizers"
@@ -76,6 +79,12 @@
   },
   "add_bookmark_title": {
     "message": "Adicionar Painel de Favoritos"
+  },
+  "add_bookmark_folder_info": {
+    "message": "Ative esta opção para organizar fisicamente seus favoritos em 4 pastas fixas (Organizer A, B, C, D) no Chrome. Sua pasta Sidebar também será colocada na mesma pasta raiz. Tanto ao criar novas pastas quanto ao importar pastas existentes, elas serão automaticamente colocadas na pasta raiz correta. Se essas pastas ainda não existirem, elas serão criadas imediatamente ao serem ativadas. (veja o painel de configurações)"
+  },
+  "label_use_organizer": {
+    "message": "Pastas Organizer + Sidebar nos Favoritos do Chrome"
   },
   "add_bookmark_new_folder": {
     "message": "Criar Nova Pasta"

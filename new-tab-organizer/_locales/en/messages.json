@@ -53,10 +53,10 @@
     "message": "Where should the Organizer folders be placed?"
   },
   "settings_toggle_folders": {
-    "message": "Create 4 folders in Chrome Bookmarks : Organizer A, Organizer B, Organizer C, Organizer D"
+    "message": "Manage Organizer folders (A–D) + Sidebar folder in Chrome Bookmarks"
   },
   "settings_toggle_desc": {
-    "message": "If turned off, automatic moving stops. Existing folders in Chrome are preserved."
+    "message": "Controls automatic placement of the 4 Organizer folders (A–D) and your Sidebar folder in Chrome. Existing folders are preserved when turned off."
   },
   "settings_swap": {
     "message": "Swap Organizers"
@@ -83,10 +83,10 @@
     "message": "Add New Bookmark Panel"
   },
   "add_bookmark_folder_info": {
-    "message": "Enable this to physically organize your bookmarks into 4 fixed folders (Organizer A, B, C, D) in Chrome. Both when creating new folders and importing existing ones, they will be automatically placed in the correct root folder. If these folders don't exist yet, they will be created immediately upon activation. (see settings panel)"
+    "message": "Enable this to physically organize your bookmarks into 4 fixed folders (Organizer A, B, C, D) in Chrome. Your Sidebar folder will also be placed in the same root folder. Both when creating new folders and importing existing ones, they will be automatically placed in the correct root folder. If these folders don't exist yet, they will be created immediately upon activation. (see settings panel)"
   },
   "label_use_organizer": {
-    "message": "4 folders in Chrome Bookmarks"
+    "message": "Organizer folders + Sidebar in Chrome Bookmarks"
   },
   "add_bookmark_new_folder": {
     "message": "Create New Folder"
