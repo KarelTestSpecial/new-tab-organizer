@@ -1641,9 +1641,16 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                         <button class="cancel-edit-btn">Cancel</button>
                     </div>
                 `;
-                item.querySelector('.save-bookmark-btn').addEventListener('click', () => {
-                    const newTitle = item.querySelector('.edit-title').value.trim();
-                    const newUrl = item.querySelector('.edit-url').value.trim();
+                const titleInput = item.querySelector('.edit-title');
+                const urlInput = item.querySelector('.edit-url');
+                const saveBtn = item.querySelector('.save-bookmark-btn');
+                const cancelBtn = item.querySelector('.cancel-edit-btn');
+
+                const saveBookmarkChanges = () => {
+                    const newTitle = titleInput.value.trim();
+                    const newUrl = urlInput.value.trim();
+                    titleInput.blur();
+                    urlInput.blur();
                     if (newTitle && newUrl) {
                         updateBookmark(bookmark.id, { title: newTitle, url: newUrl }, () => {
                             if (parentPanel) {
@@ -1661,15 +1668,36 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                         }
                         if (refreshCallback) refreshCallback();
                     }
-                });
-                item.querySelector('.cancel-edit-btn').addEventListener('click', () => {
+                };
+
+                const cancelBookmarkEdit = () => {
+                    titleInput.blur();
+                    urlInput.blur();
                     if (parentPanel) {
                         parentPanel.classList.remove('editing');
                     } else {
                         item.classList.remove('sidebar-editing');
                     }
                     if (refreshCallback) refreshCallback();
-                });
+                };
+
+                saveBtn.addEventListener('click', saveBookmarkChanges);
+                cancelBtn.addEventListener('click', cancelBookmarkEdit);
+
+                const handleKeyDown = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        saveBookmarkChanges();
+                    } else if (e.key === 'Escape') {
+                        e.preventDefault();
+                        cancelBookmarkEdit();
+                    }
+                };
+
+                titleInput.addEventListener('keydown', handleKeyDown);
+                urlInput.addEventListener('keydown', handleKeyDown);
+                titleInput.focus();
+                titleInput.select();
             });
             actions.appendChild(editButton);
 
