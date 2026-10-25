@@ -788,6 +788,11 @@ body {
     filter: brightness(95%);
 }
 
+.settings-btn-item:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+}
+
 .data-buttons {
     display: flex;
     gap: 10px;

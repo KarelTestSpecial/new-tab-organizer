@@ -529,6 +529,11 @@ document.addEventListener('i18nReady', () => {
             notesForm.elements['notes-position'].value = position;
         });
         addNotesModal.classList.remove('hidden');
+        // Focus the Create button so user can immediately press Enter
+        const notesSubmitBtn = document.querySelector('#add-notes-panel-form button[type="submit"]');
+        if (notesSubmitBtn) {
+            setTimeout(() => notesSubmitBtn.focus(), 10);
+        }
     });
 
     document.getElementById('add-bookmarks-panel-btn').addEventListener('click', () => {
@@ -595,6 +600,17 @@ document.addEventListener('i18nReady', () => {
     const createNewFolderBtn = document.getElementById('create-new-bookmark-folder-btn');
     const newFolderNameInput = document.getElementById('new-bookmark-folder-name');
 
+    // Global variable to track the last active panel folder
+    window.lastActivePanelFolderId = null;
+
+    // Track clicks on panels to update the active folder
+    document.addEventListener('click', (e) => {
+        const panel = e.target.closest('.panel');
+        if (panel && panel.dataset.type === 'bookmarks' && panel.dataset.folderId) {
+            window.lastActivePanelFolderId = panel.dataset.folderId;
+        }
+    });
+
     if (createNewFolderBtn && newFolderNameInput) {
         createNewFolderBtn.addEventListener('click', () => {
             const folderName = newFolderNameInput.value.trim();
@@ -630,47 +646,72 @@ document.addEventListener('i18nReady', () => {
                         addPanelToContainer(panelEl, position);
                         if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
                         
+                        // Sort the parent folder alphabetically after creating the new folder
+                        chrome.storage.local.get('settings', (data) => {
+                            const settings = data.settings || {};
+                            const sortOptions = {
+                                recursive: false,
+                                sortOrder: settings.sortOrder || 'foldersFirst',
+                                sortBookmarks: true
+                            };
+                            if (typeof sortBookmarksInFolder === 'function') {
+                                sortBookmarksInFolder(parentId, sortOptions, () => {
+                                    // Refresh the folder dropdown to show the new order
+                                    if (window.populateBookmarkFolderDropdown) {
+                                        window.populateBookmarkFolderDropdown();
+                                    }
+                                });
+                            }
+                        });
+                        
                         // Don't close modal, just clear input
                         newFolderNameInput.value = '';
                     });
                 };
 
-                if (isFoldersEnabled) {
-                    const destFolderName = `Organizer ${CURRENT_VIEW}`;
-                    chrome.bookmarks.search({ title: destFolderName }, (results) => {
-                        if (chrome.runtime.lastError) {
-                            createFolderAndPanel(baseRootId);
-                            return;
-                        }
-                        
-                        const folders = (results || []).filter(r => !r.url);
-                        
-                        // 1. Try to find exact match under the current baseRootId
-                        let destFolder = folders.find(f => f.title.trim() === destFolderName && f.parentId === baseRootId);
-                        
-                        // 2. If not found, try to find any folder that matches the name exactly (global search)
-                        if (!destFolder) {
-                            destFolder = folders.find(f => f.title.trim() === destFolderName);
-                        }
-                        
-                        if (destFolder) {
-                            createFolderAndPanel(destFolder.id);
-                        } else {
-                            // 3. Fallback: manual check of immediate children (search can sometimes be delayed)
-                            chrome.bookmarks.getChildren(baseRootId, (children) => {
-                                const manualMatch = (children || []).find(c => !c.url && c.title.trim() === destFolderName);
-                                if (manualMatch) {
-                                    createFolderAndPanel(manualMatch.id);
-                                } else {
-                                    // 4. Final fallback: use the root
-                                    createFolderAndPanel(baseRootId);
-                                }
-                            });
-                        }
-                    });
-                } else {
-                    createFolderAndPanel(baseRootId);
+                // Determine parent folder for new bookmark folder
+                
+                // 1. First priority: if user clicked on a bookmark panel, use that folder
+                if (window.lastActivePanelFolderId) {
+                    createFolderAndPanel(window.lastActivePanelFolderId);
+                    return;
                 }
+                
+                // 2. Second priority: try to find or create the Organizer folder for current view
+                const destFolderName = `Organizer ${CURRENT_VIEW}`;
+                
+                // First try to find existing Organizer folder
+                chrome.bookmarks.search({ title: destFolderName }, (results) => {
+                    if (chrome.runtime.lastError) {
+                        createFolderAndPanel(baseRootId);
+                        return;
+                    }
+                    
+                    const folders = (results || []).filter(r => !r.url);
+                    
+                    // Try to find exact match under the current baseRootId
+                    let destFolder = folders.find(f => f.title.trim() === destFolderName && f.parentId === baseRootId);
+                    
+                    // If not found, try to find any folder that matches the name exactly
+                    if (!destFolder) {
+                        destFolder = folders.find(f => f.title.trim() === destFolderName);
+                    }
+                    
+                    if (destFolder) {
+                        createFolderAndPanel(destFolder.id);
+                    } else {
+                        // Organizer folder doesn't exist - create it and then create the new folder inside
+                        chrome.bookmarks.create({ parentId: baseRootId, title: destFolderName }, (newOrganizerFolder) => {
+                            if (chrome.runtime.lastError) {
+                                // If we can't create Organizer folder, fallback to baseRootId
+                                createFolderAndPanel(baseRootId);
+                                return;
+                            }
+                            // Now create the user's new folder inside the newly created Organizer folder
+                            createFolderAndPanel(newOrganizerFolder.id);
+                        });
+                    }
+                });
             });
         });
     }
