@@ -29,6 +29,18 @@ let SHIM = testSource.slice(
     testSource.indexOf('`;\n\ntry {')
 );
 
+// Count change listeners on the organizer-count select.
+SHIM = SHIM.replace(
+    'const store = (() => {',
+    `const __origAdd = EventTarget.prototype.addEventListener;
+window.__listenerLog = [];
+EventTarget.prototype.addEventListener = function (type, fn, options) {
+    if (this && this.id === 'organizer-count-select' && type === 'change') window.__listenerLog.push(1);
+    return __origAdd.call(this, type, fn, options);
+};
+const store = (() => {`
+);
+
 // Real onChanged emitter.
 SHIM = SHIM.replace(
     'storage: { local, onChanged: { addListener() {} } },',
@@ -200,6 +212,19 @@ try {
     check('the colour previews live', color.liveVar === '#123456', color.liveVar);
     check('one change event writes once', color.writesAfterChange === 1, color.writesAfterChange);
     check('the colour is persisted', color.stored === '#123456', color.stored);
+
+    // --- 6. Reopening Settings must not stack the organizer-count listener ---
+    const listeners = await evaluate(send, `
+        for (let i = 0; i < 5; i++) {
+            document.getElementById('settings-btn').click();
+            await new Promise((r) => setTimeout(r, 150));
+            document.getElementById('close-settings-btn').click();
+            await new Promise((r) => setTimeout(r, 150));
+        }
+        return window.__listenerLog.length;
+    `);
+    check('reopening Settings does not stack the organizer-count listener',
+        listeners === 1, listeners);
 
     ws.close();
 } catch (e) {

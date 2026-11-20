@@ -187,6 +187,15 @@ function createPanel(panelState, onStateChange) {
         menu.style.left = `${x}px`;
         document.body.appendChild(menu);
 
+        // Keep the menu on screen; the ⋮ button often sits near the right edge.
+        const rect = menu.getBoundingClientRect();
+        if (rect.right > window.innerWidth) {
+            menu.style.left = `${Math.max(4, window.innerWidth - rect.width - 4)}px`;
+        }
+        if (rect.bottom > window.innerHeight) {
+            menu.style.top = `${Math.max(4, window.innerHeight - rect.height - 4)}px`;
+        }
+
         const onMenuKey = (e) => {
             if (e.key === 'Escape') {
                 e.preventDefault();

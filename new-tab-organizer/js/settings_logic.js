@@ -612,26 +612,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderOrganizerSettingsControls(getOrganizerViews(), currentSettings);
             renderOrderingControls(getOrganizerViews(), currentSettings);
 
-            if (organizerCountSelect) {
-                organizerCountSelect.addEventListener('change', () => {
-                    const nextCount = parseInt(organizerCountSelect.value, 10);
-                    chrome.storage.local.get('settings', (data) => {
-                        const settings = data.settings || {};
-                        settings.organizerCount = nextCount;
-
-                        const views = getOrganizerViewsForCount(nextCount);
-                        const startupViews = views.map((view, index) => startupSettingValue(settings, index));
-                        const rowLayoutViews = views.map((view) => rowLayoutSettingValue(settings, view));
-                        settings.startupViews = startupViews;
-                        settings.rowLayoutViews = rowLayoutViews;
-                        writeViewSetting(settings, 'startup', startupViews);
-                        writeViewSetting(settings, 'layoutRow', rowLayoutViews);
-
-                        chrome.storage.local.set({ settings: settings }, () => location.reload());
-                    });
-                });
-            }
-
             // The checkbox listeners are bound by renderOrganizerSettingsControls,
             // which calls this handler once per change. Binding them again here
             // would save twice and the first save would overwrite the second.
@@ -676,6 +656,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (saveBtn) saveBtn.addEventListener('click', () => saveSettings(true));
+
+    // Bound once. This used to live inside loadSettings(), which runs every
+    // time the panel opens or closes, so the select collected a new change
+    // listener on every visit.
+    if (organizerCountSelect) {
+        organizerCountSelect.addEventListener('change', () => {
+            const nextCount = parseInt(organizerCountSelect.value, 10);
+            chrome.storage.local.get('settings', (data) => {
+                const settings = data.settings || {};
+                settings.organizerCount = nextCount;
+
+                const views = getOrganizerViewsForCount(nextCount);
+                const startupViews = views.map((view, index) => startupSettingValue(settings, index));
+                const rowLayoutViews = views.map((view) => rowLayoutSettingValue(settings, view));
+                settings.startupViews = startupViews;
+                settings.rowLayoutViews = rowLayoutViews;
+                writeViewSetting(settings, 'startup', startupViews);
+                writeViewSetting(settings, 'layoutRow', rowLayoutViews);
+
+                chrome.storage.local.set({ settings: settings }, () => location.reload());
+            });
+        });
+    }
 
     const exportBtn = document.getElementById('export-data-btn');
     const importBtn = document.getElementById('import-data-btn');
