@@ -257,6 +257,14 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
         if (sidebarFolderPicker) sidebarFolderPicker.setValue(next);
     }
 
+    // One setting, two checkboxes: the settings panel and the add-bookmark modal
+    // both show it. Keeping them in sync from one place stops them drifting apart.
+    window.syncUseOrganizerFolders = function (value) {
+        const checked = Boolean(value);
+        tempSettings.useOrganizerFolders = checked;
+        if (useOrganizerFoldersToggle) useOrganizerFoldersToggle.checked = checked;
+    };
+
     // --- Ordering -----------------------------------------------------------
     function fillOrderingSelect(select) {
         if (!select || select.options.length) return;
@@ -557,6 +565,11 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             };
 
             updateButtonText();
+            // The checkbox used to keep whatever DOM state it had, so after a
+            // reload it showed unchecked even when the setting was on.
+            if (useOrganizerFoldersToggle) {
+                useOrganizerFoldersToggle.checked = Boolean(tempSettings.useOrganizerFolders);
+            }
             setSidebarFolderValue(tempSettings.sidebarFolderId);
             extensionRootFolderSelect.value = tempSettings.rootFolderId;
             updateCheckboxText();

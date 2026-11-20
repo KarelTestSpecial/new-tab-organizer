@@ -275,6 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Save new root and mark upgrade as done
                             settings.rootFolderId = selectedRoot;
                             settings.useOrganizerFolders = true;
+                            if (window.syncUseOrganizerFolders) window.syncUseOrganizerFolders(true);
                             chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
                                 // Smart folder ensure/move
                                 window.ensureOrganizerFolders(selectedRoot, () => {
@@ -609,8 +610,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         window.ensureOrganizerFolders(rootId, () => {
                             window.ensureSidebarFolder(rootId, settings, () => {
                                 chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
-                                    const panelToggle = document.getElementById('use-organizer-folders-toggle');
-                                    if (panelToggle) panelToggle.checked = true;
+                                    if (window.syncUseOrganizerFolders) window.syncUseOrganizerFolders(true);
                                     if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
                                 });
                             });
@@ -623,8 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert("Automatic folder moving is disabled. Your existing Organizer folders have NOT been removed.");
                     settings.useOrganizerFolders = false;
                     chrome.storage.local.set({ settings: settings }, () => {
-                        const panelToggle = document.getElementById('use-organizer-folders-toggle');
-                        if (panelToggle) panelToggle.checked = false;
+                        if (window.syncUseOrganizerFolders) window.syncUseOrganizerFolders(false);
                     });
                 }
             });
