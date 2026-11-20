@@ -837,6 +837,163 @@ body {
     opacity: 0.6;
 }
 
+/* --- Multi-select variant (add-bookmark modal) --- */
+.folder-picker-row-multi {
+    align-items: center;
+}
+
+.folder-picker-check {
+    flex: 0 0 auto;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 3px;
+    background: var(--input-bg);
+    position: relative;
+}
+
+.folder-picker-row.is-checked .folder-picker-check {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.folder-picker-row.is-checked .folder-picker-check::after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid #ffffff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.folder-picker-row.is-checked .folder-picker-row-title {
+    font-weight: 600;
+}
+
+.folder-picker-used {
+    margin-left: auto;
+    font-size: 0.72rem;
+    color: var(--primary-color);
+}
+
+/* --- Add-bookmark modal layout --- */
+#add-bookmarks-panel-modal .modal-content {
+    max-height: 88vh;
+    overflow-y: auto;
+}
+
+.modal-inline-row {
+    display: flex;
+    gap: 8px;
+}
+
+.modal-inline-row input {
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-import-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 12px;
+}
+
+.modal-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.modal-advanced {
+    margin-top: 14px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 10px;
+}
+
+.modal-advanced summary {
+    cursor: pointer;
+    font-size: 0.8rem;
+    opacity: 0.75;
+}
+
+.modal-advanced-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding-top: 10px;
+}
+
+/* --- Ordering settings --- */
+.settings-ordering-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.settings-ordering-row .settings-label {
+    min-width: 110px;
+}
+
+.settings-ordering-head {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr;
+    gap: 8px;
+    font-size: 0.72rem;
+    opacity: 0.6;
+    margin-bottom: 4px;
+}
+
+.settings-ordering-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.settings-ordering-grid-row {
+    display: grid;
+    grid-template-columns: 28px 1fr 1fr;
+    gap: 8px;
+    align-items: center;
+}
+
+.ordering-letter {
+    font-weight: 600;
+    text-align: center;
+}
+
+.ordering-select {
+    width: 100%;
+}
+
+/* --- Sidebar sorted badge --- */
+.order-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: var(--accent-color);
+    font-size: 0.65rem;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+#sidebar-bookmarks.order-alphabetical .bookmark-item {
+    cursor: default;
+}
+
+/* Alphabetical panel order: no drag handle, because a drop would be undone. */
+body.panels-alphabetical .drag-handle {
+    display: none;
+}
+
 .settings-checkbox-label {
     display: flex;
     align-items: center;

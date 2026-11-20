@@ -373,6 +373,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 chrome.storage.local.set(imagesToSaveLocally);
             }
 
+            // The DOM can be showing an alphabetical view while the stored order
+            // is the user's own. Saving the DOM order would silently replace it,
+            // so switching back to Manual would lose the original order.
+            if (window.ORDERING && window.ORDERING.panelsPolicy(window.__orderingSettings || {}, CURRENT_VIEW) === window.ORDERING.ALPHABETICAL) {
+                const orderMap = new Map(existingPanels.map((panel, index) => [panel.id, index]));
+                panels.sort((a, b) => {
+                    const ai = orderMap.has(a.id) ? orderMap.get(a.id) : Number.MAX_SAFE_INTEGER;
+                    const bi = orderMap.has(b.id) ? orderMap.get(b.id) : Number.MAX_SAFE_INTEGER;
+                    return ai - bi;
+                });
+            }
+
             chrome.storage.local.set({ [STORAGE_KEY]: panels });
         });
     };
@@ -409,10 +421,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    let panelsSortable = null;
+
+    const panelsPolicy = () => (window.ORDERING
+        ? window.ORDERING.panelsPolicy(window.__orderingSettings || {}, CURRENT_VIEW)
+        : 'manual');
+
     const renderPanels = (panelsState) => {
-        panelsState.forEach(panelState => {
+        const policy = panelsPolicy();
+        const ordered = window.ORDERING ? window.ORDERING.sortByName(panelsState, policy) : panelsState;
+        const alphabetical = window.ORDERING && policy === window.ORDERING.ALPHABETICAL;
+
+        panelsContainer.innerHTML = '';
+        ordered.forEach(panelState => {
             const panelEl = createPanel(panelState, saveState);
             panelsContainer.appendChild(panelEl);
+        });
+
+        // A list that is sorted on every render must not accept drops: the next
+        // render would undo them and the drag would look broken.
+        window.__lastPanelsPolicy = Boolean(alphabetical);
+        if (panelsSortable) panelsSortable.option('disabled', Boolean(alphabetical));
+    };
+
+    // Called when the ordering policy changes in settings, so the visible order
+    // follows without a reload.
+    window.refreshPanelOrder = () => {
+        chrome.storage.local.get(STORAGE_KEY, (data) => {
+            renderPanels(data[STORAGE_KEY] || []);
         });
     };
 
@@ -422,14 +458,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const notesForm = document.getElementById('add-notes-panel-form');
     const bookmarksForm = document.getElementById('add-bookmarks-panel-form');
     const panelFolderSelect = document.getElementById('panel-folder-select');
+    let panelFolderPicker = null;
+    let usedFolderIdsRef = new Set();
 
-    if (panelFolderSelect) {
-        panelFolderSelect.addEventListener('wheel', (e) => {
-            // Manually handle scroll to ensure it works even when focus is weird.
-            // Using e.deltaY ensures it respects the user's scroll speed settings.
-            panelFolderSelect.scrollTop += e.deltaY;
-            e.preventDefault();
-        }, { passive: false });
+    function currentPanelFolderIds() {
+        return panelFolderPicker ? panelFolderPicker.getValues() : [];
+    }
+
+    function currentPanelFolderTitle(id) {
+        return panelFolderPicker ? panelFolderPicker.getTitle(id) : '';
     }
 
     function populateBookmarkFolderDropdown() {
@@ -444,7 +481,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     usedFolderIds.add(panel.folderId);
                 }
             });
-            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            usedFolderIdsRef = usedFolderIds;
+
+            const skipIds = new Set();
+            if (settings.sidebarFolderId) skipIds.add(settings.sidebarFolderId);
 
             function getFoldersRecursive(parentId, depth, callback) {
                 chrome.bookmarks.getSubTree(parentId, (results) => {
@@ -472,25 +512,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             getFoldersRecursive(targetRootId, 0, folders => {
-                panelFolderSelect.innerHTML = '<option value="">' + "--Select folders (Ctrl+Click)--" + '</option>';
-                const skipIds = new Set();
-                if (settings.sidebarFolderId) skipIds.add(settings.sidebarFolderId);
-                folders.forEach(folder => {
-                    if (skipIds.has(folder.id)) return;
-                    const option = document.createElement('option');
-                    option.value = folder.id;
-                    const indent = '\u00A0'.repeat(folder.depth * 4);
-                    const alreadyAdded = usedFolderIds.has(folder.id);
-                    const isOrganizer = isOrganizerFolderTitle(folder.title);
-                    option.textContent = indent + folder.title + (isOrganizer ? '' : '') + (alreadyAdded && !isOrganizer ? ' ✓' : '');
-                    if (alreadyAdded && !isOrganizer) {
-                        option.style.color = isDark ? '#999' : '#888';
-                    }
-                    if (isOrganizer) {
-                        option.dataset.isOrganizer = 'true';
-                    }
-                    panelFolderSelect.appendChild(option);
-                });
+                const visible = folders.filter(folder => !skipIds.has(folder.id));
+
+                if (!panelFolderPicker) {
+                    panelFolderPicker = window.FolderPicker.create(panelFolderSelect, {
+                        multi: true,
+                        allowNewFolder: false,
+                        emptyLabel: 'Pick folders…',
+                        searchPlaceholder: 'Search folders…',
+                        isUsed: (id) => usedFolderIdsRef.has(id)
+                    });
+                }
+
+                // Keep the current selection across refreshes, but drop ids that
+                // no longer exist (deleted folder, different root).
+                const wanted = currentPanelFolderIds().filter(id => visible.some(folder => folder.id === id));
+                panelFolderPicker.setFolders(visible, wanted);
             });
         });
     }
@@ -643,23 +680,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         addPanelToContainer(panelEl, position);
                         if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
                         
-                        // Sort the parent folder alphabetically after creating the new folder
-                        chrome.storage.local.get('settings', (data) => {
-                            const settings = data.settings || {};
-                            const sortOptions = {
-                                recursive: false,
-                                sortOrder: settings.sortOrder || 'foldersFirst',
-                                sortBookmarks: true
-                            };
-                            if (typeof sortBookmarksInFolder === 'function') {
-                                sortBookmarksInFolder(parentId, sortOptions, () => {
-                                    // Refresh the folder dropdown to show the new order
-                                    if (window.populateBookmarkFolderDropdown) {
-                                        window.populateBookmarkFolderDropdown();
-                                    }
-                                });
-                            }
-                        });
+                        // No implicit sort here. Creating a folder used to reorder
+                        // the parent in Chrome unconditionally, which silently
+                        // destroyed the user's own order. Whether a folder is
+                        // kept alphabetical is the ordering policy now
+                        // (js/ordering.js), not a side effect of adding a panel.
                         
                         // Don't close modal, just clear input
                         newFolderNameInput.value = '';
@@ -723,8 +748,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     panelFolderSelect.addEventListener('change', () => {
-        const selectedCount = Array.from(panelFolderSelect.selectedOptions).filter(opt => opt.value !== "").length;
-        document.getElementById('sort-bookmarks-popup-btn').textContent = selectedCount > 0 ? 'Sort Selected Folder' : 'Sort Root Folder';
+        const selectedCount = currentPanelFolderIds().length;
+        document.getElementById('sort-bookmarks-popup-btn').textContent = selectedCount > 0
+            ? 'Sort ' + selectedCount + ' folder' + (selectedCount === 1 ? '' : 's')
+            : 'Sort root folder';
     });
 
 
@@ -753,8 +780,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const settings = data.settings || {};
             const rootId = settings.rootFolderId || '1';
             
-            const selectedOptions = Array.from(document.getElementById('panel-folder-select').selectedOptions);
-            const selectedFolderIds = selectedOptions.map(opt => opt.value).filter(id => id !== "");
+            const selectedFolderIds = currentPanelFolderIds();
             const isRecursive = document.getElementById('sort-recursive-popup-checkbox').checked;
             const sortBookmarks = document.getElementById('sort-bookmarks-popup-checkbox') ? document.getElementById('sort-bookmarks-popup-checkbox').checked : false;
             
@@ -826,10 +852,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const isRecursive = document.getElementById('import-recursive-checkbox').checked;
             chrome.storage.local.set({ bookmarksPanelPosition: position });
 
-            const selectedOptions = Array.from(panelFolderSelect.selectedOptions);
-            const folderIds = selectedOptions.map(opt => opt.value).filter(val => val !== "");
+            const folderIds = currentPanelFolderIds();
 
-            const hasOrganizer = selectedOptions.some(opt => opt.dataset.isOrganizer === 'true');
+            const hasOrganizer = folderIds.some(id => window.isOrganizerFolderTitle(currentPanelFolderTitle(id)));
             if (hasOrganizer) {
                 alert('Organizer folders cannot be added as bookmark panels. Select them only for sorting.');
                 return;
@@ -878,7 +903,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let foldersProcessed = 0;
                 folderIds.forEach((fId) => {
                     // Also import the parent folder itself
-                    const parentTitle = selectedOptions.find(o => o.value === fId).textContent.trim();
+                    const parentTitle = currentPanelFolderTitle(fId);
                     addPanel(fId, parentTitle, 'parent');
 
                     chrome.bookmarks.getSubTree(fId, (results) => {
@@ -902,7 +927,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         foldersProcessed++;
                         if (foldersProcessed === folderIds.length) {
-                            addBookmarksModal.classList.add('hidden');
+                            if (panelFolderPicker) panelFolderPicker.close();
+                            if (panelFolderPicker) panelFolderPicker.close();
+                addBookmarksModal.classList.add('hidden');
                             document.getElementById('import-subfolders-checkbox').checked = false;
                             document.getElementById('import-recursive-checkbox').checked = false;
                             document.getElementById('recursive-import-label').classList.add('hidden');
@@ -911,9 +938,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             } else {
                 folderIds.forEach((fId, index) => {
-                    const title = selectedOptions.find(o => o.value === fId).textContent.trim();
+                    const title = currentPanelFolderTitle(fId);
                     addPanel(fId, title, index);
                 });
+                if (panelFolderPicker) panelFolderPicker.close();
                 addBookmarksModal.classList.add('hidden');
             }
         });
@@ -1050,7 +1078,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (e) => {
         if (e.target.classList.contains('cancel-btn') || e.target.classList.contains('modal-close-btn')) {
             const modal = e.target.closest('.modal');
-            if (modal) modal.classList.add('hidden');
+            if (modal) {
+                // The popover lives on <body>, so hiding the modal would leave it.
+                if (panelFolderPicker) panelFolderPicker.close();
+                modal.classList.add('hidden');
+            }
         }
     });
 
@@ -1059,6 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') {
             // Close all modals
             document.querySelectorAll('.modal').forEach(modal => modal.classList.add('hidden'));
+            if (panelFolderPicker) panelFolderPicker.close();
             // Close settings panel
             const settingsPanel = document.getElementById('settings-panel');
             if (settingsPanel) settingsPanel.classList.add('hidden');
@@ -1464,6 +1497,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initialization ---
     loadState();
 
+    // Chrome folders whose policy is 'alphabetical' are kept that way. This is
+    // the only place that writes a folder order back to Chrome.
+    window.ORDERING.watchBookmarkChanges();
+    chrome.storage.local.get('settings', (data) => {
+        window.ORDERING.applyChromeOrder((data && data.settings) || {});
+    });
+
     // Initial clock update is called by loadSettings in settings_logic.js potentially, 
     // or we just call it. But applySettings will also be called.
     // We'll trust applySettings to set the initial values properly before this runs 
@@ -1471,7 +1511,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateClock();
     setInterval(updateClock, 1000);
 
-    new Sortable(panelsContainer, {
+    panelsSortable = new Sortable(panelsContainer, {
         animation: 150,
         handle: '.drag-handle',
         ghostClass: 'sortable-ghost',
@@ -1632,20 +1672,25 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
         element.innerHTML = '<p class="empty-folder-message">' + "This folder is empty." + '</p>';
         return;
     }
+    // An alphabetically sorted list cannot be reordered by dragging; allowing it
+    // would silently undo the user's drop on the next render.
+    const sortedAlphabetically = Boolean(element.classList && element.classList.contains('order-alphabetical'));
     const fragment = document.createDocumentFragment();
     bookmarks.forEach(bookmark => {
         if (bookmark.url) {
             const item = document.createElement('div');
             item.className = 'bookmark-item';
             item.dataset.id = bookmark.id;
-            item.draggable = true;
+            item.draggable = !sortedAlphabetically;
 
-            item.addEventListener('dragstart', e => {
-                e.dataTransfer.setData('text/plain', bookmark.id);
-                e.dataTransfer.effectAllowed = 'move';
-                setTimeout(() => item.classList.add('dragging'), 0);
-            });
-            item.addEventListener('dragend', () => item.classList.remove('dragging'));
+            if (!sortedAlphabetically) {
+                item.addEventListener('dragstart', e => {
+                    e.dataTransfer.setData('text/plain', bookmark.id);
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => item.classList.add('dragging'), 0);
+                });
+                item.addEventListener('dragend', () => item.classList.remove('dragging'));
+            }
 
             const link = document.createElement('a');
             link.href = bookmark.url;
@@ -1759,6 +1804,47 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
 function applySettings(settings) {
     if (!settings) return;
 
+    // Ordering is read by the render paths, so they need the current settings
+    // without another storage round-trip.
+    window.__orderingSettings = settings;
+
+    const alphabeticalPanels = Boolean(window.ORDERING
+        && window.ORDERING.panelsPolicy(settings, CURRENT_VIEW) === window.ORDERING.ALPHABETICAL);
+    if (window.__lastPanelsPolicy !== alphabeticalPanels) {
+        window.__lastPanelsPolicy = alphabeticalPanels;
+        if (typeof window.refreshPanelOrder === 'function') window.refreshPanelOrder();
+    }
+
+    const sidebarAlphabetical = Boolean(window.ORDERING
+        && window.ORDERING.sidebarPolicy(settings) === window.ORDERING.ALPHABETICAL);
+    document.body.classList.toggle('panels-alphabetical', alphabeticalPanels);
+
+    const sidebarEl = document.getElementById('sidebar-bookmarks');
+    if (sidebarEl) {
+        const wasSorted = sidebarEl.classList.contains('order-alphabetical');
+        sidebarEl.classList.toggle('order-alphabetical', sidebarAlphabetical);
+        sidebarEl.title = sidebarAlphabetical ? 'Sorted A–Z (drag is off)' : '';
+        // The class decides whether items are draggable, so re-render when it flips.
+        if (wasSorted !== sidebarAlphabetical && window.bookmarkRefreshCallbacks) {
+            window.bookmarkRefreshCallbacks.forEach((cb) => cb());
+        }
+    }
+
+    // Without a visible hint, a disabled drag handle looks like a bug.
+    const sidebarHeader = document.getElementById('sidebar-header');
+    let badge = document.getElementById('sidebar-order-badge');
+    if (!badge && sidebarHeader) {
+        badge = document.createElement('span');
+        badge.id = 'sidebar-order-badge';
+        badge.className = 'order-badge';
+        badge.title = 'This list is sorted A–Z';
+        sidebarHeader.appendChild(badge);
+    }
+    if (badge) {
+        badge.textContent = sidebarAlphabetical ? 'A–Z' : '';
+        badge.hidden = !sidebarAlphabetical;
+    }
+
     const container = document.getElementById('panels-container');
     if (container) {
         const isRowLayout = getRowLayout(settings, CURRENT_VIEW);
@@ -1829,6 +1915,7 @@ function applySettings(settings) {
 
     const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
     sidebarBookmarks.addEventListener('dragover', e => {
+        if (sidebarBookmarks.classList.contains('order-alphabetical')) return;
         e.preventDefault();
         sidebarBookmarks.classList.add('drag-over');
     });
@@ -1836,6 +1923,8 @@ function applySettings(settings) {
     sidebarBookmarks.addEventListener('drop', e => {
         e.preventDefault();
         sidebarBookmarks.classList.remove('drag-over');
+        // Sorted A–Z: a drop would be overwritten on the next render.
+        if (sidebarBookmarks.classList.contains('order-alphabetical')) return;
         const bookmarkId = e.dataTransfer.getData('text/plain');
         const destinationFolderId = sidebarBookmarks.dataset.folderId;
         if (!bookmarkId || !destinationFolderId) return;
@@ -1851,7 +1940,13 @@ function applySettings(settings) {
         sidebarBookmarks.dataset.folderId = settings.sidebarFolderId;
         const refreshSidebar = () => {
             getBookmarksInFolder(settings.sidebarFolderId, (bookmarks) => {
-                renderBookmarks(sidebarBookmarks, bookmarks, settings.sidebarFolderId, refreshSidebar);
+                // Sorted for display only: Chrome keeps its own order unless the
+                // folder policy says otherwise.
+                const policy = window.ORDERING
+                    ? window.ORDERING.sidebarPolicy(window.__orderingSettings || settings)
+                    : 'manual';
+                const ordered = window.ORDERING ? window.ORDERING.sortByName(bookmarks, policy) : bookmarks;
+                renderBookmarks(sidebarBookmarks, ordered, settings.sidebarFolderId, refreshSidebar);
             }, 'Sidebar');
         };
         window.bookmarkRefreshCallbacks.push(refreshSidebar);

@@ -29,6 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const startupContainer = document.getElementById('startup-views-container');
     const layoutContainer = document.getElementById('layout-views-container');
     const organizerCountSelect = document.getElementById('organizer-count-select');
+    const orderingSidebar = document.getElementById('ordering-sidebar');
+    const orderingOrganizers = document.getElementById('ordering-organizers');
+    const orderingHead = document.getElementById('ordering-head');
 
     const useOrganizerFoldersToggle = document.getElementById('use-organizer-folders-toggle');
 
@@ -252,6 +255,73 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
         if (sidebarFolderPicker) sidebarFolderPicker.setValue(next);
     }
 
+    // --- Ordering -----------------------------------------------------------
+    function fillOrderingSelect(select) {
+        if (!select || select.options.length) return;
+        [['manual', 'Manual'], ['alphabetical', 'Alphabetical (A–Z)']].forEach(([value, label]) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            select.appendChild(option);
+        });
+    }
+
+    function renderOrderingControls(views, settings) {
+        const ordering = (settings && settings.ordering) || {};
+        const panels = ordering.panels || {};
+        const folders = ordering.folders || {};
+
+        fillOrderingSelect(orderingSidebar);
+        if (orderingSidebar) orderingSidebar.value = ordering.sidebar || 'manual';
+
+        if (orderingOrganizers) {
+            orderingOrganizers.innerHTML = '';
+            views.forEach((view) => {
+                const row = document.createElement('div');
+                row.className = 'settings-ordering-grid-row';
+
+                const label = document.createElement('span');
+                label.className = 'ordering-letter';
+                label.textContent = view;
+                row.appendChild(label);
+
+                [['panels', panels[view]], ['folders', folders[view]]].forEach(([kind, value]) => {
+                    const select = document.createElement('select');
+                    select.className = 'settings-select ordering-select';
+                    select.dataset.kind = kind;
+                    select.dataset.view = view;
+                    [['manual', 'Manual'], ['alphabetical', 'Alphabetical']].forEach(([optionValue, text]) => {
+                        const option = document.createElement('option');
+                        option.value = optionValue;
+                        option.textContent = text;
+                        select.appendChild(option);
+                    });
+                    select.value = value || 'manual';
+                    row.appendChild(select);
+                });
+
+                orderingOrganizers.appendChild(row);
+            });
+        }
+
+        if (orderingHead) orderingHead.hidden = views.length === 0;
+    }
+
+    function readOrdering() {
+        const result = {
+            sidebar: orderingSidebar ? orderingSidebar.value : 'manual',
+            root: (tempSettings.ordering && tempSettings.ordering.root) || 'manual',
+            panels: {},
+            folders: {}
+        };
+        if (orderingOrganizers) {
+            orderingOrganizers.querySelectorAll('select[data-view]').forEach((select) => {
+                result[select.dataset.kind][select.dataset.view] = select.value;
+            });
+        }
+        return result;
+    }
+
     function populateFolderDropdowns() {
         if (!sidebarFolderPicker) {
             sidebarFolderPicker = window.FolderPicker.create(sidebarFolderSelect, {
@@ -417,6 +487,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             bookmarkFontSize: `${markFont}px`,
             organizerCount: tempSettings.organizerCount,
             useOrganizerFolders: tempSettings.useOrganizerFolders,
+            ordering: readOrdering(),
 
             bgColor: bgColorPicker.value,
             sidebarBg: bgColorPicker.value,
@@ -461,6 +532,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                 startupViews: getStartupViews(currentSettings),
                 rowLayoutViews: getRowLayoutViews(currentSettings),
                 useOrganizerFolders: typeof currentSettings.useOrganizerFolders === 'boolean' ? currentSettings.useOrganizerFolders : false,
+                ordering: currentSettings.ordering || {},
 
                 bgColor: currentSettings.bgColor || '#f0f2f5',
                 sidebarBg: currentSettings.sidebarBg || '#ffffff',
@@ -476,6 +548,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             updateCheckboxText();
 
             renderOrganizerSettingsControls(getOrganizerViews(), currentSettings);
+            renderOrderingControls(getOrganizerViews(), currentSettings);
 
             if (organizerCountSelect) {
                 organizerCountSelect.addEventListener('change', () => {

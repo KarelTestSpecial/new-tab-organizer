@@ -30,6 +30,7 @@ A powerful, highly customizable, and aesthetically premium startpage to replace 
     - **Reorder:** Drag and drop bookmarks to reorder them within a panel.
     - **Move:** Drag bookmarks to other panels or the sidebar to move them between folders.
 - **Automatic Naming:** Bookmark panels automatically use the folder name as a default title if you leave it blank.
+- **Ordering Policies:** Per organizer, choose whether panels keep your own order or sort A–Z. The sidebar and each Chrome organizer folder can be kept alphabetical too. Lists in dialogs are always alphabetical, and a sorted view never overwrites the order you set by dragging.
 
 ### Simultaneous Link Opening
 - **Named Link Lists:** Bundle links into a named list (for example "Morning routine") and open them all at once.

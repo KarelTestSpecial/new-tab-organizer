@@ -24,6 +24,7 @@
     }
 
     function compareTitles(a, b) {
+        if (window.ORDERING && window.ORDERING.compareTitles) return window.ORDERING.compareTitles(a, b);
         return String(a.title).localeCompare(String(b.title), undefined, {
             numeric: true,
             sensitivity: 'base'
@@ -126,6 +127,8 @@
         const opts = options || {};
         const allowNewFolder = opts.allowNewFolder !== false;
         const emptyLabel = opts.emptyLabel || 'Select a folder';
+        const multi = opts.multi === true;
+        const isUsed = typeof opts.isUsed === 'function' ? opts.isUsed : null;
 
         const wrapper = document.createElement('div');
         wrapper.className = 'folder-picker';
@@ -179,7 +182,7 @@
         let roots = [];
         let rows = [];
         let activeIndex = -1;
-        let currentValue = select.value || '';
+        let values = multi ? [] : (select.value ? [String(select.value)] : []);
 
         // The native select is the value holder the rest of the settings code
         // reads, but a <select> only accepts values that exist as <option>s. The
@@ -197,6 +200,7 @@
                 const option = document.createElement('option');
                 option.value = entry.node.id;
                 option.textContent = entry.path.join(' › ');
+                if (multi) option.selected = values.includes(entry.node.id);
                 select.appendChild(option);
             });
 
@@ -207,11 +211,20 @@
                 select.appendChild(option);
             }
 
-            select.value = currentValue;
+            if (multi) {
+                // For a <select multiple> the browser keeps its own selection
+                // state, so setting .value would collapse it to the first option.
+                values.forEach((value) => {
+                    const option = [...select.options].find((o) => o.value === value);
+                    if (option) option.selected = true;
+                });
+            } else {
+                select.value = values[0] || '';
+            }
         }
 
         function selectedValue() {
-            return currentValue;
+            return values[0] || '';
         }
 
         function labelFor(value) {
@@ -222,6 +235,18 @@
         }
 
         function renderTrigger() {
+            if (multi) {
+                if (!values.length) {
+                    triggerLabel.textContent = emptyLabel;
+                    trigger.classList.remove('has-value');
+                    return;
+                }
+                triggerLabel.textContent = values.length === 1
+                    ? labelFor(values[0])
+                    : values.length + ' folders selected';
+                trigger.classList.add('has-value');
+                return;
+            }
             const value = selectedValue();
             triggerLabel.textContent = labelFor(value);
             trigger.classList.toggle('has-value', Boolean(value));
@@ -257,6 +282,23 @@
                 row.appendChild(pathEl);
             }
 
+            if (!kind && isUsed && isUsed(value)) {
+                const used = document.createElement('span');
+                used.className = 'folder-picker-used';
+                used.textContent = '✓';
+                used.title = 'Already a panel';
+                row.appendChild(used);
+                row.classList.add('is-used');
+            }
+
+            if (multi && !kind) {
+                row.classList.add('folder-picker-row-multi');
+                const box = document.createElement('span');
+                box.className = 'folder-picker-check';
+                box.setAttribute('aria-hidden', 'true');
+                row.insertBefore(box, row.firstChild);
+            }
+
             row.addEventListener('click', () => choose(value));
             return row;
         }
@@ -265,12 +307,12 @@
             const query = input.value;
             const tokens = fold(query).split(/\s+/).filter(Boolean);
             const visible = tokens.length ? search(entries, query) : entries;
-            const selected = selectedValue();
+            const selected = values;
 
             list.innerHTML = '';
             rows = [];
 
-            if (!tokens.length && selected) {
+            if (!tokens.length && selected.length && !multi) {
                 const clearRow = makeRow({ value: '', title: 'Clear selection', kind: 'clear' });
                 list.appendChild(clearRow);
                 rows.push(clearRow);
@@ -285,8 +327,8 @@
                     path: tokens.length ? entry.path.slice(0, -1).join('  ›  ') : '',
                     depth: tokens.length ? 0 : entry.depth
                 });
-                if (entry.node.id === selected) {
-                    row.classList.add('is-selected');
+                if (selected.includes(entry.node.id)) {
+                    row.classList.add(multi ? 'is-checked' : 'is-selected');
                     row.setAttribute('aria-current', 'true');
                 }
                 list.appendChild(row);
@@ -300,7 +342,7 @@
                 list.appendChild(empty);
             }
 
-            if (allowNewFolder && !tokens.length) {
+            if (allowNewFolder && !multi && !tokens.length) {
                 const newRow = makeRow({ value: NEW_FOLDER_VALUE, title: '+ New folder…', kind: 'new' });
                 list.appendChild(newRow);
                 rows.push(newRow);
@@ -310,7 +352,7 @@
                 ? visible.length + (visible.length === 1 ? ' result' : ' results')
                 : '';
 
-            activeIndex = rows.findIndex((row) => row.dataset.value === selected && row.dataset.kind !== 'clear');
+            activeIndex = rows.findIndex((row) => values.includes(row.dataset.value) && row.dataset.kind !== 'clear');
             highlight();
         }
 
@@ -330,16 +372,29 @@
         }
 
         function choose(value) {
+            const next = String(value);
+
+            // In multi mode the popover stays open: picking several folders in a
+            // row is the whole point of the modal.
+            if (multi) {
+                const index = values.indexOf(next);
+                if (index > -1) values.splice(index, 1);
+                else values.push(next);
+                syncNativeOptions();
+                renderTrigger();
+                render();
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                return;
+            }
+
             close();
-            if (String(value) === selectedValue()) {
+            if (next === (values[0] || '')) {
                 renderTrigger();
                 return;
             }
-            currentValue = String(value);
-            select.value = currentValue;
+            values = next ? [next] : [];
+            syncNativeOptions();
             renderTrigger();
-            // Existing listeners (save, new-folder prompt) stay in charge of what
-            // a change means; this only reports it.
             select.dispatchEvent(new Event('change', { bubbles: true }));
         }
 
@@ -388,30 +443,51 @@
         }
 
         function setValue(value) {
-            currentValue = value == null ? '' : String(value);
+            if (multi) {
+                const list = Array.isArray(value) ? value : (value === '' || value == null ? [] : [value]);
+                values = list.map(String);
+                syncNativeOptions();
+            } else {
+                const next = value == null ? '' : String(value);
+                values = next ? [next] : [];
+                syncNativeOptions();
 
-            // A <select> rejects a value that has no matching <option>, and the
-            // folder list is refetched asynchronously. Without a placeholder the
-            // freshly created folder would read back as '' to whoever saves.
-            if (currentValue && ![...select.options].some((o) => o.value === currentValue)) {
-                const option = document.createElement('option');
-                option.value = currentValue;
-                option.textContent = currentValue;
-                select.appendChild(option);
+                // A <select> rejects a value that has no matching <option>, and
+                // the folder list is refetched asynchronously. Without a
+                // placeholder the freshly created folder would read back as ''.
+                if (next && ![...select.options].some((o) => o.value === next)) {
+                    const option = document.createElement('option');
+                    option.value = next;
+                    option.textContent = next;
+                    select.appendChild(option);
+                }
+                select.value = next;
             }
 
-            select.value = currentValue;
             renderTrigger();
         }
 
         function setFolders(folders, value) {
             roots = buildTree(folders);
             entries = flatten(roots);
-            syncNativeOptions();
-            if (value !== undefined) setValue(value);
-            else select.value = currentValue;
-            renderTrigger();
+            if (value !== undefined) {
+                setValue(value);
+            } else {
+                syncNativeOptions();
+                renderTrigger();
+            }
             if (!popover.classList.contains('hidden')) render();
+        }
+
+        function getValues() {
+            return values.slice();
+        }
+
+        // The add-bookmark modal needs the title behind an id (to reject organizer
+        // folders), and it must not scrape it out of the option text.
+        function getTitle(id) {
+            const entry = entries.find((item) => item.node.id === String(id));
+            return entry ? entry.node.title : '';
         }
 
         // --- Events ---
@@ -459,6 +535,8 @@
         select.__folderPicker = {
             setFolders,
             setValue,
+            getValues,
+            getTitle,
             refresh: render,
             open,
             close

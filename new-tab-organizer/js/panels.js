@@ -553,7 +553,7 @@ function createPanel(panelState, onStateChange) {
                                 }
                                 if (idxA !== undefined) return -1;
                                 if (idxB !== undefined) return 1;
-                                return a.title.localeCompare(b.title);
+                                return compareTitles(a, b);
                             });
                         }
                         renderBookmarks(contentContainer, bookmarks, folderId, refreshPanel);

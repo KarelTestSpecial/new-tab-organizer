@@ -165,6 +165,26 @@
                 </label>
             </div>
 
+            <!-- Section: Ordering -->
+            <div class="settings-card">
+                <div class="settings-card-header">🔤 Ordering</div>
+                <p class="settings-hint" style="margin-top: 0;">
+                    <strong>Manual</strong> keeps the order you set by dragging.
+                    <strong>Alphabetical</strong> sorts on every render.
+                    Panel order is yours; the Chrome folder order changes what Chrome's own bookmark manager shows.
+                </p>
+                <div class="settings-ordering-row">
+                    <span class="settings-label">Sidebar</span>
+                    <select id="ordering-sidebar" class="settings-select ordering-select"></select>
+                </div>
+                <div class="settings-ordering-head" id="ordering-head" hidden>
+                    <span></span>
+                    <span>Panels</span>
+                    <span>Chrome folder</span>
+                </div>
+                <div id="ordering-organizers" class="settings-ordering-grid"></div>
+            </div>
+
             <!-- Section: Swap Organizers -->
             <div class="settings-card">
                 <div class="settings-card-header">🔀 Swap Organizers</div>
@@ -244,7 +264,7 @@
             <div class="modal-content">
                 <button class="modal-close-btn">&times;</button>
                 <h2 style="margin-bottom: 20px;">Add New Bookmark Panel</h2>
-                
+
                 <!-- Global Organizer Toggle Section -->
                 <div style="margin-bottom: 20px; padding: 12px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px;">
                     <div style="display: flex; align-items: center; gap: 8px;">
@@ -255,41 +275,28 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
-                    <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                        <input type="text" id="new-bookmark-folder-name" placeholder="New folder name" style="flex-grow: 1; width: auto; min-width: 150px;">
-                        <button type="button" id="create-new-bookmark-folder-btn" class="settings-btn-item" style="padding: 6px 15px; font-weight: bold;">Create New Folder</button>
-                    </div>
-                </div>
-
                 <form id="add-bookmarks-panel-form">
-                    <!-- Top Row: Label and Sorting Controls -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <label for="panel-folder-select" style="margin: 0; font-weight: bold;">Select Specific Folders</label>
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 5px 12px; font-size: 0.8rem; font-weight: bold;">Sort Root Folder</button>
-                            <label style="font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
-                                <input type="checkbox" id="sort-recursive-popup-checkbox"> <span>Recursive</span>
-                            </label>
-                                <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; margin-top: 5px;">
-                                    <input type="checkbox" id="sort-bookmarks-popup-checkbox"> <span>Sort bookmarks too (not only folders)</span>
-                                </label>
+                    <!-- Create a new folder. Inside the form, so Enter works. -->
+                    <div class="form-group">
+                        <label for="new-bookmark-folder-name">Create a new folder</label>
+                        <div class="modal-inline-row">
+                            <input type="text" id="new-bookmark-folder-name" placeholder="New folder name" autocomplete="off">
+                            <button type="button" id="create-new-bookmark-folder-btn" class="settings-btn-item">Create</button>
                         </div>
                     </div>
-                    
-                    <!-- Select Box -->
+
+                    <!-- Existing folders: searchable tree with checkboxes. -->
                     <div class="form-group">
-                        <select id="panel-folder-select" multiple size="8" style="width: 100%; padding: 5px; min-height: 150px;">
-                            <option value="">--Select folders (Ctrl+Click)--</option>
-                        </select>
+                        <label>Pick existing folders</label>
+                        <select id="panel-folder-select" multiple></select>
                     </div>
 
                     <!-- Import Options Row -->
-                    <div class="form-group" style="display: flex; align-items: center; gap: 25px; margin-top: 15px; margin-bottom: 20px;">
-                        <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.8rem;">
+                    <div class="form-group modal-import-options">
+                        <label class="modal-checkbox">
                             <input type="checkbox" id="import-subfolders-checkbox"> <span>Import subfolders as individual panels</span>
                         </label>
-                        <label id="recursive-import-label" class="hidden" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.8rem;">
+                        <label id="recursive-import-label" class="modal-checkbox hidden">
                             <input type="checkbox" id="import-recursive-checkbox"> <span>Recursive</span>
                         </label>
                     </div>
@@ -309,6 +316,23 @@
                         </div>
                     </div>
                 </form>
+
+                <!-- Maintenance, not part of adding a panel. Collapsed on purpose. -->
+                <details class="modal-advanced">
+                    <summary>Sort bookmarks (maintenance)</summary>
+                    <div class="modal-advanced-body">
+                        <p class="settings-hint" style="margin-top: 0;">
+                            This rewrites the real order in Chrome Bookmarks. It cannot be undone.
+                        </p>
+                        <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item">Sort folders</button>
+                        <label class="modal-checkbox">
+                            <input type="checkbox" id="sort-recursive-popup-checkbox"> <span>Recursive</span>
+                        </label>
+                        <label class="modal-checkbox">
+                            <input type="checkbox" id="sort-bookmarks-popup-checkbox"> <span>Sort bookmarks too (not only folders)</span>
+                        </label>
+                    </div>
+                </details>
             </div>
         </div>
         <div id="open-links-modal" class="modal hidden open-links-modal">
@@ -372,6 +396,7 @@
         </div>
     </div>
     <script src="js/organizers.js"></script>
+    <script src="js/ordering.js"></script>
     <script src="js/tooltips.js"></script>
     <script src="js/bookmarks.js"></script>
     <script src="js/panels.js"></script>

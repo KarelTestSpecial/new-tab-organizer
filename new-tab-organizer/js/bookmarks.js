@@ -1,5 +1,14 @@
 // This file will handle all logic related to the chrome.bookmarks API.
 
+// Single definition of alphabetical order (js/ordering.js). The fallback keeps
+// this file working if it is ever loaded on its own.
+function compareTitles(a, b) {
+    if (window.ORDERING && window.ORDERING.compareTitles) return window.ORDERING.compareTitles(a, b);
+    const left = a && a.title !== undefined ? a.title : a;
+    const right = b && b.title !== undefined ? b.title : b;
+    return String(left == null ? '' : left).localeCompare(String(right == null ? '' : right), undefined, { numeric: true, sensitivity: 'base' });
+}
+
 function getBookmarks(callback) {
     chrome.bookmarks.getTree((bookmarkTree) => {
         if (chrome.runtime.lastError) {
@@ -101,12 +110,12 @@ function sortBookmarksInFolder(folderId, options, callback) {
                         if (!aIsFolder && bIsFolder) return 1;
                     }
 
-                    return a.title.localeCompare(b.title);
+                    return compareTitles(a, b);
                 });
             } else {
                 const folders = children.filter(c => !c.url);
                 const bookmarks = children.filter(c => c.url);
-                folders.sort((a, b) => a.title.localeCompare(b.title));
+                folders.sort(compareTitles);
                 
                 if (options.sortOrder === 'mixed') {
                     // Preserve original folder indices but with sorted folders
