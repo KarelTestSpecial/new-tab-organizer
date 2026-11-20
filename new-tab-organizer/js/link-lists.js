@@ -399,7 +399,11 @@
                 dropzone.addEventListener(eventName, (e) => {
                     e.preventDefault();
                     if (e.dataTransfer) {
-                        e.dataTransfer.dropEffect = internalDragIndex !== null ? 'move' : 'copy';
+                        // Must stay inside the drag source's effectAllowed list,
+                        // otherwise the browser refuses the drop and never fires
+                        // it. Bookmarks are dragged with 'move', so 'copy' here
+                        // silently kills every drop from a panel.
+                        e.dataTransfer.dropEffect = 'move';
                     }
                     dropzone.classList.add('drag-over');
                 });
