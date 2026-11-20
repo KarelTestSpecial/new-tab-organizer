@@ -71,7 +71,24 @@ try {
     const target = await (await fetch(`http://127.0.0.1:${CDP_PORT}/json/new?about:blank`, { method: 'PUT' })).json();
     const { ws, send } = await connect(target.webSocketDebuggerUrl);
     await send('Runtime.enable');
+    await send('Log.enable');
     await send('Page.enable');
+
+    // Chrome logs an accessibility warning when aria-hidden is applied to a
+    // focused element. Collect those from page load onward.
+    const ariaWarnings = [];
+    ws.addEventListener('message', (event) => {
+        const message = JSON.parse(event.data);
+        if (message.method === 'Log.entryAdded' && message.params.entry) {
+            const text = message.params.entry.text || '';
+            if (/aria-hidden/i.test(text)) ariaWarnings.push(text);
+        }
+        if (message.method === 'Runtime.consoleAPICalled') {
+            const text = (message.params.args || [])
+                .map((arg) => arg.value || arg.description || '').join(' ');
+            if (/aria-hidden/i.test(text)) ariaWarnings.push(text);
+        }
+    });
     await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false });
     await send('Page.addScriptToEvaluateOnNewDocument', { source: SHIM });
 
@@ -149,6 +166,22 @@ try {
     `);
     check('modals declare role=dialog', aria.role === 'dialog', aria);
     check('modals declare aria-modal', aria.ariaModal === 'true', aria);
+
+    // --- 3b. Opening the picker modal must not produce an a11y warning ---
+    await evaluate(send, `
+        document.getElementById('add-bookmarks-panel-btn').click();
+        await new Promise((r) => setTimeout(r, 300));
+        const hiddenFocused = document.activeElement
+            && document.activeElement.id === 'panel-folder-select';
+        document.querySelector('#add-bookmarks-panel-modal .cancel-btn').click();
+        return { hiddenFocused };
+    `);
+    await sleep(200);
+    const focusState = await evaluate(send, `
+        return { focused: document.activeElement ? document.activeElement.className : '' };
+    `);
+    check('the hidden select never receives focus', focusState.focused.indexOf('folder-picker-native') === -1, focusState);
+    check('no aria-hidden warning is logged', ariaWarnings.length === 0, ariaWarnings);
 
     // --- 4. Settings are live: no save click needed ---
     const live = await evaluate(send, `

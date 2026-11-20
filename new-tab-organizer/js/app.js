@@ -633,8 +633,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Reset create folder input
         const newFolderInput = document.getElementById('new-bookmark-folder-name');
         if (newFolderInput) newFolderInput.value = '';
-        // Focus the selection field immediately so it's ready for interaction
-        setTimeout(() => panelFolderSelect.focus(), 10);
+        // Focus the visible picker trigger, never the hidden native <select>
+        // (it is aria-hidden/inert, so focusing it triggers an a11y warning).
+        setTimeout(() => {
+            const trigger = panelFolderSelect.parentElement
+                && panelFolderSelect.parentElement.querySelector('.folder-picker-trigger');
+            if (trigger) trigger.focus();
+        }, 10);
     });
 
     // Handle modal toggle change (Sync with settings)

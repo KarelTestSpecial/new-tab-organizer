@@ -135,7 +135,12 @@
         select.parentNode.insertBefore(wrapper, select);
         wrapper.appendChild(select);
         select.classList.add('folder-picker-native');
+        // Keep the value holder out of assistive tech and out of the tab order.
+        // Blur first: Chrome refuses to aria-hide an element that still has
+        // focus, which otherwise logs a warning when the picker is created.
+        if (document.activeElement === select) select.blur();
         select.setAttribute('tabindex', '-1');
+        select.inert = true;
         select.setAttribute('aria-hidden', 'true');
 
         const trigger = document.createElement('button');
