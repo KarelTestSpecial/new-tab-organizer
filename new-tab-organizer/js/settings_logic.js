@@ -60,6 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Listeners ---
     settingsBtn.addEventListener('click', () => {
         if (settingsPanel.classList.contains('hidden')) {
+            // Another tab may have changed settings while this was closed.
+            loadSettings();
             settingsPanel.classList.remove('hidden');
         } else {
             saveSettings(true);
