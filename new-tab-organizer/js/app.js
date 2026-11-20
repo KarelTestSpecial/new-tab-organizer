@@ -64,8 +64,8 @@ function renderOrganizerConfiguration(settings) {
 }
 
 // --- View Identification ---
-// Organizers are addressed by letter (?view=B). The old panelB.html files are
-// still accepted so existing tabs and bookmarks keep working.
+// Organizers are addressed by letter (?view=B). The temporary panelX.html
+// redirects were removed in 6.1; the filename fallback stays for old bookmarks.
 function getCurrentView() {
     const params = new URLSearchParams(window.location.search);
     const requested = (params.get('view') || '').toUpperCase();
@@ -827,7 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirm(`Are you sure you want to sort the subfolders within the ${targetName}? This action cannot be undone.`)) {
                 const sortOptions = {
                     recursive: isRecursive,
-                    sortOrder: settings.sortOrder || 'mixed',
+                    sortOrder: 'mixed',
                     sortBookmarks: sortBookmarks,
                     excludeFolderIds: activeFolderIds
                 };

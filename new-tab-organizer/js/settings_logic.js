@@ -1,7 +1,3 @@
-function getStorageKey(view) {
-    return window.getStorageKeyForView(view);
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     const settingsPanel = document.getElementById('settings-panel');
     const settingsBtn = document.getElementById('settings-btn');
@@ -124,13 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sidebarFolderSelect) {
         sidebarFolderSelect.addEventListener('change', () => {
             if (sidebarFolderSelect.value === '__new_folder__') {
-                const promptMsg = "Please provide a name for the new folder." || 'Vul een naam in voor de nieuwe map:';
+                const promptMsg = "Please provide a name for the new folder.";
                 const name = prompt(promptMsg);
                 if (name && name.trim()) {
                     const parentId = tempSettings.useOrganizerFolders ? (tempSettings.rootFolderId || '1') : '2';
                     chrome.bookmarks.create({ parentId: parentId, title: name.trim() }, (newFolder) => {
                         if (chrome.runtime.lastError) {
-                            alert(("Error creating folder: " || 'Fout bij het aanmaken van de map: ') + chrome.runtime.lastError.message);
+                            alert("Error creating folder: " + chrome.runtime.lastError.message);
                             setSidebarFolderValue(tempSettings.sidebarFolderId || '');
                             return;
                         }

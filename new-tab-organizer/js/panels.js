@@ -164,7 +164,7 @@ function createPanel(panelState, onStateChange) {
                     const settings = data.settings || {};
                     const options = {
                         recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
-                        sortOrder: settings.sortOrder || 'mixed',
+                        sortOrder: 'mixed',
                         sortBookmarks
                     };
                     if (typeof sortBookmarksInFolder === 'function') {

@@ -159,11 +159,11 @@ try {
     check('view C uses panelsState_C', viewC.key === 'panelsState_C', viewC.key);
     check('nav highlights C', viewC.activeNav.join('') === 'C', viewC.activeNav);
 
-    // A legacy panelC.html tab must redirect to ?view=C
-    await send('Page.navigate', { url: `http://127.0.0.1:${HTTP_PORT}/panelC.html` });
-    await sleep(1200);
-    const legacy = await evaluate(send, `return { href: location.href, view: getCurrentView() };`);
-    check('legacy panelC.html redirects to panel.html?view=C', legacy.href.includes('view=C') && legacy.view === 'C', legacy);
+    // 6.1 removed the temporary panelX.html redirects; the old URL is a 404.
+    const legacyStatus = await fetch(`http://127.0.0.1:${HTTP_PORT}/panelC.html`)
+        .then((response) => response.status)
+        .catch(() => 0);
+    check('the temporary panelC.html redirect is gone', legacyStatus === 404, legacyStatus);
 
     // ---------- Fewer organizers: E disappears, A-D data is untouched ----------
     await setSettings(`{ theme: 'light', organizerCount: 3 }`);

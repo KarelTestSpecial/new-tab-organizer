@@ -1,4 +1,4 @@
-# New Tab Organizer (v6.0)
+# New Tab Organizer (v6.1)
 
 A powerful, highly customizable, and aesthetically premium startpage to replace your browser's default new tab page. Organize your digital life with a dynamic system of interactive panels for notes, bookmarks, and more, all within a beautiful glassmorphic multi-view layout.
 
@@ -8,6 +8,7 @@ A powerful, highly customizable, and aesthetically premium startpage to replace 
 - **Unified Glassmorphic Design:** A modern, consistent visual language across all modals and settings panels, featuring backdrop blur effects and a centered layout.
 - **Drag & Drop Layout:** Intuitively arrange panels by dragging and dropping them into any order. The layout supports multiple rows and wraps automatically to fit your screen.
 - **Editable Titles:** All panel titles can be edited directly on the page. Just click the title, make your changes, and it saves automatically.
+- **Panel Actions Menu:** Every panel has a `⋮` button with Move, Sort and Delete. Right-click still works, and the menu is keyboard reachable.
 - **Real-Time Updates:** Settings (colors, themes, toggles) take effect instantly as you change them.
 
 ### Multiple Independent Views (Organizers)
@@ -45,8 +46,8 @@ A powerful, highly customizable, and aesthetically premium startpage to replace 
 - **Add & Delete:** Add new cards with a single click or remove them when no longer needed.
 
 ### Efficient Workflow & Settings
-- **Quick Actions:** Instantly create new notes (`+ P`) or bookmark (`+ L`) panels from the sidebar.
-- **Undo Deletions:** Accidentally deleted a panel or a card? Press `Ctrl+Z` to restore it instantly.
+- **Quick Actions:** Instantly create new notes (`+ N`) or bookmark (`+ B`) panels from the sidebar.
+- **Undo Deletions:** Accidentally deleted a panel or a card? Press `Ctrl+Z` to restore it instantly (`Ctrl+Y` redoes).
 - **Customizable Sidebar:** Choose a specific bookmark folder to display in the persistent sidebar.
 - **Open on Startup:** Choose which organizers open automatically when you launch your browser.
 - **Data Portability:** Use **Import** and **Export** in Settings to back up or restore your entire setup via JSON.
@@ -76,9 +77,20 @@ A powerful, highly customizable, and aesthetically premium startpage to replace 
 
 ## Data Storage
 
-This extension uses a hybrid storage model to provide a balance of synchronization and flexibility:
+Everything lives in `chrome.storage.local`: panel layout, notes, settings, link lists and pasted images. Nothing is sent anywhere, and nothing is stored outside your browser profile.
 
--   **Synced Data (`chrome.storage.sync`):** The structure of your panels, the text in your notes, your settings, and your bookmark data are all synchronized across your devices using your browser's built-in sync feature.
--   **Local Data (`chrome.storage.local`):** To accommodate larger data like images without exceeding sync storage limits, all pasted images are saved only on the local machine where they were added.
+Settings are applied live. If you have two organizers open side by side, a change in one tab is picked up by the other, so the two views do not drift apart. Export/Import writes the layout and settings to a JSON file you control.
 
-**This means your layout and text-based notes will always be in sync, but pasted images will not appear on your other devices.**
+## Accessibility
+
+- Every panel action is reachable from the `⋮` button, not only from a right-click.
+- Dialogs announce themselves as dialogs, keep focus inside while open, close on Escape or a backdrop click, and return focus to where you were.
+- The folder picker supports arrow keys, Enter and Escape.
+
+## Tests
+
+```bash
+pnpm test
+```
+
+The suites drive the real page in headless Chrome over HTTP with a `chrome.*` shim. They require Node 22+, `google-chrome` and `python3`; see `tests/README.md`.
