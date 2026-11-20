@@ -293,21 +293,24 @@ document.addEventListener('DOMContentLoaded', () => {
                         const handleSubmit = (e) => {
                             e.preventDefault();
                             const selectedRoot = upgradeRootSelect.value;
-                            
-                            // Save new root and mark upgrade as done
                             settings.rootFolderId = selectedRoot;
-                            settings.useOrganizerFolders = true;
-                            if (window.syncUseOrganizerFolders) window.syncUseOrganizerFolders(true);
-                            chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
-                                // Smart folder ensure/move
-                                window.ensureOrganizerFolders(selectedRoot, () => {
-                                    window.ensureSidebarFolder(selectedRoot, settings, () => {
+
+                            // The dialog itself is the confirmation, so skip the
+                            // generic one. Persist after the folders exist, so a
+                            // freshly created Sidebar id is saved too.
+                            window.setOrganizerFoldersEnabled(true, {
+                                settings,
+                                rootId: selectedRoot,
+                                confirm: false,
+                                done: (ok) => {
+                                    if (!ok) return;
+                                    chrome.storage.local.set({ settings, foldersUpgradeDone: true }, () => {
                                         upgradeModal.classList.add('hidden');
                                         if (window.populateBookmarkFolderDropdown) {
                                             window.populateBookmarkFolderDropdown(); // Refresh UI
                                         }
                                     });
-                                });
+                                }
                             });
                         };
 
@@ -629,34 +632,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalFolderToggle = document.getElementById('modal-use-organizer-folders-toggle');
     if (modalFolderToggle) {
         modalFolderToggle.addEventListener('change', (e) => {
-            const isChecked = e.target.checked;
+            const enable = e.target.checked;
             chrome.storage.local.get('settings', (data) => {
                 const settings = data.settings || {};
                 const rootId = settings.rootFolderId || '1';
-                
-                if (isChecked) {
-                    const confirmed = confirm("We use the principle: What you see in the extension is what you have in Chrome.\n\nOne folder per organizer (" + getOrganizerViews().map(v => 'Organizer ' + v).join(', ') + ") will be created in Chrome Bookmarks. When you move panels via right-click or swap, the corresponding folders in Chrome will also be moved.\n\nDo you agree?");
-                    if (confirmed) {
-                        settings.useOrganizerFolders = true;
-                        window.ensureOrganizerFolders(rootId, () => {
-                            window.ensureSidebarFolder(rootId, settings, () => {
-                                chrome.storage.local.set({ settings: settings, foldersUpgradeDone: true }, () => {
-                                    if (window.syncUseOrganizerFolders) window.syncUseOrganizerFolders(true);
-                                    if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
-                                });
+
+                window.setOrganizerFoldersEnabled(enable, {
+                    settings,
+                    rootId,
+                    done: (ok) => {
+                        modalFolderToggle.checked = Boolean(settings.useOrganizerFolders);
+                        if (ok && enable) {
+                            chrome.storage.local.set({ settings, foldersUpgradeDone: true }, () => {
+                                if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
                             });
-                        });
-                    } else {
-                        e.target.checked = false;
+                        } else {
+                            chrome.storage.local.set({ settings }, () => {
+                                if (window.populateBookmarkFolderDropdown) window.populateBookmarkFolderDropdown();
+                            });
+                        }
                     }
-                } else {
-                    // Turn off
-                    alert("Automatic folder moving is disabled. Your existing Organizer folders have NOT been removed.");
-                    settings.useOrganizerFolders = false;
-                    chrome.storage.local.set({ settings: settings }, () => {
-                        if (window.syncUseOrganizerFolders) window.syncUseOrganizerFolders(false);
-                    });
-                }
+                });
             });
         });
     }

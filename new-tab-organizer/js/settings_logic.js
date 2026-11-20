@@ -103,28 +103,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (useOrganizerFoldersToggle) {
         useOrganizerFoldersToggle.addEventListener('change', (e) => {
-            if (e.target.checked) {
-                const confirmed = confirm("We use the principle: What you see in the extension is what you have in Chrome.\n\nOne folder per organizer (" + getOrganizerViews().map(v => 'Organizer ' + v).join(', ') + ") will be created in Chrome Bookmarks. When you move panels via right-click or swap, the corresponding folders in Chrome will also be moved.\n\nDo you agree?");
-                if (confirmed) {
-                    tempSettings.useOrganizerFolders = true;
-                    const rootId = extensionRootFolderSelect.value || '1';
-                    window.ensureOrganizerFolders(rootId, () => {
-                        window.ensureSidebarFolder(rootId, tempSettings, () => {
-                            chrome.storage.local.set({ foldersUpgradeDone: true }, () => {
-                                saveSettings(false);
-                            });
-                        });
-                    });
-                } else {
-                    e.target.checked = false;
-                    tempSettings.useOrganizerFolders = false;
-                    saveSettings(false);
+            const enable = e.target.checked;
+            window.setOrganizerFoldersEnabled(enable, {
+                settings: tempSettings,
+                rootId: extensionRootFolderSelect.value || '1',
+                done: (ok) => {
+                    // Keep the checkbox tied to the actual setting, not to the
+                    // click, so a declined confirm does not look enabled.
+                    useOrganizerFoldersToggle.checked = Boolean(tempSettings.useOrganizerFolders);
+                    if (ok && enable) {
+                        chrome.storage.local.set({ foldersUpgradeDone: true }, () => saveSettings(false));
+                    } else {
+                        saveSettings(false);
+                    }
                 }
-            } else {
-                alert("Automatic folder moving is disabled. Your existing Organizer folders have NOT been removed.");
-                tempSettings.useOrganizerFolders = false;
-                saveSettings(false);
-            }
+            });
         });
     }
 
@@ -530,7 +523,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const settingsToSave = {
             ...tempSettings,
-            sidebarFolderId: sidebarFolderSelect.value,
+            // ensureSidebarFolder() can create the folder after the dropdown
+            // was filled, so fall back to the value it just stored.
+            sidebarFolderId: sidebarFolderSelect.value || tempSettings.sidebarFolderId,
             rootFolderId: extensionRootFolderSelect.value,
             showBattery: tempSettings.showBattery,
             dateFontSize: `${dateFontSizeSlider.value}px`,

@@ -158,6 +158,45 @@
     window.organizerFolderName = organizerFolderName;
     window.organizerViewFileName = viewFileName;
 
+    // --- Organizer folders in Chrome Bookmarks --------------------------------
+    // The same confirm text and ensure-folder sequence used to be copied in
+    // Settings, the add-bookmark modal and the first-run upgrade dialog, with
+    // small differences. One entry point keeps them honest.
+
+    // Turns mirroring on or off. Mutates settings.useOrganizerFolders and calls
+    // done(ok) when finished; ok is false when the user declined the confirm.
+    // The caller persists and refreshes the UI.
+    window.setOrganizerFoldersEnabled = function (enable, options) {
+        const opts = options || {};
+        const settings = opts.settings || {};
+        const rootId = opts.rootId || settings.rootFolderId || '1';
+        const done = opts.done || function () {};
+
+        if (!enable) {
+            settings.useOrganizerFolders = false;
+            alert("Automatic folder moving is disabled. Your existing Organizer folders have NOT been removed.");
+            if (window.syncUseOrganizerFolders) window.syncUseOrganizerFolders(false);
+            done(true);
+            return;
+        }
+
+        const names = window.getOrganizerViews().map((view) => 'Organizer ' + view).join(', ');
+        const promptText = "We use the principle: What you see in the extension is what you have in Chrome.\n\nOne folder per organizer (" + names + ") will be created in Chrome Bookmarks. When you move panels via right-click or swap, the corresponding folders in Chrome will also be moved.\n\nDo you agree?";
+
+        if (opts.confirm !== false && !confirm(promptText)) {
+            if (window.syncUseOrganizerFolders) window.syncUseOrganizerFolders(Boolean(settings.useOrganizerFolders));
+            done(false);
+            return;
+        }
+
+        settings.useOrganizerFolders = true;
+        if (window.syncUseOrganizerFolders) window.syncUseOrganizerFolders(true);
+
+        window.ensureOrganizerFolders(rootId, () => {
+            window.ensureSidebarFolder(rootId, settings, () => done(true));
+        });
+    };
+
     // --- Global helpers used by app.js, panels.js and settings_logic.js ---
 
     // Kept in sync with chrome.storage settings by renderOrganizerControls().
