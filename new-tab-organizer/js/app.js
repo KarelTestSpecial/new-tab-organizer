@@ -252,7 +252,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             chrome.bookmarks.getChildren(rootId, (children) => {
                 if (chrome.runtime.lastError) return; // Silent fail if root folder doesn't exist
-                const views = getOrganizerViews();
+
+                // Do not rely on window.organizerViews here: the startup
+                // settings read that fills it is a separate async callback and
+                // can land after this one. On a fresh profile that made the
+                // check see zero organizers and skip the dialog entirely.
+                let count = parseInt(settings.organizerCount, 10);
+                if (isNaN(count)) count = ORGANIZERS.DEFAULT_COUNT;
+                count = Math.min(ORGANIZERS.MAX_COUNT, Math.max(1, count));
+                const views = window.getOrganizerViewsForCount(count);
+
                 const allExist = views.every(v => children.some(c => !c.url && c.title === `Organizer ${v}`));
 
                 if (!allExist) {

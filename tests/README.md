@@ -24,4 +24,5 @@ server, so they must not run in parallel — `run-all.mjs` runs them serially.
 | `test-ordering.mjs` | panels/sidebar/Chrome-folder policies, save/sync, leak regression |
 | `test-leaks.mjs` | repeated applies/renders do not stack listeners or callbacks; colour writes once |
 | `test-ui.mjs` | actions menu, modal semantics, live settings, quoted bookmark titles |
+| `test-upgrade.mjs` | first-run dialog creates the missing organizer folders and persists the upgrade |
 | `test-realdrag.mjs` | real CDP mouse drag (browser effect negotiation, not synthetic events) |

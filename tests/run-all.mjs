@@ -5,6 +5,9 @@
 // A non-zero exit from any suite fails the run.
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 const SUITES = [
     'test-organizers.mjs',
@@ -13,10 +16,18 @@ const SUITES = [
     'test-ordering.mjs',
     'test-leaks.mjs',
     'test-ui.mjs',
+    'test-upgrade.mjs',
     'test-realdrag.mjs'
 ];
 
 const here = fileURLToPath(new URL('.', import.meta.url));
+
+// Each suite keeps its own Chrome profile under the OS temp dir. Start from a
+// clean slate so a crashed run cannot leak state into the next one.
+['orgs', 'shim', 'folders', 'ordering', 'leaks', 'ui', 'upgrade', 'realdrag'].forEach((name) => {
+    rmSync(join(tmpdir(), `nto-profile-${name}`), { recursive: true, force: true });
+});
+
 let failed = 0;
 
 for (const suite of SUITES) {
