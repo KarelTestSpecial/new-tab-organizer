@@ -12,6 +12,7 @@ const SUITES = [
     'test-folder-picker.mjs',
     'test-ordering.mjs',
     'test-leaks.mjs',
+    'test-ui.mjs',
     'test-realdrag.mjs'
 ];
 

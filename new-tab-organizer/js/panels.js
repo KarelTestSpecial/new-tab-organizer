@@ -122,134 +122,96 @@ function createPanel(panelState, onStateChange) {
     const panelHeader = document.createElement('div');
     panelHeader.className = 'panel-header drag-handle';
 
-    // --- Context Menu for Moving Panels ---
-    panelHeader.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
+    // --- Panel actions menu (right-click or the ⋮ button) ---
+    // One builder for both entry points, so the two cannot drift apart.
+    function openPanelMenu(x, y) {
+        if (typeof CURRENT_VIEW === 'undefined') return;
 
-        // Remove any existing context menu
-        const existingMenu = document.getElementById('panel-context-menu');
-        if (existingMenu) existingMenu.remove();
+        const existing = document.getElementById('panel-context-menu');
+        if (existing) existing.remove();
 
         const menu = document.createElement('div');
         menu.id = 'panel-context-menu';
         menu.className = 'context-menu';
+        menu.setAttribute('role', 'menu');
 
-        // Determine available views
-        // Relying on CURRENT_VIEW global from app.js
-        if (typeof CURRENT_VIEW === 'undefined') return;
-
-        const views = window.getOrganizerViews();
-        const otherViews = views.filter(v => v !== CURRENT_VIEW);
-
-        otherViews.forEach(targetView => {
-            const item = document.createElement('div');
+        const addItem = (label, action) => {
+            const item = document.createElement('button');
+            item.type = 'button';
             item.className = 'context-menu-item';
-            item.textContent = `Move to Organizer ${targetView}`;
+            item.setAttribute('role', 'menuitem');
+            item.textContent = label;
             item.addEventListener('click', () => {
-                // Open modal instead of moving immediately
-                if (window.showMovePanelModal) {
-                    window.showMovePanelModal(id, targetView);
-                }
                 menu.remove();
+                action();
             });
             menu.appendChild(item);
-        });
-
-        if (panel.dataset.type === 'bookmarks') {
-            const sortItem = document.createElement('div');
-            sortItem.className = 'context-menu-item';
-            sortItem.textContent = 'Sort Folder';
-            sortItem.addEventListener('click', () => {
-                const folderId = panel.dataset.folderId;
-                if (!folderId) return;
-
-                chrome.storage.local.get('settings', (data) => {
-                    const settings = data.settings || {};
-                    const sortOptions = {
-                        recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
-                        sortOrder: settings.sortOrder || 'mixed',
-                        sortBookmarks: false
-                    };
-
-                    if (typeof sortBookmarksInFolder === 'function') {
-                        sortBookmarksInFolder(folderId, sortOptions, () => {
-                            // Trigger all refresh callbacks to ensure UI consistency
-                            if (window.bookmarkRefreshCallbacks) {
-                                window.bookmarkRefreshCallbacks.forEach(cb => cb());
-                            }
-                        });
-                    }
-                });
-                menu.remove();
-            });
-            menu.appendChild(sortItem);
-
-            const sortBookmarksItem = document.createElement('div');
-            sortBookmarksItem.className = 'context-menu-item';
-            sortBookmarksItem.textContent = 'Sort Folder & Bookmarks';
-            sortBookmarksItem.addEventListener('click', () => {
-                const folderId = panel.dataset.folderId;
-                if (!folderId) return;
-
-                chrome.storage.local.get('settings', (data) => {
-                    const settings = data.settings || {};
-                    const sortOptions = {
-                        recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
-                        sortOrder: settings.sortOrder || 'mixed',
-                        sortBookmarks: true
-                    };
-
-                    if (typeof sortBookmarksInFolder === 'function') {
-                        sortBookmarksInFolder(folderId, sortOptions, () => {
-                            // Trigger all refresh callbacks to ensure UI consistency
-                            if (window.bookmarkRefreshCallbacks) {
-                                window.bookmarkRefreshCallbacks.forEach(cb => cb());
-                            }
-                        });
-                    }
-                });
-                menu.remove();
-            });
-            menu.appendChild(sortBookmarksItem);
-
-            const deleteItem = document.createElement('div');
-            deleteItem.className = 'context-menu-item';
-            deleteItem.textContent = 'Delete Folder...';
-            deleteItem.addEventListener('click', () => {
-                // This function will be created in the next step
-                if (window.showDeleteFolderModal) {
-                    window.showDeleteFolderModal(id, title);
-                }
-                menu.remove();
-            });
-            menu.appendChild(deleteItem);
-        }
-
-        // Position the menu
-        menu.style.top = `${e.clientY}px`;
-        menu.style.left = `${e.clientX}px`;
-
-        document.body.appendChild(menu);
-
-        // Close logic
-        const closeMenu = () => {
-            if (menu.parentNode) {
-                menu.remove();
-            }
-            document.removeEventListener('click', closeMenu);
-            document.removeEventListener('contextmenu', closeMenu);
         };
 
-        // Add listener on next tick to avoid immediate closing
+        window.getOrganizerViews()
+            .filter((view) => view !== CURRENT_VIEW)
+            .forEach((targetView) => {
+                addItem(`Move to Organizer ${targetView}`, () => {
+                    if (window.showMovePanelModal) window.showMovePanelModal(id, targetView);
+                });
+            });
+
+        if (panel.dataset.type === 'bookmarks') {
+            const sortFolder = (sortBookmarks) => {
+                const panelFolderId = panel.dataset.folderId;
+                if (!panelFolderId) return;
+                chrome.storage.local.get('settings', (data) => {
+                    const settings = data.settings || {};
+                    const options = {
+                        recursive: typeof settings.sortRecursively === 'boolean' ? settings.sortRecursively : false,
+                        sortOrder: settings.sortOrder || 'mixed',
+                        sortBookmarks
+                    };
+                    if (typeof sortBookmarksInFolder === 'function') {
+                        sortBookmarksInFolder(panelFolderId, options, () => {
+                            if (window.bookmarkRefreshCallbacks) {
+                                window.bookmarkRefreshCallbacks.forEach((cb) => cb());
+                            }
+                        });
+                    }
+                });
+            };
+            addItem('Sort Folder', () => sortFolder(false));
+            addItem('Sort Folder & Bookmarks', () => sortFolder(true));
+            addItem('Delete Folder...', () => {
+                if (window.showDeleteFolderModal) window.showDeleteFolderModal(id, title);
+            });
+        }
+
+        menu.style.top = `${y}px`;
+        menu.style.left = `${x}px`;
+        document.body.appendChild(menu);
+
+        const onMenuKey = (e) => {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeMenu();
+            }
+        };
+        const closeMenu = () => {
+            if (menu.parentNode) menu.remove();
+            document.removeEventListener('click', closeMenu);
+            document.removeEventListener('keydown', onMenuKey, true);
+        };
+
+        // Add listeners on next tick so the opening click does not close it.
         setTimeout(() => {
             document.addEventListener('click', closeMenu);
-            // Also close if another context menu updates, but simpler to just listen for clicks
-            document.addEventListener('contextmenu', (e) => {
-                if (!menu.contains(e.target)) {
-                    closeMenu();
-                }
-            });
+            document.addEventListener('keydown', onMenuKey, true);
         }, 0);
+
+        const first = menu.querySelector('.context-menu-item');
+        if (first) first.focus();
+    }
+
+    panelHeader.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        openPanelMenu(e.clientX, e.clientY);
     });
 
     const titleElement = document.createElement('h3');
@@ -310,6 +272,23 @@ function createPanel(panelState, onStateChange) {
 
     const panelActions = document.createElement('div');
     panelActions.className = 'panel-actions';
+
+    // Keyboard- and touch-reachable equivalent of right-click.
+    const menuButton = document.createElement('button');
+    menuButton.type = 'button';
+    menuButton.className = 'panel-menu-btn';
+    menuButton.title = 'Panel actions';
+    menuButton.setAttribute('aria-label', 'Panel actions');
+    menuButton.setAttribute('aria-haspopup', 'menu');
+    menuButton.textContent = '\u22EE';
+    menuButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const existing = document.getElementById('panel-context-menu');
+        if (existing) { existing.remove(); return; }
+        const rect = menuButton.getBoundingClientRect();
+        openPanelMenu(rect.left, rect.bottom);
+    });
+    panelActions.appendChild(menuButton);
 
     const deletePanelButton = document.createElement('button');
     deletePanelButton.innerHTML = '&times;'; // A simple 'x'

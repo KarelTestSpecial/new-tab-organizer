@@ -208,7 +208,7 @@
             </div>
         </div>
 
-        <div id="move-panel-modal" class="modal hidden">
+        <div id="move-panel-modal" class="modal hidden" role="dialog" aria-modal="true">
             <div class="modal-content">
                 <button class="modal-close-btn">&times;</button>
                 <h2>Move Panel</h2>
@@ -228,7 +228,7 @@
             </div>
         </div>
 
-        <div id="delete-folder-modal" class="modal hidden">
+        <div id="delete-folder-modal" class="modal hidden" role="dialog" aria-modal="true">
             <div class="modal-content">
                 <button class="modal-close-btn">&times;</button>
                 <h2>Delete Bookmark Folder</h2>
@@ -246,7 +246,7 @@
             </div>
         </div>
 
-        <div id="add-notes-panel-modal" class="modal hidden">
+        <div id="add-notes-panel-modal" class="modal hidden" role="dialog" aria-modal="true">
             <div class="modal-content">
                 <button class="modal-close-btn">&times;</button>
                 <h2>Add New Notes Panel</h2>
@@ -264,21 +264,10 @@
             </div>
         </div>
 
-        <div id="add-bookmarks-panel-modal" class="modal hidden">
+        <div id="add-bookmarks-panel-modal" class="modal hidden" role="dialog" aria-modal="true">
             <div class="modal-content">
                 <button class="modal-close-btn">&times;</button>
-                <h2 style="margin-bottom: 20px;">Add New Bookmark Panel</h2>
-
-                <!-- Global Organizer Toggle Section -->
-                <div style="margin-bottom: 20px; padding: 12px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <label style="margin:0; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                            <input type="checkbox" id="modal-use-organizer-folders-toggle"> <span>Organizer folders + Sidebar in Chrome Bookmarks</span>
-                            <span class="settings-hint" style="font-size: 0.72rem;">(same setting as in Settings)</span>
-                        </label>
-                        <span class="info-icon" data-tooltip="Enable this to physically organize your bookmarks into one folder per organizer in Chrome. Your Sidebar folder will also be placed in the same root folder. Both when creating new folders and importing existing ones, they will be automatically placed in the correct root folder. If these folders don't exist yet, they will be created immediately upon activation. (see settings panel)">ⓘ</span>
-                    </div>
-                </div>
+                <h2 class="modal-title">Add New Bookmark Panel</h2>
 
                 <form id="add-bookmarks-panel-form">
                     <!-- Create a new folder. Inside the form, so Enter works. -->
@@ -307,20 +296,32 @@
                     </div>
 
                     <!-- Footer: Position and Actions -->
-                    <div class="form-actions" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
-                        <div style="display: flex; align-items: center; gap: 20px;">
-                            <span style="font-weight: bold; font-size: 0.8rem;">Position</span>
-                            <div style="display: flex; gap: 15px;">
-                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.8rem;"><input type="radio" name="bookmarks-position" value="top"> <span>Top</span></label>
-                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.8rem;"><input type="radio" name="bookmarks-position" value="bottom" checked> <span>Bottom</span></label>
+                    <div class="form-actions modal-footer-row">
+                        <div class="modal-footer-group">
+                            <span class="modal-position-label">Position</span>
+                            <div class="modal-radio-row">
+                                <label class="modal-radio-label"><input type="radio" name="bookmarks-position" value="top"> <span>Top</span></label>
+                                <label class="modal-radio-label"><input type="radio" name="bookmarks-position" value="bottom" checked> <span>Bottom</span></label>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 12px;">
-                            <button type="submit" class="settings-btn-item" style="min-width: 80px; font-weight: bold;">Add</button>
-                            <button type="button" class="settings-btn-item cancel-btn" style="min-width: 80px;">Cancel</button>
+                        <div class="modal-footer-actions">
+                            <button type="submit" class="settings-btn-item modal-btn-primary">Add</button>
+                            <button type="button" class="settings-btn-item cancel-btn modal-btn">Cancel</button>
                         </div>
                     </div>
                 </form>
+
+                <!-- Chrome folder mirroring is a global setting; keep it out of the main form. -->
+                <details class="modal-advanced">
+                    <summary>Chrome bookmark folders</summary>
+                    <div class="modal-advanced-body">
+                        <label class="modal-checkbox">
+                            <input type="checkbox" id="modal-use-organizer-folders-toggle">
+                            <span>Organizer folders + Sidebar in Chrome Bookmarks</span>
+                        </label>
+                        <span class="settings-hint">(same setting as in Settings)</span>
+                    </div>
+                </details>
 
                 <!-- Maintenance, not part of adding a panel. Collapsed on purpose. -->
                 <details class="modal-advanced">
@@ -340,7 +341,7 @@
                 </details>
             </div>
         </div>
-        <div id="open-links-modal" class="modal hidden open-links-modal">
+        <div id="open-links-modal" class="modal hidden open-links-modal" role="dialog" aria-modal="true">
             <div class="modal-content">
                 <button class="modal-close-btn">&times;</button>
                 <h2>Open multiple links</h2>
@@ -379,21 +380,21 @@
                 <div id="open-links-toast" class="open-links-toast hidden"></div>
             </div>
         </div>
-        <div id="upgrade-modal" class="modal hidden">
+        <div id="upgrade-modal" class="modal hidden" role="dialog" aria-modal="true">
             <div class="modal-content">
-                <h2 style="margin-bottom: 20px;">Activate Organizer Folders</h2>
+                <h2 class="modal-title">Activate Organizer Folders</h2>
                 <p id="upgrade-organizer-summary"><strong>Upgrade:</strong> Each organizer gets its own folder in Chrome Bookmarks.</p>
                 <p>Panels and folders are automatically synchronized with Chrome.</p>
-                <p style="margin-bottom: 15px;">Choose the parent folder to create the organizer folders in:</p>
+                <p class="upgrade-lead">Choose the parent folder to create the organizer folders in:</p>
                 <form id="upgrade-form">
-                    <div class="form-group" style="margin-bottom: 20px;">
-                        <select id="upgrade-root-select" style="width: 100%; padding: 8px;">
+                    <div class="form-group upgrade-form-group">
+                        <select id="upgrade-root-select" class="upgrade-select">
                             <option value="1">Bookmark Bar</option>
                             <option value="2">Other Bookmarks</option>
                         </select>
                     </div>
-                    <div class="form-actions" style="display: flex; justify-content: space-between;">
-                        <button type="submit" class="settings-btn-item" style="font-weight: bold;">Create folders</button>
+                    <div class="form-actions modal-footer-split">
+                        <button type="submit" class="settings-btn-item modal-btn-primary">Create folders</button>
                         <button type="button" id="upgrade-cancel-btn" class="cancel-btn">Not now</button>
                     </div>
                 </form>
@@ -405,6 +406,7 @@
     <script src="js/tooltips.js"></script>
     <script src="js/bookmarks.js"></script>
     <script src="js/panels.js"></script>
+    <script src="js/modals.js"></script>
     <script src="js/app.js"></script>
     <script src="js/folder-picker.js"></script>
     <script src="js/settings_logic.js"></script>

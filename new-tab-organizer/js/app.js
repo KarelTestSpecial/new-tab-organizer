@@ -1741,18 +1741,36 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
                 }
                 const currentTitle = link.textContent;
                 const currentUrl = link.href;
-                item.innerHTML = `
-                    <div class="edit-form">
-                        <input type="text" class="edit-title" value="${currentTitle}">
-                        <input type="text" class="edit-url" value="${currentUrl}">
-                        <button class="save-bookmark-btn">Save</button>
-                        <button class="cancel-edit-btn">Cancel</button>
-                    </div>
-                `;
-                const titleInput = item.querySelector('.edit-title');
-                const urlInput = item.querySelector('.edit-url');
-                const saveBtn = item.querySelector('.save-bookmark-btn');
-                const cancelBtn = item.querySelector('.cancel-edit-btn');
+                // Built with DOM APIs: a title containing a quote used to break
+                // the value="..." attribute and lose the edit form.
+                const editForm = document.createElement('div');
+                editForm.className = 'edit-form';
+
+                const titleInput = document.createElement('input');
+                titleInput.type = 'text';
+                titleInput.className = 'edit-title';
+                titleInput.value = currentTitle;
+
+                const urlInput = document.createElement('input');
+                urlInput.type = 'text';
+                urlInput.className = 'edit-url';
+                urlInput.value = currentUrl;
+
+                const saveBtn = document.createElement('button');
+                saveBtn.className = 'save-bookmark-btn';
+                saveBtn.textContent = 'Save';
+
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'cancel-edit-btn';
+                cancelBtn.textContent = 'Cancel';
+
+                editForm.appendChild(titleInput);
+                editForm.appendChild(urlInput);
+                editForm.appendChild(saveBtn);
+                editForm.appendChild(cancelBtn);
+
+                item.innerHTML = '';
+                item.appendChild(editForm);
 
                 const saveBookmarkChanges = () => {
                     const newTitle = titleInput.value.trim();
