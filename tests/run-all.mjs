@@ -11,6 +11,7 @@ const SUITES = [
     'test-link-lists.mjs',
     'test-folder-picker.mjs',
     'test-ordering.mjs',
+    'test-leaks.mjs',
     'test-realdrag.mjs'
 ];
 

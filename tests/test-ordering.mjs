@@ -416,6 +416,8 @@ try {
     // --- 11. Create-folder field inside the form ---
     await navigate();
     const created = await evaluate(send, `
+        window.__errs = [];
+        window.addEventListener('error', (e) => window.__errs.push(e.error ? String(e.error.stack) : String(e.message)));
         document.getElementById('add-bookmarks-panel-btn').click();
         await new Promise((r) => setTimeout(r, 220));
         document.getElementById('new-bookmark-folder-name').value = 'Nieuwe map';
@@ -427,11 +429,13 @@ try {
         const panels = await new Promise((res) => chrome.storage.local.get('panelsState', (d) => res(d.panelsState || [])));
         return {
             created: all.some((n) => n.title === 'Nieuwe map'),
-            panelTitles: panels.map((p) => p.title)
+            panelTitles: panels.map((p) => p.title),
+            errs: window.__errs
         };
     `);
     check('the create-folder field still works inside the form', created.created === true, created);
     check('the new folder becomes a panel', created.panelTitles.includes('Nieuwe map'), created.panelTitles);
+    check('the create-folder flow raises no page errors', created.errs.length === 0, created.errs);
 
     // --- 12. Saving an alphabetical policy applies it immediately ---
     await seedSettings({ sidebar: 'manual', root: 'manual', panels: {}, folders: {} });

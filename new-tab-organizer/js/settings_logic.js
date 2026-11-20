@@ -89,9 +89,9 @@ document.addEventListener('DOMContentLoaded', () => {
         headerFontSizeSlider.addEventListener('input', (e) => {
             headerFontSizeValue.textContent = e.target.value + 'px';
             tempSettings.headerFontSize = e.target.value + 'px';
-document.documentElement.style.setProperty('--header-font-size', e.target.value + 'px');
-            
+            document.documentElement.style.setProperty('--header-font-size', e.target.value + 'px');
         });
+        headerFontSizeSlider.addEventListener('change', () => saveSettings(false));
     }
     if (bookmarkFontSizeSlider) {
         bookmarkFontSizeSlider.addEventListener('input', (e) => {
@@ -99,6 +99,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             tempSettings.bookmarkFontSize = e.target.value + 'px';
             document.documentElement.style.setProperty('--bookmark-font-size', e.target.value + 'px');
         });
+        bookmarkFontSizeSlider.addEventListener('change', () => saveSettings(false));
     }
     if (useOrganizerFoldersToggle) {
         useOrganizerFoldersToggle.addEventListener('change', (e) => {
@@ -317,6 +318,17 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
         if (orderingHead) orderingHead.hidden = views.length === 0;
     }
 
+    // Ordering is live like every other control: choosing a policy applies it
+    // now instead of waiting for the Done button.
+    if (orderingSidebar) orderingSidebar.addEventListener('change', () => saveSettings(false));
+    if (orderingOrganizers) {
+        orderingOrganizers.addEventListener('change', (e) => {
+            if (e.target && e.target.matches && e.target.matches('select[data-view]')) {
+                saveSettings(false);
+            }
+        });
+    }
+
     function readOrdering() {
         const result = {
             sidebar: orderingSidebar ? orderingSidebar.value : 'manual',
@@ -432,38 +444,67 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
         saveSettings(false);
     });
 
+    // Sliders and colour pickers preview live and persist on 'change'. Writing
+    // to storage on every 'input' event meant one drag produced dozens of
+    // writes (and, before the callback registry, a duplicate refresh each time).
     dateFontSizeSlider.addEventListener('input', () => {
         const size = `${dateFontSizeSlider.value}px`;
         dateFontSizeValue.textContent = size;
-        saveSettings(false);
+        // updateClock() reads this every second, so set it or it snaps back.
+        window.currentDateSettings.fontSize = size;
+        const dateEl = document.getElementById('date');
+        if (dateEl) dateEl.style.fontSize = size;
+        const batteryEl = document.getElementById('battery');
+        if (batteryEl) batteryEl.style.fontSize = size;
     });
+    dateFontSizeSlider.addEventListener('change', () => saveSettings(false));
 
-
+    const previewColors = () => {
+        const root = document.documentElement;
+        root.style.setProperty('--bg-color', bgColorPicker.value);
+        root.style.setProperty('--sidebar-bg', bgColorPicker.value);
+        root.style.setProperty('--panel-bg', bgColorPicker.value);
+        root.style.setProperty('--text-color', textColorPicker.value);
+        root.style.setProperty('--accent-color', btnColorPicker.value);
+        root.style.setProperty('--border-color', borderColorPicker.value);
+        root.style.setProperty('--input-bg', inputBgColorPicker.value);
+    };
 
     bgColorPicker.addEventListener('input', () => {
         tempSettings.bgColor = bgColorPicker.value;
         tempSettings.sidebarBg = bgColorPicker.value;
         tempSettings.theme = 'custom';
-        saveSettings(false);
+        previewColors();
     });
+    bgColorPicker.addEventListener('change', () => saveSettings(false));
 
     textColorPicker.addEventListener('input', () => {
         tempSettings.textColor = textColorPicker.value;
         tempSettings.theme = 'custom';
-        saveSettings(false);
+        previewColors();
     });
+    textColorPicker.addEventListener('change', () => saveSettings(false));
 
     btnColorPicker.addEventListener('input', () => {
         tempSettings.btnColor = btnColorPicker.value;
         tempSettings.theme = 'custom';
-        saveSettings(false);
+        previewColors();
     });
+    btnColorPicker.addEventListener('change', () => saveSettings(false));
 
     borderColorPicker.addEventListener('input', () => {
         tempSettings.borderColor = borderColorPicker.value;
         tempSettings.theme = 'custom';
-        saveSettings(false);
+        previewColors();
     });
+    borderColorPicker.addEventListener('change', () => saveSettings(false));
+
+    inputBgColorPicker.addEventListener('input', () => {
+        tempSettings.inputBgColor = inputBgColorPicker.value;
+        tempSettings.theme = 'custom';
+        previewColors();
+    });
+    inputBgColorPicker.addEventListener('change', () => saveSettings(false));
 
     function saveSettings(hidePanel = false) {
         const readList = (container) => {
@@ -504,6 +545,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             textColor: textColorPicker.value,
             btnColor: btnColorPicker.value,
             borderColor: borderColorPicker.value,
+            inputBgColor: inputBgColorPicker.value,
         };
 
         // Lists are written for new code; the per-letter booleans stay in sync so
@@ -628,6 +670,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             textColorPicker.value = tempSettings.textColor;
             btnColorPicker.value = tempSettings.btnColor;
             borderColorPicker.value = tempSettings.borderColor;
+            inputBgColorPicker.value = tempSettings.inputBgColor;
 
 
 

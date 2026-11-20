@@ -560,8 +560,9 @@ function createPanel(panelState, onStateChange) {
                     }, titleContext);
                 });
             };
-            // Register this refresh function globally
-            window.bookmarkRefreshCallbacks.push(refreshPanel);
+            // One callback per panel. A re-render replaces the old closure
+            // instead of leaving it behind pointing at a detached container.
+            window.bookmarkRefreshCallbacks.set('panel:' + id, refreshPanel);
             refreshPanel();
         }
     }

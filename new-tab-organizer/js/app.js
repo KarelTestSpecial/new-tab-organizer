@@ -1,7 +1,10 @@
 const undoStack = [];
 const redoStack = []; // Global Redo Stack
 window.redoStack = redoStack; // Expose for panels.js to clear it
-window.bookmarkRefreshCallbacks = [];
+// A registry, not a list: sidebar and every bookmark panel register one refresh
+// function under a stable key. A Map replaces the entry with the same key, so
+// re-rendering a panel or re-applying settings cannot stack duplicates.
+window.bookmarkRefreshCallbacks = new Map();
 
 window.currentSidebarWidth = 142;
 window.updateSidebarWidthGlobally = function(w) {
@@ -16,10 +19,29 @@ chrome.storage.local.get('settings', data => {
     }
 });
 chrome.storage.onChanged.addListener((changes, namespace) => {
-    if (namespace === 'local' && changes.settings && changes.settings.newValue) {
-        
-        if (changes.settings.newValue.bookmarkFontSize) document.documentElement.style.setProperty('--bookmark-font-size', changes.settings.newValue.bookmarkFontSize);
-        if (changes.settings.newValue.headerFontSize) document.documentElement.style.setProperty('--header-font-size', changes.settings.newValue.headerFontSize);
+    if (namespace !== 'local') return;
+
+    const next = changes.settings && changes.settings.newValue;
+    if (next) {
+        if (next.bookmarkFontSize) document.documentElement.style.setProperty('--bookmark-font-size', next.bookmarkFontSize);
+        if (next.headerFontSize) document.documentElement.style.setProperty('--header-font-size', next.headerFontSize);
+        if (typeof adjustSidebarWidth === 'function') adjustSidebarWidth();
+        // Any open organizer tab follows settings changed in another tab, so two
+        // organizers side by side do not drift apart. applySettings() does not
+        // write to storage, so this cannot loop.
+        if (typeof applySettings === 'function' && document.getElementById('sidebar-bookmarks')) {
+            applySettings(next);
+        }
+    }
+
+    if (changes.sidebarWidth && changes.sidebarWidth.newValue) {
+        window.currentSidebarWidth = changes.sidebarWidth.newValue;
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) {
+            sidebar.style.width = `${changes.sidebarWidth.newValue}px`;
+            sidebar.style.minWidth = `${changes.sidebarWidth.newValue}px`;
+            sidebar.style.flexBasis = `${changes.sidebarWidth.newValue}px`;
+        }
         if (typeof adjustSidebarWidth === 'function') adjustSidebarWidth();
     }
 });
@@ -432,6 +454,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const policy = panelsPolicy();
         const ordered = window.ORDERING ? window.ORDERING.sortByName(panelsState, policy) : panelsState;
         const alphabetical = window.ORDERING && policy === window.ORDERING.ALPHABETICAL;
+
+        // createPanel() registers one refresh callback per bookmark panel. Drop
+        // the previous set first: otherwise every re-render leaves the old
+        // closures behind, each doing work against a detached DOM node.
+        if (window.bookmarkRefreshCallbacks) {
+            [...window.bookmarkRefreshCallbacks.keys()]
+                .filter((key) => key.startsWith('panel:'))
+                .forEach((key) => window.bookmarkRefreshCallbacks.delete(key));
+        }
 
         panelsContainer.innerHTML = '';
         ordered.forEach(panelState => {
@@ -1494,6 +1525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Initialization ---
+    initSidebarDropTarget();
     loadState();
 
     // Chrome folders whose policy is 'alphabetical' are kept that way. This is
@@ -1800,6 +1832,35 @@ function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
     element.appendChild(fragment);
 }
 
+// Bound once. applySettings() runs on every change; binding drag listeners
+// there would stack a new set of handlers on every save.
+function initSidebarDropTarget() {
+    const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
+    if (!sidebarBookmarks) return;
+
+    sidebarBookmarks.addEventListener('dragover', e => {
+        if (sidebarBookmarks.classList.contains('order-alphabetical')) return;
+        e.preventDefault();
+        sidebarBookmarks.classList.add('drag-over');
+    });
+    sidebarBookmarks.addEventListener('dragleave', () => sidebarBookmarks.classList.remove('drag-over'));
+    sidebarBookmarks.addEventListener('drop', e => {
+        e.preventDefault();
+        sidebarBookmarks.classList.remove('drag-over');
+        // Sorted A–Z: a drop would be overwritten on the next render.
+        if (sidebarBookmarks.classList.contains('order-alphabetical')) return;
+        const bookmarkId = e.dataTransfer.getData('text/plain');
+        const destinationFolderId = sidebarBookmarks.dataset.folderId;
+        if (!bookmarkId || !destinationFolderId) return;
+        const afterElement = getBookmarkDragAfterElement(sidebarBookmarks, e.clientY);
+        const children = [...sidebarBookmarks.querySelectorAll('.bookmark-item')];
+        const dropIndex = afterElement ? children.indexOf(afterElement) : children.length;
+        moveBookmark(bookmarkId, { parentId: destinationFolderId, index: dropIndex }, () => {
+            window.bookmarkRefreshCallbacks.forEach(cb => cb());
+        });
+    });
+}
+
 function applySettings(settings) {
     if (!settings) return;
 
@@ -1913,45 +1974,33 @@ function applySettings(settings) {
     }
 
     const sidebarBookmarks = document.getElementById('sidebar-bookmarks');
-    sidebarBookmarks.addEventListener('dragover', e => {
-        if (sidebarBookmarks.classList.contains('order-alphabetical')) return;
-        e.preventDefault();
-        sidebarBookmarks.classList.add('drag-over');
-    });
-    sidebarBookmarks.addEventListener('dragleave', () => sidebarBookmarks.classList.remove('drag-over'));
-    sidebarBookmarks.addEventListener('drop', e => {
-        e.preventDefault();
-        sidebarBookmarks.classList.remove('drag-over');
-        // Sorted A–Z: a drop would be overwritten on the next render.
-        if (sidebarBookmarks.classList.contains('order-alphabetical')) return;
-        const bookmarkId = e.dataTransfer.getData('text/plain');
-        const destinationFolderId = sidebarBookmarks.dataset.folderId;
-        if (!bookmarkId || !destinationFolderId) return;
-        const afterElement = getBookmarkDragAfterElement(sidebarBookmarks, e.clientY);
-        const children = [...sidebarBookmarks.querySelectorAll('.bookmark-item')];
-        const dropIndex = afterElement ? children.indexOf(afterElement) : children.length;
-        moveBookmark(bookmarkId, { parentId: destinationFolderId, index: dropIndex }, () => {
-            window.bookmarkRefreshCallbacks.forEach(cb => cb());
-        });
-    });
-
-    if (settings.sidebarFolderId) {
-        sidebarBookmarks.dataset.folderId = settings.sidebarFolderId;
-        const refreshSidebar = () => {
-            getBookmarksInFolder(settings.sidebarFolderId, (bookmarks) => {
-                // Sorted for display only: Chrome keeps its own order unless the
-                // folder policy says otherwise.
-                const policy = window.ORDERING
-                    ? window.ORDERING.sidebarPolicy(window.__orderingSettings || settings)
-                    : 'manual';
-                const ordered = window.ORDERING ? window.ORDERING.sortByName(bookmarks, policy) : bookmarks;
-                renderBookmarks(sidebarBookmarks, ordered, settings.sidebarFolderId, refreshSidebar);
-            }, 'Sidebar');
-        };
-        window.bookmarkRefreshCallbacks.push(refreshSidebar);
-        refreshSidebar();
-    } else {
-        delete sidebarBookmarks.dataset.folderId;
-        sidebarBookmarks.innerHTML = '<p style="padding: 8px;">' + "Select a folder in settings." + '</p>';
+    if (sidebarBookmarks) {
+        if (settings.sidebarFolderId) {
+            sidebarBookmarks.dataset.folderId = settings.sidebarFolderId;
+            const refreshSidebar = () => {
+                getBookmarksInFolder(settings.sidebarFolderId, (bookmarks) => {
+                    // Sorted for display only: Chrome keeps its own order unless
+                    // the folder policy says otherwise.
+                    const policy = window.ORDERING
+                        ? window.ORDERING.sidebarPolicy(window.__orderingSettings || settings)
+                        : 'manual';
+                    const ordered = window.ORDERING ? window.ORDERING.sortByName(bookmarks, policy) : bookmarks;
+                    renderBookmarks(sidebarBookmarks, ordered, settings.sidebarFolderId, refreshSidebar);
+                }, 'Sidebar');
+            };
+            // Replaces any previous sidebar entry instead of adding one.
+            window.bookmarkRefreshCallbacks.set('sidebar', refreshSidebar);
+            // Re-fetch only when the folder actually changed; a theme tweak
+            // must not hit the bookmarks API again.
+            if (window.__lastSidebarFolderId !== settings.sidebarFolderId) {
+                window.__lastSidebarFolderId = settings.sidebarFolderId;
+                refreshSidebar();
+            }
+        } else {
+            delete sidebarBookmarks.dataset.folderId;
+            window.__lastSidebarFolderId = null;
+            window.bookmarkRefreshCallbacks.delete('sidebar');
+            sidebarBookmarks.innerHTML = '<p style="padding: 8px;">' + "Select a folder in settings." + '</p>';
+        }
     }
 }

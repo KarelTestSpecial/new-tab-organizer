@@ -22,4 +22,5 @@ server, so they must not run in parallel — `run-all.mjs` runs them serially.
 | `test-link-lists.mjs` | link-list modal, tabs, dropzone, reorder, duplicate guard |
 | `test-folder-picker.mjs` | hierarchy, alphabetical order, search, selection, legacy rename |
 | `test-ordering.mjs` | panels/sidebar/Chrome-folder policies, save/sync, leak regression |
+| `test-leaks.mjs` | repeated applies/renders do not stack listeners or callbacks; colour writes once |
 | `test-realdrag.mjs` | real CDP mouse drag (browser effect negotiation, not synthetic events) |
