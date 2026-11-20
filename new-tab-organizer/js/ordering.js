@@ -79,10 +79,12 @@
     // Sorts the children of every Chrome folder whose policy is 'alphabetical'.
     // The organizer folders are found by name under the root, because their ids
     // are not stored anywhere and change when Chrome re-creates them.
+    // Calls callback(numberOfFoldersSorted) when done.
     function applyChromeOrder(settings, callback) {
         const rootId = (settings && settings.rootFolderId) || '1';
         const o = orderingOf(settings);
         const targets = [];
+        let sortedCount = 0;
 
         if (normalize(o.root) === ALPHABETICAL) targets.push(rootId);
         if (settings && settings.sidebarFolderId && normalize(o.sidebar) === ALPHABETICAL) {
@@ -93,13 +95,13 @@
             .filter((view) => normalize(o.folders && o.folders[view]) === ALPHABETICAL);
 
         if (!targets.length && !views.length) {
-            if (callback) callback();
+            if (callback) callback(0);
             return;
         }
 
         const finish = () => {
             window.__orderingApplying = false;
-            if (callback) callback();
+            if (callback) callback(sortedCount);
         };
 
         const run = () => {
@@ -113,7 +115,10 @@
                         recursive: false,
                         sortOrder: 'mixed',
                         sortBookmarks: true
-                    }, resolve);
+                    }, () => {
+                        sortedCount++;
+                        resolve();
+                    });
                 }));
             });
             chain.then(finish);

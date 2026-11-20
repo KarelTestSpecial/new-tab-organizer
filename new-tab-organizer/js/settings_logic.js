@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderingSidebar = document.getElementById('ordering-sidebar');
     const orderingOrganizers = document.getElementById('ordering-organizers');
     const orderingHead = document.getElementById('ordering-head');
+    const orderingApplyBtn = document.getElementById('ordering-apply-btn');
+    const orderingStatus = document.getElementById('ordering-status');
 
     const useOrganizerFoldersToggle = document.getElementById('use-organizer-folders-toggle');
 
@@ -507,6 +509,18 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             }
             updateButtonText();
             applySettings(settingsToSave);
+
+            // A policy is a standing instruction, not a note: apply it now
+            // instead of waiting for the next startup. Without this, choosing
+            // 'Alphabetical' and saving looks like it did nothing.
+            if (window.ORDERING) {
+                window.ORDERING.applyChromeOrder(settingsToSave, () => {
+                    if (window.bookmarkRefreshCallbacks) {
+                        window.bookmarkRefreshCallbacks.forEach((cb) => cb());
+                    }
+                });
+            }
+
             if (window.populateBookmarkFolderDropdown) {
                 window.populateBookmarkFolderDropdown();
             }
@@ -784,6 +798,31 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                     }
                 });
             }
+        });
+    }
+
+    if (orderingApplyBtn) {
+        orderingApplyBtn.addEventListener('click', () => {
+            if (!window.ORDERING) return;
+            if (orderingStatus) orderingStatus.textContent = 'Sorting…';
+
+            // Apply what the controls show right now, not what is stored: the
+            // user may not have pressed Save yet.
+            const settings = {
+                ...tempSettings,
+                sidebarFolderId: sidebarFolderSelect.value,
+                rootFolderId: extensionRootFolderSelect.value || '1',
+                ordering: readOrdering()
+            };
+
+            window.ORDERING.applyChromeOrder(settings, (count) => {
+                if (orderingStatus) {
+                    orderingStatus.textContent = count === 1 ? 'Sorted 1 folder.' : `Sorted ${count} folders.`;
+                }
+                if (window.bookmarkRefreshCallbacks) {
+                    window.bookmarkRefreshCallbacks.forEach((cb) => cb());
+                }
+            });
         });
     }
 

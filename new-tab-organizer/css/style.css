@@ -973,6 +973,13 @@ body {
     width: 100%;
 }
 
+.settings-ordering-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
 /* --- Sidebar sorted badge --- */
 .order-badge {
     display: inline-block;
