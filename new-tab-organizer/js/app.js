@@ -28,25 +28,36 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
 window.currentDateSettings = {
     showYear: true,
     showDayOfWeek: true,
-    fontSize: '11px',
-    language: 'auto'
+    fontSize: '11px'
 };
 
+// --- Organizer Configuration ---
+// Every organizer is addressed by letter. The number of organizers is a setting
+// (1-26), so all UI that used to hardcode A-D is rendered from this list.
+function renderOrganizerConfiguration(settings) {
+    const views = window.getOrganizerViews();
+    window.organizerSettingsSnapshot = settings;
+    window.renderOrganizerSidebarNav(views, CURRENT_VIEW);
+    window.renderOrganizerSettingsControls(views, settings);
+}
+
 // --- View Identification ---
+// Organizers are addressed by letter (?view=B). The old panelB.html files are
+// still accepted so existing tabs and bookmarks keep working.
 function getCurrentView() {
+    const params = new URLSearchParams(window.location.search);
+    const requested = (params.get('view') || '').toUpperCase();
+    if (/^[A-Z]$/.test(requested)) return requested;
+
     const filename = window.location.pathname.split('/').pop();
-    if (filename.startsWith('panelA')) return 'A';
-    if (filename.startsWith('panelB')) return 'B';
-    if (filename.startsWith('panelC')) return 'C';
-    if (filename.startsWith('panelD')) return 'D';
+    const match = filename.match(/^panel([A-Z])\.html$/i);
+    if (match) return match[1].toUpperCase();
+
     return 'A'; // Default to A
 }
 
 function getStorageKey(view) {
-    if (view === 'B') return 'panelsState_B';
-    if (view === 'C') return 'panelsState_C';
-    if (view === 'D') return 'panelsState_D';
-    return 'panelsState'; // Default to A
+    return window.getStorageKeyForView(view);
 }
 
 const CURRENT_VIEW = getCurrentView();
@@ -62,7 +73,7 @@ window.ensureOrganizerFolders = function(rootId, callback) {
                     if (callback) callback();
                     return;
                 }
-                const views = ['A', 'B', 'C', 'D'];
+                const views = getOrganizerViews();
                 let promises = views.map(v => {
                     return new Promise((resolve) => {
                         const folderName = `Organizer ${v}`;
@@ -83,14 +94,14 @@ window.ensureOrganizerFolders = function(rootId, callback) {
 
         const foundFolders = {};
         function traverse(node) {
-            if (!node.url && ['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D'].includes(node.title)) {
+            if (!node.url && isOrganizerFolderTitle(node.title)) {
                 foundFolders[node.title] = node;
             }
             if (node.children) node.children.forEach(traverse);
         }
         traverse(tree[0]);
 
-        const views = ['A', 'B', 'C', 'D'];
+        const views = getOrganizerViews();
         let promises = views.map(v => {
             return new Promise((resolve) => {
                 const folderName = `Organizer ${v}`;
@@ -122,13 +133,7 @@ window.ensureOrganizerFolders = function(rootId, callback) {
 
 window.ensureSidebarFolder = function(rootId, settingsObj, callback) {
     const findOrCreateSidebar = () => {
-        const lang = settingsObj.language || 'auto';
-        let activeLang = lang;
-        if (activeLang === 'auto') {
-            const uiLang = chrome.i18n.getUILanguage();
-            activeLang = uiLang ? uiLang.split('-')[0].toLowerCase() : 'en';
-        }
-        const folderName = activeLang === 'nl' ? 'Zijbalk' : 'Sidebar';
+        const folderName = 'Sidebar';
         chrome.bookmarks.create({ parentId: rootId, title: folderName }, (newFolder) => {
             if (!chrome.runtime.lastError && newFolder) {
                 settingsObj.sidebarFolderId = newFolder.id;
@@ -156,7 +161,22 @@ window.ensureSidebarFolder = function(rootId, settingsObj, callback) {
     });
 };
 
-document.addEventListener('i18nReady', () => {
+document.addEventListener('DOMContentLoaded', () => {
+    // --- Organizer configuration (count + views) ---
+    // The view list is needed before any nav link or folder check runs.
+    chrome.storage.local.get('settings', (data) => {
+        const settings = data.settings || {};
+        let count = parseInt(settings.organizerCount, 10);
+        if (isNaN(count)) count = ORGANIZERS.DEFAULT_COUNT;
+        count = Math.min(ORGANIZERS.MAX_COUNT, Math.max(1, count));
+
+        const views = [];
+        for (let i = 0; i < count; i++) views.push(ORGANIZERS.toLetter(i));
+        window.organizerViews = views;
+
+        renderOrganizerConfiguration(settings);
+    });
+
     // --- Organizer Folders Upgrade Logic ---
     chrome.storage.local.get(['foldersUpgradeDone', 'settings'], (data) => {
         if (!data.foldersUpgradeDone) {
@@ -165,7 +185,7 @@ document.addEventListener('i18nReady', () => {
 
             chrome.bookmarks.getChildren(rootId, (children) => {
                 if (chrome.runtime.lastError) return; // Silent fail if root folder doesn't exist
-                const views = ['A', 'B', 'C', 'D'];
+                const views = getOrganizerViews();
                 const allExist = views.every(v => children.some(c => !c.url && c.title === `Organizer ${v}`));
 
                 if (!allExist) {
@@ -173,86 +193,33 @@ document.addEventListener('i18nReady', () => {
                     const upgradeForm = document.getElementById('upgrade-form');
                     const upgradeRootSelect = document.getElementById('upgrade-root-select');
                     const upgradeCancelBtn = document.getElementById('upgrade-cancel-btn');
+                    const upgradeSummary = document.getElementById('upgrade-organizer-summary');
 
                     if (upgradeModal && upgradeForm && upgradeRootSelect) {
-                        // Populate upgradeRootSelect dynamically based on current language
                         upgradeRootSelect.innerHTML = '';
                         const barOption = document.createElement('option');
                         barOption.value = '1';
-                        
+                        barOption.textContent = 'Bookmark Bar';
+
                         const otherOption = document.createElement('option');
                         otherOption.value = '2';
-
-                        const lang = settings.language || 'auto';
-                        let activeLang = lang;
-                        if (activeLang === 'auto') {
-                            const uiLang = chrome.i18n.getUILanguage();
-                            activeLang = uiLang ? uiLang.split('-')[0].toLowerCase() : 'en';
-                        }
-
-                        if (activeLang === 'nl') {
-                            barOption.textContent = 'Bladwijzerbalk';
-                            otherOption.textContent = 'Andere bladwijzers';
-                        } else if (activeLang === 'fr') {
-                            barOption.textContent = 'Barre de favoris';
-                            otherOption.textContent = 'Autres favoris';
-                        } else if (activeLang === 'de') {
-                            barOption.textContent = 'Lesezeichenleiste';
-                            otherOption.textContent = 'Andere Lesezeichen';
-                        } else if (activeLang === 'es') {
-                            barOption.textContent = 'Barra de marcadores';
-                            otherOption.textContent = 'Otros marcadores';
-                        } else if (activeLang === 'pt') {
-                            barOption.textContent = 'Barra de favoritos';
-                            otherOption.textContent = 'Outros favoritos';
-                        } else {
-                            barOption.textContent = 'Bookmark Bar';
-                            otherOption.textContent = 'Other Bookmarks';
-                        }
+                        otherOption.textContent = 'Other Bookmarks';
 
                         upgradeRootSelect.appendChild(barOption);
                         upgradeRootSelect.appendChild(otherOption);
 
-                        upgradeRootSelect.value = rootId; // Set default selection to current setting
+                        upgradeRootSelect.value = rootId; // Default selection = current setting
 
-                        // Dynamic text replacement listener
-                        const updateUpgradeText = () => {
-                            const descSpan = document.querySelector('[data-i18n="upgrade_desc1"]');
-                            if (!descSpan) return;
-                            const baseText = I18N.getMessage('upgrade_desc1') || "Elke Organizer (A, B, C, D) krijgt een eigen map in Chrome Bookmarks.";
-                            const selectedIndex = upgradeRootSelect.selectedIndex;
-                            if (selectedIndex < 0) return;
-                            const selectedText = upgradeRootSelect.options[selectedIndex].text;
-
-                            let newText = baseText;
-                            const placeholders = [
-                                'Chrome Bookmarks',
-                                'les favoris Chrome',
-                                'Chrome-Lesezeichen',
-                                'Marcadores de Chrome',
-                                'Favoritos do Chrome'
-                            ];
-
-                            let replaced = false;
-                            for (const placeholder of placeholders) {
-                                if (newText.includes(placeholder)) {
-                                    newText = newText.replace(placeholder, selectedText);
-                                    replaced = true;
-                                    break;
-                                }
-                            }
-                            if (!replaced) {
-                                if (newText.includes('Chrome')) {
-                                    newText = newText.replace('Chrome', selectedText);
-                                } else {
-                                    newText = `Elke Organizer (A, B, C, D) krijgt een eigen map in ${selectedText}.`;
-                                }
-                            }
-                            descSpan.textContent = newText;
-                        };
-
-                        upgradeRootSelect.addEventListener('change', updateUpgradeText);
-                        updateUpgradeText(); // Run initially
+                        // The number of organizers is configurable, so the list of
+                        // folder names in the dialog has to follow it.
+                        if (upgradeSummary) {
+                            const range = views.length > 3
+                                ? views[0] + '\u2013' + views[views.length - 1]
+                                : views.join(', ');
+                            upgradeSummary.textContent = views.length === 1
+                                ? 'Upgrade: Your organizer gets its own folder in Chrome Bookmarks.'
+                                : 'Upgrade: Each organizer (' + range + ') gets its own folder in Chrome Bookmarks.';
+                        }
 
                         upgradeModal.classList.remove('hidden');
 
@@ -293,40 +260,26 @@ document.addEventListener('i18nReady', () => {
     });
 
     // --- Startup Logic ---
+    // The new tab always loads organizer A, so that is the tab to keep. If A is
+    // not wanted, this tab is redirected to the first organizer that is; the
+    // rest of the enabled organizers open in background tabs.
     if (CURRENT_VIEW === 'A') {
-        if (!window.sessionStorage.getItem('startupHandled')) {
-            window.sessionStorage.setItem('startupHandled', 'true');
-            chrome.storage.local.get('settings', (localData) => {
-                const settings = localData.settings || {};
-                const startupA = typeof settings.startupA === 'boolean' ? settings.startupA : true;
-                const startupB = typeof settings.startupB === 'boolean' ? settings.startupB : false;
-                const startupC = typeof settings.startupC === 'boolean' ? settings.startupC : false;
-                const startupD = typeof settings.startupD === 'boolean' ? settings.startupD : false;
+        chrome.storage.local.get('settings', (localData) => {
+            const settings = localData.settings || {};
+            const enabledViews = getStartupViews(settings)
+                .map((enabled, index) => (enabled ? ORGANIZERS.toLetter(index) : null))
+                .filter(Boolean);
 
-                if (!startupA) {
-                    // User doesn't want A on startup.
-                    if (startupB) {
-                        // Redirect current tab A to B
-                        window.location.replace('panelB.html');
-                        if (startupC) chrome.tabs.create({ url: 'panelC.html', active: false });
-                        if (startupD) chrome.tabs.create({ url: 'panelD.html', active: false });
-                    } else if (startupC) {
-                        // Redirect current tab A to C
-                        window.location.replace('panelC.html');
-                        if (startupD) chrome.tabs.create({ url: 'panelD.html', active: false });
-                    } else if (startupD) {
-                        // Redirect current tab A to D
-                        window.location.replace('panelD.html');
-                    }
-                    // If all false, validation in settings should prevent this, but default A is fallback
-                } else {
-                    // A is wanted (and we are here). Open others if needed.
-                    if (startupB) chrome.tabs.create({ url: 'panelB.html', active: false });
-                    if (startupC) chrome.tabs.create({ url: 'panelC.html', active: false });
-                    if (startupD) chrome.tabs.create({ url: 'panelD.html', active: false });
-                }
-            });
-        }
+            const keepView = enabledViews.includes('A') ? 'A' : enabledViews[0];
+
+            if (keepView && keepView !== 'A') {
+                window.location.replace(ORGANIZERS.makePanelUrl(keepView));
+            }
+
+            enabledViews
+                .filter(view => view !== keepView)
+                .forEach(view => chrome.tabs.create({ url: ORGANIZERS.makePanelUrl(view), active: false }));
+        });
     }
 
     const panelsContainer = document.getElementById('panels-container');
@@ -474,8 +427,7 @@ document.addEventListener('i18nReady', () => {
             }
 
             getFoldersRecursive(targetRootId, 0, folders => {
-                panelFolderSelect.innerHTML = '<option value="">' + I18N.getMessage('select_folders_prompt') + '</option>';
-                const organizerNames = new Set(['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D']);
+                panelFolderSelect.innerHTML = '<option value="">' + "--Select folders (Ctrl+Click)--" + '</option>';
                 const skipIds = new Set();
                 if (settings.sidebarFolderId) skipIds.add(settings.sidebarFolderId);
                 folders.forEach(folder => {
@@ -484,7 +436,7 @@ document.addEventListener('i18nReady', () => {
                     option.value = folder.id;
                     const indent = '\u00A0'.repeat(folder.depth * 4);
                     const alreadyAdded = usedFolderIds.has(folder.id);
-                    const isOrganizer = organizerNames.has(folder.title);
+                    const isOrganizer = isOrganizerFolderTitle(folder.title);
                     option.textContent = indent + folder.title + (isOrganizer ? '' : '') + (alreadyAdded && !isOrganizer ? ' ✓' : '');
                     if (alreadyAdded && !isOrganizer) {
                         option.style.color = isDark ? '#999' : '#888';
@@ -569,7 +521,7 @@ document.addEventListener('i18nReady', () => {
                 const rootId = settings.rootFolderId || '1';
                 
                 if (isChecked) {
-                    const confirmed = confirm(I18N.getMessage('confirm_enable_folders'));
+                    const confirmed = confirm("We use the principle: What you see in the extension is what you have in Chrome.\n\nOne folder per organizer (" + getOrganizerViews().map(v => 'Organizer ' + v).join(', ') + ") will be created in Chrome Bookmarks. When you move panels via right-click or swap, the corresponding folders in Chrome will also be moved.\n\nDo you agree?");
                     if (confirmed) {
                         settings.useOrganizerFolders = true;
                         window.ensureOrganizerFolders(rootId, () => {
@@ -586,7 +538,7 @@ document.addEventListener('i18nReady', () => {
                     }
                 } else {
                     // Turn off
-                    alert(I18N.getMessage('alert_auto_move_off'));
+                    alert("Automatic folder moving is disabled. Your existing Organizer folders have NOT been removed.");
                     settings.useOrganizerFolders = false;
                     chrome.storage.local.set({ settings: settings }, () => {
                         const panelToggle = document.getElementById('use-organizer-folders-toggle');
@@ -615,7 +567,7 @@ document.addEventListener('i18nReady', () => {
         createNewFolderBtn.addEventListener('click', () => {
             const folderName = newFolderNameInput.value.trim();
             if (!folderName) {
-                alert(I18N.getMessage('alert_provide_name'));
+                alert("Please provide a name for the new folder.");
                 return;
             }
 
@@ -627,7 +579,7 @@ document.addEventListener('i18nReady', () => {
                 const createFolderAndPanel = (parentId) => {
                     chrome.bookmarks.create({ parentId: parentId, title: folderName }, (newFolder) => {
                         if (chrome.runtime.lastError) {
-                            alert(I18N.getMessage('alert_error_creating') + chrome.runtime.lastError.message);
+                            alert("Error creating folder: " + chrome.runtime.lastError.message);
                             return;
                         }
                         // Add as a panel to the current view
@@ -751,7 +703,8 @@ document.addEventListener('i18nReady', () => {
 
 
     document.getElementById('sort-bookmarks-popup-btn').addEventListener('click', () => {
-        chrome.storage.local.get(['settings', 'panelsState', 'panelsState_B', 'panelsState_C', 'panelsState_D'], (data) => {
+        const stateKeys = ['settings'].concat(getOrganizerStorageKeys());
+        chrome.storage.local.get(stateKeys, (data) => {
             const settings = data.settings || {};
             const rootId = settings.rootFolderId || '1';
             
@@ -765,7 +718,7 @@ document.addEventListener('i18nReady', () => {
 
             // Find all active bookmark panel folder IDs across all views to exclude them from recursive/general sorting
             const activeFolderIds = [];
-            ['panelsState', 'panelsState_B', 'panelsState_C', 'panelsState_D'].forEach(key => {
+            getOrganizerStorageKeys().forEach(key => {
                 const panels = data[key] || [];
                 panels.forEach(panel => {
                     if (panel.type === 'bookmarks' && panel.folderId) {
@@ -838,12 +791,12 @@ document.addEventListener('i18nReady', () => {
             }
 
             if (folderIds.length === 0) {
-                alert(I18N.getMessage('alert_select_one_folder'));
+                alert("Please select at least one bookmark folder.");
                 return;
             }
 
             if (settings.useOrganizerFolders) {
-                const confirmed = confirm(I18N.getMessage('confirm_flattening'));
+                const confirmed = confirm("Note: all folders will be placed in the root of the Organizer folder (including subfolders), any tree structures will be lost -- everything will become one flat structure with all folders next to each other without subfolders. If you agree, the folder structure will be effectively flattened in Chrome. Do you want to continue?");
                 if (!confirmed) {
                     return;
                 }
@@ -1363,11 +1316,8 @@ document.addEventListener('i18nReady', () => {
 
     function updateClock() {
         const now = new Date();
-        const locale = window.currentDateSettings.language && window.currentDateSettings.language !== 'auto' 
-            ? window.currentDateSettings.language 
-            : [];
 
-        document.getElementById('clock').textContent = now.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', hour12: false });
+        document.getElementById('clock').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false });
 
         const dateOptions = { month: 'long', day: 'numeric' };
         if (window.currentDateSettings.showDayOfWeek) {
@@ -1378,7 +1328,7 @@ document.addEventListener('i18nReady', () => {
         }
 
         const dateElement = document.getElementById('date');
-        dateElement.textContent = now.toLocaleDateString(locale, dateOptions);
+        dateElement.textContent = now.toLocaleDateString([], dateOptions);
         dateElement.style.fontSize = window.currentDateSettings.fontSize;
 
         const batteryElement = document.getElementById('battery');
@@ -1390,67 +1340,67 @@ document.addEventListener('i18nReady', () => {
     }
 
     // --- View Navigation ---
-    function navigateToView(viewUrl, isCtrlClick) {
-        const targetUrl = chrome.runtime.getURL(viewUrl);
+    function organizerTabUrl(view) {
+        return chrome.runtime.getURL('panel.html') + '?view=' + view;
+    }
 
+    // chrome.tabs.query({url}) does not match URLs with a query string reliably,
+    // so all extension tabs are listed and matched on the base path instead.
+    function findOrganizerTab(view, callback) {
+        const basePath = chrome.runtime.getURL('panel.html');
+        chrome.tabs.query({}, (tabs) => {
+            const matches = (tabs || []).filter((tab) => {
+                if (!tab.url || !tab.url.startsWith(basePath)) return false;
+                if (tab.url === basePath) return view === 'A';
+                return new URL(tab.url).searchParams.get('view') === view;
+            });
+            callback(matches);
+        });
+    }
+
+    function focusTab(tab) {
+        chrome.tabs.update(tab.id, { active: true });
+        chrome.windows.update(tab.windowId, { focused: true });
+    }
+
+    function navigateToView(view, isCtrlClick) {
         if (!isCtrlClick) {
-            window.location.href = viewUrl;
+            window.location.href = '?view=' + view;
             return;
         }
 
-        // First, query for the specific extension URL.
-        chrome.tabs.query({ url: targetUrl }, (tabs) => {
+        findOrganizerTab(view, (tabs) => {
             if (tabs.length > 0) {
-                // Found the specific tab. Reload and focus it.
-                const tabToFocus = tabs[0];
-                chrome.tabs.reload(tabToFocus.id);
-                chrome.tabs.update(tabToFocus.id, { active: true });
-                chrome.windows.update(tabToFocus.windowId, { focused: true });
+                chrome.tabs.reload(tabs[0].id);
+                focusTab(tabs[0]);
+                return;
+            }
+
+            // Nothing open for this organizer. For organizer A there is usually a
+            // new-tab page we can turn into the organizer instead of opening another tab.
+            if (view === 'A') {
+                chrome.tabs.query({ url: 'chrome://newtab/' }, (newTabs) => {
+                    if (newTabs.length > 0) {
+                        chrome.tabs.update(newTabs[0].id, { url: organizerTabUrl('A'), active: true });
+                        chrome.windows.update(newTabs[0].windowId, { focused: true });
+                    } else {
+                        chrome.tabs.create({ url: organizerTabUrl('A') });
+                    }
+                });
             } else {
-                // If not found, and we are trying to open Panel A, check for a 'newtab' page to reuse.
-                if (viewUrl.includes('panelA')) {
-                    chrome.tabs.query({ url: 'chrome://newtab/' }, (newTabs) => {
-                        if (newTabs.length > 0) {
-                            // Found a 'newtab' page, so update it to become our Panel A.
-                            const tabToUpdate = newTabs[0];
-                            chrome.tabs.update(tabToUpdate.id, { url: targetUrl, active: true });
-                            chrome.windows.update(tabToUpdate.windowId, { focused: true });
-                        } else {
-                            // No specific Panel A tab and no 'newtab' to reuse. Create a new one.
-                            chrome.tabs.create({ url: targetUrl });
-                        }
-                    });
-                } else {
-                    // For Panel B or C, if they don't exist, just create them.
-                    chrome.tabs.create({ url: targetUrl });
-                }
+                chrome.tabs.create({ url: organizerTabUrl(view) });
             }
         });
     }
 
-    document.getElementById('nav-view-1').addEventListener('click', (e) => {
-        e.preventDefault();
-        navigateToView('panelA.html', e.ctrlKey || e.metaKey);
+    window.getOrganizerViews().forEach((view, index) => {
+        const link = document.getElementById('nav-view-' + (index + 1));
+        if (!link) return;
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateToView(view, e.ctrlKey || e.metaKey);
+        });
     });
-    document.getElementById('nav-view-2').addEventListener('click', (e) => {
-        e.preventDefault();
-        navigateToView('panelB.html', e.ctrlKey || e.metaKey);
-    });
-    document.getElementById('nav-view-3').addEventListener('click', (e) => {
-        e.preventDefault();
-        navigateToView('panelC.html', e.ctrlKey || e.metaKey);
-    });
-    document.getElementById('nav-view-4').addEventListener('click', (e) => {
-        e.preventDefault();
-        navigateToView('panelD.html', e.ctrlKey || e.metaKey);
-    });
-
-    // Highlight the active view link
-    let activeViewIndex = 1;
-    if (CURRENT_VIEW === 'B') activeViewIndex = 2;
-    if (CURRENT_VIEW === 'C') activeViewIndex = 3;
-    if (CURRENT_VIEW === 'D') activeViewIndex = 4;
-    document.getElementById(`nav-view-${activeViewIndex}`).classList.add('active-view-link');
 
     // --- Bookmark Change Listener ---
     chrome.bookmarks.onChanged.addListener((id, changeInfo) => {
@@ -1634,7 +1584,7 @@ document.addEventListener('i18nReady', () => {
 function renderBookmarks(element, bookmarks, folderId, refreshCallback) {
     element.innerHTML = '';
     if (!bookmarks || bookmarks.length === 0) {
-        element.innerHTML = '<p class="empty-folder-message">' + I18N.getMessage('this_folder_empty') + '</p>';
+        element.innerHTML = '<p class="empty-folder-message">' + "This folder is empty." + '</p>';
         return;
     }
     const fragment = document.createDocumentFragment();
@@ -1766,7 +1716,7 @@ function applySettings(settings) {
 
     const container = document.getElementById('panels-container');
     if (container) {
-        const isRowLayout = settings[`layoutRow${CURRENT_VIEW}`];
+        const isRowLayout = getRowLayout(settings, CURRENT_VIEW);
         if (isRowLayout) {
             container.classList.add('row-layout');
         } else {
@@ -1810,8 +1760,7 @@ function applySettings(settings) {
     window.currentDateSettings = {
         showYear: typeof settings.showYear === 'boolean' ? settings.showYear : true,
         showDayOfWeek: typeof settings.showDayOfWeek === 'boolean' ? settings.showDayOfWeek : true,
-        fontSize: settings.dateFontSize || '11px',
-        language: settings.language || 'auto'
+        fontSize: settings.dateFontSize || '11px'
     };
 
     // Force clock update to apply new formats immediately
@@ -1829,10 +1778,7 @@ function applySettings(settings) {
         if (window.currentDateSettings.showYear) {
             dateOptions.year = 'numeric';
         }
-        const locale = window.currentDateSettings.language && window.currentDateSettings.language !== 'auto' 
-            ? window.currentDateSettings.language 
-            : [];
-        dateElement.textContent = now.toLocaleDateString(locale, dateOptions);
+        dateElement.textContent = now.toLocaleDateString([], dateOptions);
         dateElement.style.fontSize = window.currentDateSettings.fontSize;
     }
 
@@ -1867,6 +1813,6 @@ function applySettings(settings) {
         refreshSidebar();
     } else {
         delete sidebarBookmarks.dataset.folderId;
-        sidebarBookmarks.innerHTML = '<p style="padding: 8px;">' + I18N.getMessage('select_folder_settings') + '</p>';
+        sidebarBookmarks.innerHTML = '<p style="padding: 8px;">' + "Select a folder in settings." + '</p>';
     }
 }

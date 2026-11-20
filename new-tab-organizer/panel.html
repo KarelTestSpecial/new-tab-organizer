@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Organizer A</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/Sortable.min.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <aside id="sidebar">
+            <div id="sidebar-header">
+                <div id="clock"></div>
+                <div id="date"></div>
+                <div id="battery"></div>
+            </div>
+            <div class="sidebar-actions">
+                <div class="sidebar-actions-group">
+                    <button id="add-notes-panel-btn" title="Add Notes Panel">+ N</button>
+                    <button id="add-bookmarks-panel-btn" title="Add Bookmarks Panel">+ B</button>
+                    <button id="quick-backup-btn" title="Backup (Export Data)">&#129035;</button>
+                    <button id="open-links-btn" title="Open multiple links">&#8649;</button>
+                </div>
+                <div class="settings-and-views">
+                    <a href="#" id="settings-btn">Settings</a>
+                    <div class="sidebar-view-nav" id="sidebar-view-nav"></div>
+                </div>
+            </div>
+            <div class="sidebar-links">
+                <h2><a href="#" id="bookmarks-title-link">Bookmarks</a></h2>
+                <a href="#" id="history-link" title="History">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="icon">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M12 8l0 4l2 2" />
+                        <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+                    </svg>
+                </a>
+            </div>
+            <div id="sidebar-bookmarks"></div>
+        </aside>
+        <div id="sidebar-resizer"></div>
+        <main id="main-content">
+            <div id="panels-container">
+                <!-- Panels will be dynamically inserted here -->
+            </div>
+        </main>
+        <div id="settings-panel" class="hidden">
+            <button id="close-settings-x" class="settings-close-btn">&times;</button>
+            <div class="settings-scroll">
+            <!-- Card: Backup (top, most used) -->
+            <div class="settings-card">
+                <div class="settings-card-header" style="display: flex; align-items: center; gap: 6px;">
+                    <span>💾 Backup & Restore</span>
+                    <span class="info-icon" data-tooltip="Save which panels and bookmark folders are shown in this view, and their exact positions. This is a layout backup, not a backup of the bookmarks themselves.">ⓘ</span>
+                </div>
+                <div class="settings-backup-row">
+                    <button type="button" id="export-data-btn" class="settings-btn-item">Export Data</button>
+                    <button type="button" id="import-data-btn" class="settings-btn-item">Import Data</button>
+                </div>
+                <input type="file" id="import-file-input" class="hidden" accept=".json">
+            </div>
+
+            <!-- Card: Display -->
+            <div class="settings-card">
+                <div class="settings-card-header">🖥️ Display</div>
+                <div class="settings-toggles-row">
+                    <button type="button" id="clock-toggle-btn" class="settings-toggle-btn">Clock</button>
+                    <button type="button" id="date-toggle-btn" class="settings-toggle-btn">Date</button>
+                    <button type="button" id="day-toggle-btn" class="settings-toggle-btn">Day</button>
+                    <button type="button" id="year-toggle-btn" class="settings-toggle-btn">Year</button>
+                    <button type="button" id="battery-toggle-btn" class="settings-toggle-btn">Battery</button>
+                    <div class="settings-toggle-divider"></div>
+                    <button type="button" id="theme-toggle-btn" class="settings-toggle-btn theme-btn-special">Light</button>
+                </div>
+            </div>
+
+            <!-- Section: Colors & Fonts -->
+            <div class="settings-card">
+                <div class="settings-card-header">🎨 Colors & Fonts</div>
+                <div class="settings-slider-row">
+                    <div class="settings-slider-group">
+                        <label for="date-font-size-slider">📏 Date size</label>
+                        <div class="settings-slider-control">
+                            <input type="range" id="date-font-size-slider" min="8" max="18" step="1">
+                            <span id="date-font-size-value">11px</span>
+                        </div>
+                    </div>
+                    <div class="settings-slider-group">
+                        <label for="header-font-size-slider">📏 Titles</label>
+                        <div class="settings-slider-control">
+                            <input type="range" id="header-font-size-slider" min="12" max="24" step="1">
+                            <span id="header-font-size-value">15px</span>
+                        </div>
+                    </div>
+                    <div class="settings-slider-group">
+                        <label for="bookmark-font-size-slider">📏 Text</label>
+                        <div class="settings-slider-control">
+                            <input type="range" id="bookmark-font-size-slider" min="10" max="20" step="1">
+                            <span id="bookmark-font-size-value">12px</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-color-row">
+                    <label class="settings-color-label" title="Background">
+                        <span>Background</span>
+                        <input type="color" id="bg-color-picker">
+                    </label>
+                    <label class="settings-color-label" title="Text">
+                        <span>Text</span>
+                        <input type="color" id="text-color-picker">
+                    </label>
+                    <label class="settings-color-label" title="Buttons">
+                        <span>Buttons</span>
+                        <input type="color" id="btn-color-picker">
+                    </label>
+                    <label class="settings-color-label" title="Borders">
+                        <span>Borders</span>
+                        <input type="color" id="border-color-picker">
+                    </label>
+                    <label class="settings-color-label" title="Inputs">
+                        <span>Inputs</span>
+                        <input type="color" id="input-bg-color-picker">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Section: Layouts & Startup -->
+            <div class="settings-card">
+                <div class="settings-card-header">🧩 Layout & Startup</div>
+                <div class="settings-startup-row">
+                    <span class="settings-label">Organizers:</span>
+                    <select id="organizer-count-select" class="settings-select"></select>
+                    <span class="settings-hint" style="margin: 0;">How many organizers to show</span>
+                </div>
+                <div class="settings-startup-row">
+                    <span class="settings-label">On startup:</span>
+                    <span id="startup-views-container" class="settings-views-inline"></span>
+                </div>
+                <div class="settings-setting-row">
+                    <span class="settings-label">Row layout:</span>
+                    <span id="layout-views-container" class="settings-views-inline"></span>
+                </div>
+            </div>
+
+            <!-- Section: Bookmarks -->
+            <div class="settings-card">
+                <div class="settings-card-header">📂 Bookmarks</div>
+                <div class="settings-folders-row">
+                    <select id="sidebar-folder-select">
+                        <option value="">Sidebar folder</option>
+                    </select>
+                    <select id="extension-root-folder-select">
+                        <option value="">Root folder</option>
+                    </select>
+                </div>
+                <label class="settings-checkbox-label">
+                    <input type="checkbox" id="use-organizer-folders-toggle">
+                    <span id="organizer-folders-toggle-label">Manage Organizer folders + Sidebar folder in Chrome Bookmarks</span>
+                    <span class="info-icon" data-tooltip="Controls automatic placement of the organizer folders and your Sidebar folder in Chrome. Existing folders are preserved when turned off.">ⓘ</span>
+                </label>
+            </div>
+
+            <!-- Section: Swap Organizers -->
+            <div class="settings-card">
+                <div class="settings-card-header">🔀 Swap Organizers</div>
+                <div class="settings-swap-row">
+                    <select id="swap-select-1"></select>
+                    <span class="settings-swap-arrow">⇄</span>
+                    <select id="swap-select-2"></select>
+                    <button type="button" id="swap-organizers-btn" class="settings-btn-item">Swap</button>
+                </div>
+                <p class="settings-hint">Move Individual Panels by Rightclicking Panel Header</p>
+            </div>
+
+            <div class="settings-footer">
+                <button id="save-settings-btn" class="settings-save-btn">Save Settings</button>
+                <button id="close-settings-btn" class="settings-cancel-btn">Cancel</button>
+            </div>
+            </div>
+        </div>
+
+        <div id="move-panel-modal" class="modal hidden">
+            <div class="modal-content">
+                <button class="modal-close-btn">&times;</button>
+                <h2>Move Panel</h2>
+                <p>Move panel to <strong>Organizer <span id="move-panel-target-name"></span></strong></p>
+                <form id="move-panel-form">
+                    <div class="form-group">
+                        <label style="margin-bottom: 10px;">Position:</label>
+                        <label style="cursor:pointer;"><input type="radio" name="move-position" value="top"> Top</label>
+                        <label style="cursor:pointer;"><input type="radio" name="move-position" value="bottom">
+                            Bottom</label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="settings-btn-item">Move Panel</button>
+                        <button type="button" class="settings-btn-item cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="delete-folder-modal" class="modal hidden">
+            <div class="modal-content">
+                <button class="modal-close-btn">&times;</button>
+                <h2>Delete Bookmark Folder</h2>
+                <p>This action is irreversible and will permanently delete the folder <strong id="delete-folder-name"></strong> and all its contents.</p>
+                <p>To confirm, please type the full name of the folder below:</p>
+                <form id="delete-folder-form">
+                    <div class="form-group">
+                        <input type="text" id="delete-folder-confirmation-input" autocomplete="off">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="settings-btn-item" id="confirm-delete-folder-btn" disabled>Delete Forever</button>
+                        <button type="button" class="settings-btn-item cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="add-notes-panel-modal" class="modal hidden">
+            <div class="modal-content">
+                <button class="modal-close-btn">&times;</button>
+                <h2>Add New Notes Panel</h2>
+                <form id="add-notes-panel-form">
+                    <div class="form-group">
+                        <label>Position</label>
+                        <label><input type="radio" name="notes-position" value="top"> <span>Top</span></label>
+                        <label><input type="radio" name="notes-position" value="bottom" checked> <span>Bottom</span></label>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="settings-btn-item">Create</button>
+                        <button type="button" class="settings-btn-item cancel-btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="add-bookmarks-panel-modal" class="modal hidden">
+            <div class="modal-content">
+                <button class="modal-close-btn">&times;</button>
+                <h2 style="margin-bottom: 20px;">Add New Bookmark Panel</h2>
+                
+                <!-- Global Organizer Toggle Section -->
+                <div style="margin-bottom: 20px; padding: 12px; background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="margin:0; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="modal-use-organizer-folders-toggle"> <span>Organizer folders + Sidebar in Chrome Bookmarks</span>
+                        </label>
+                        <span class="info-icon" data-tooltip="Enable this to physically organize your bookmarks into one folder per organizer in Chrome. Your Sidebar folder will also be placed in the same root folder. Both when creating new folders and importing existing ones, they will be automatically placed in the correct root folder. If these folders don't exist yet, they will be created immediately upon activation. (see settings panel)">ⓘ</span>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                    <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                        <input type="text" id="new-bookmark-folder-name" placeholder="New folder name" style="flex-grow: 1; width: auto; min-width: 150px;">
+                        <button type="button" id="create-new-bookmark-folder-btn" class="settings-btn-item" style="padding: 6px 15px; font-weight: bold;">Create New Folder</button>
+                    </div>
+                </div>
+
+                <form id="add-bookmarks-panel-form">
+                    <!-- Top Row: Label and Sorting Controls -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <label for="panel-folder-select" style="margin: 0; font-weight: bold;">Select Specific Folders</label>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <button type="button" id="sort-bookmarks-popup-btn" class="settings-btn-item" style="padding: 5px 12px; font-size: 0.8rem; font-weight: bold;">Sort Root Folder</button>
+                            <label style="font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                                <input type="checkbox" id="sort-recursive-popup-checkbox"> <span>Recursive</span>
+                            </label>
+                                <label style="cursor: pointer; font-size: 0.8rem; display: flex; align-items: center; gap: 4px; margin-top: 5px;">
+                                    <input type="checkbox" id="sort-bookmarks-popup-checkbox"> <span>Sort bookmarks too (not only folders)</span>
+                                </label>
+                        </div>
+                    </div>
+                    
+                    <!-- Select Box -->
+                    <div class="form-group">
+                        <select id="panel-folder-select" multiple size="8" style="width: 100%; padding: 5px; min-height: 150px;">
+                            <option value="">--Select folders (Ctrl+Click)--</option>
+                        </select>
+                    </div>
+
+                    <!-- Import Options Row -->
+                    <div class="form-group" style="display: flex; align-items: center; gap: 25px; margin-top: 15px; margin-bottom: 20px;">
+                        <label style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.8rem;">
+                            <input type="checkbox" id="import-subfolders-checkbox"> <span>Import subfolders as individual panels</span>
+                        </label>
+                        <label id="recursive-import-label" class="hidden" style="cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 0.8rem;">
+                            <input type="checkbox" id="import-recursive-checkbox"> <span>Recursive</span>
+                        </label>
+                    </div>
+
+                    <!-- Footer: Position and Actions -->
+                    <div class="form-actions" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); padding-top: 15px;">
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <span style="font-weight: bold; font-size: 0.8rem;">Position</span>
+                            <div style="display: flex; gap: 15px;">
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.8rem;"><input type="radio" name="bookmarks-position" value="top"> <span>Top</span></label>
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 0.8rem;"><input type="radio" name="bookmarks-position" value="bottom" checked> <span>Bottom</span></label>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button type="submit" class="settings-btn-item" style="min-width: 80px; font-weight: bold;">Add</button>
+                            <button type="button" class="settings-btn-item cancel-btn" style="min-width: 80px;">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div id="open-links-modal" class="modal hidden open-links-modal">
+            <div class="modal-content">
+                <button class="modal-close-btn">&times;</button>
+                <h2>Open multiple links</h2>
+
+                <div class="open-links-tabs" role="tablist">
+                    <button type="button" class="open-links-tab active" data-tab="lists" role="tab">Lists</button>
+                    <button type="button" class="open-links-tab" data-tab="build" role="tab">Build list</button>
+                </div>
+
+                <section class="open-links-view" data-view="lists">
+                    <div id="open-links-list-container" class="open-links-list-container"></div>
+                    <p id="open-links-empty" class="open-links-empty hidden">No lists yet. Create one and drag links into it.</p>
+                    <div class="open-links-footer">
+                        <button type="button" id="open-links-new-btn" class="settings-btn-item">+ New list</button>
+                    </div>
+                </section>
+
+                <section class="open-links-view hidden" data-view="build">
+                    <div class="form-group">
+                        <label for="open-links-name-input">List name</label>
+                        <input type="text" id="open-links-name-input" autocomplete="off" placeholder="e.g. Morning routine">
+                    </div>
+                    <div id="open-links-dropzone" class="open-links-dropzone">
+                        <p class="open-links-dropzone-hint">Drag links from a panel or the sidebar here</p>
+                        <ul id="open-links-items" class="open-links-items"></ul>
+                    </div>
+                    <div class="open-links-footer">
+                        <span id="open-links-count" class="open-links-count"></span>
+                        <div class="open-links-footer-actions">
+                            <button type="button" id="open-links-save-btn" class="settings-btn-item">Save</button>
+                            <button type="button" id="open-links-cancel-btn" class="settings-btn-item">Cancel</button>
+                        </div>
+                    </div>
+                </section>
+
+                <div id="open-links-toast" class="open-links-toast hidden"></div>
+            </div>
+        </div>
+        <div id="upgrade-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2 style="margin-bottom: 20px;">Activate Organizer Folders</h2>
+                <p id="upgrade-organizer-summary"><strong>Upgrade:</strong> Each organizer gets its own folder in Chrome Bookmarks.</p>
+                <p>Panels and folders are automatically synchronized with Chrome.</p>
+                <p style="margin-bottom: 15px;">Choose the parent folder to create the organizer folders in:</p>
+                <form id="upgrade-form">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <select id="upgrade-root-select" style="width: 100%; padding: 8px;">
+                            <option value="1">Bookmark Bar</option>
+                            <option value="2">Other Bookmarks</option>
+                        </select>
+                    </div>
+                    <div class="form-actions" style="display: flex; justify-content: space-between;">
+                        <button type="submit" class="settings-btn-item" style="font-weight: bold;">Create folders</button>
+                        <button type="button" id="upgrade-cancel-btn" class="cancel-btn">Not now</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script src="js/organizers.js"></script>
+    <script src="js/tooltips.js"></script>
+    <script src="js/bookmarks.js"></script>
+    <script src="js/panels.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/settings_logic.js"></script>
+    <script src="js/link-lists.js"></script>
+</body>
+
+</html>

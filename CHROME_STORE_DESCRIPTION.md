@@ -14,7 +14,7 @@ PREMIUM UNIFIED UI & CUSTOMIZABLE LAYOUT
   - Real-Time Updates: Settings (colors, themes, toggles) take effect instantly as you change them.
 
 MULTIPLE INDEPENDENT VIEWS (ORGANIZERS)
-  - Four Workspaces: To prevent clutter and keep workflows separate, the extension supports up to four independent views (A, B, C, and D).
+  - Configurable Workspaces: To prevent clutter and keep workflows separate, the extension supports 1 to 26 independent views. Six is the default and you can change it in Settings.
   - Separate Data: Each view maintains its own unique set of panels and data, allowing you to organize different projects or contexts.
   - Smart Navigation: Use the A/B/C/D links in the sidebar to switch between views. The extension intelligently focuses an existing view's tab if it's already open, preventing duplicates.
   - Swap & Move:
@@ -24,15 +24,21 @@ MULTIPLE INDEPENDENT VIEWS (ORGANIZERS)
 BOOKMARK PANELS & ADVANCED FOLDER LOGIC
   - Live Bookmark Folders: Display and manage links from any of your browser's bookmark folders.
   - Intelligent Folder Creation: Create brand new Chrome bookmark folders directly from the "Add Bookmark" modal.
-      * Quick Toggle: Switch between creating folders in the root or inside a specific Organizer folder (A, B, C, or D) directly within the modal. Your Sidebar folder follows the same placement rule.
+      * Quick Toggle: Switch between creating folders in the root or inside a specific organizer folder directly within the modal. Your Sidebar folder follows the same placement rule.
       * Contextual Help: Info buttons explain folder placement logic, including sidebar folder behavior.
-  - Organizer + Sidebar Management: A single checkbox controls automatic placement of the 4 Organizer folders (A–D) and your Sidebar folder in Chrome bookmarks. When active, they are kept in sync with your selected root folder (Bookmark Bar or Other Bookmarks). When disabled, existing folders are preserved.
+  - Organizer + Sidebar Management: A single checkbox controls automatic placement of the organizer folders and your Sidebar folder in Chrome bookmarks. When active, they are kept in sync with your selected root folder (Bookmark Bar or Other Bookmarks). When disabled, existing folders are preserved.
   - Full Bookmark Management:
       * Edit: Hover over any bookmark to reveal an "edit" (e) button to modify its title and URL.
       * Delete: Remove bookmarks with a confirmation step.
       * Reorder: Drag and drop bookmarks to reorder them within a panel.
       * Move: Drag bookmarks to other panels or the sidebar to move them between folders.
   - Automatic Naming: Bookmark panels automatically use the folder name as a default title if you leave it blank.
+
+SIMULTANEOUS LINK OPENING
+  - Named Link Lists: Bundle any set of links into a named list (for example "Morning routine") and open them all at once with a single click.
+  - Build by Drag & Drop: Open the link modal from the sidebar, create a list, and drag links from any bookmark panel or the sidebar into the dropzone. Reorder or remove them before saving.
+  - One Click, Many Tabs: Clicking a list name opens every link in that list in background tabs, so your organizer stays in front.
+  - Edit & Delete: Rename, extend or delete lists at any time. Lists are included in the Export/Import backup.
 
 NOTES PANELS
   - Rich-Text Notes: Jot down quick notes, to-do lists, or ideas in text-based cards.
@@ -44,7 +50,7 @@ EFFICIENT WORKFLOW & SETTINGS
   - Quick Actions: Instantly create new notes (+ P) or bookmark (+ L) panels from the sidebar.
   - Undo Deletions: Accidentally deleted a panel or a card? Press Ctrl+Z to restore it instantly.
   - Customizable Sidebar: Choose a specific bookmark folder to display in the persistent sidebar. When Organizer Folders mode is active, the sidebar folder is automatically placed alongside the organizer folders.
-  - Open on Startup: Choose which workspace (A, B, C, or D) opens automatically when you launch your browser.
+  - Open on Startup: Choose which organizers open automatically when you launch your browser.
   - Data Portability: Use Import and Export in Settings to back up or restore your entire setup via JSON.
   - Bulk Bookmark Import: Quickly populate a view by creating panels for all your bookmark folders at once.
 
@@ -56,10 +62,9 @@ ADVANCED THEME ENGINE
       * Button Color: Primary action buttons and toggles.
       * Border/Line Color: Panel borders and separators.
       * Input/Dropdown Background: Specific control for text boxes and selection menus for maximum legibility.
-  - Multilingual Support: Fully localized in English, Dutch, French, German, Spanish, and Portuguese.
-  - Localized Date & Clock:
+  - Date & Clock:
       * Toggle display of the clock, date, year, and day of week.
-      * Smart Localization: Formatting automatically respects your selected language.
+      * Date and time follow your browser's regional formatting.
       * Adjustable Size: Use a slider in Settings to change the date font size in real-time.
 
 

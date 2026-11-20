@@ -1,12 +1,12 @@
 // This file will handle the logic for creating and managing panels and cards.
 let dragSrcContext = null;
 
-// Helper to get storage key (duplicated here to ensure availability)
+// Helper to get storage key (kept here so this file also works standalone)
 function getStorageKeyForMove(view) {
-    if (view === 'B') return 'panelsState_B';
-    if (view === 'C') return 'panelsState_C';
-    if (view === 'D') return 'panelsState_D';
-    return 'panelsState'; // Default for A
+    if (typeof window.getStorageKeyForView === 'function') {
+        return window.getStorageKeyForView(view);
+    }
+    return view === 'A' ? 'panelsState' : 'panelsState_' + view;
 }
 
 // Global function to move panel
@@ -53,9 +53,16 @@ window.movePanelToOrganizer = function (panelId, sourceView, destinationView, po
                             // CURRENT_VIEW is available globally from app.js by the time this runs
                             if (typeof CURRENT_VIEW !== 'undefined' && view === CURRENT_VIEW) return;
 
-                            const urlToReload = chrome.runtime.getURL(`panel${view}.html`);
-                            chrome.tabs.query({ url: urlToReload }, (tabs) => {
-                                if (tabs.length > 0) chrome.tabs.reload(tabs[0].id);
+                            // Tab URLs carry ?view=X, which chrome.tabs.query({url})
+                            // does not match reliably, so tabs are matched by base path.
+                            const basePath = chrome.runtime.getURL('panel.html');
+                            chrome.tabs.query({}, (tabs) => {
+                                const target = (tabs || []).find((tab) => {
+                                    if (!tab.url || !tab.url.startsWith(basePath)) return false;
+                                    if (tab.url === basePath) return view === 'A';
+                                    return new URL(tab.url).searchParams.get('view') === view;
+                                });
+                                if (target) chrome.tabs.reload(target.id);
                             });
                         });
 
@@ -131,7 +138,7 @@ function createPanel(panelState, onStateChange) {
         // Relying on CURRENT_VIEW global from app.js
         if (typeof CURRENT_VIEW === 'undefined') return;
 
-        const views = ['A', 'B', 'C', 'D'];
+        const views = window.getOrganizerViews();
         const otherViews = views.filter(v => v !== CURRENT_VIEW);
 
         otherViews.forEach(targetView => {

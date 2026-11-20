@@ -1,4 +1,4 @@
-# New Tab Organizer (v4.4)
+# New Tab Organizer (v6.0)
 
 A powerful, highly customizable, and aesthetically premium startpage to replace your browser's default new tab page. Organize your digital life with a dynamic system of interactive panels for notes, bookmarks, and more, all within a beautiful glassmorphic multi-view layout.
 
@@ -11,9 +11,10 @@ A powerful, highly customizable, and aesthetically premium startpage to replace 
 - **Real-Time Updates:** Settings (colors, themes, toggles) take effect instantly as you change them.
 
 ### Multiple Independent Views (Organizers)
-- **Four Workspaces:** To prevent clutter and keep workflows separate, the extension supports up to four independent views (A, B, C, and D).
-- **Separate Data:** Each view maintains its own unique set of panels and data, allowing you to organize different projects or contexts.
-- **Smart Navigation:** Use the A/B/C/D links in the sidebar to switch between views. The extension intelligently focuses an existing view's tab if it's already open, preventing duplicates.
+- **As Many Organizers As You Need:** Organizers are independent views, configured from 1 to 26. Six is the default; change the number in Settings and the sidebar, startup options and swap lists follow automatically.
+- **Separate Data:** Each organizer keeps its own panels and data, so you can separate projects or contexts. Lowering the number only hides an organizer — its data and Chrome bookmark folder stay intact and return when you raise the number again.
+- **Smart Navigation:** Use the letter links in the sidebar to switch views. The extension focuses the organizer's tab if it is already open, instead of opening a duplicate.
+- **Startup Options:** Pick exactly which organizers open when Chrome starts.
 - **Swap & Move:**
     - **Swap Organizers:** Swap the entire contents of two organizers from the Settings menu.
     - **Move Panels:** Move individual panels from one organizer to another.
@@ -21,7 +22,7 @@ A powerful, highly customizable, and aesthetically premium startpage to replace 
 ### Bookmark Panels & Advanced Folder Logic
 - **Live Bookmark Folders:** Display and manage links from any of your browser's bookmark folders.
 - **Intelligent Folder Creation:** Create brand new Chrome bookmark folders directly from the "Add Bookmark" modal.
-    - **Quick Toggle:** Switch between creating folders in the root or inside a specific Organizer folder (A, B, C, or D) directly within the modal.
+    - **Quick Toggle:** Switch between creating folders in the root or inside a specific organizer folder directly within the modal.
     - **Contextual Help:** An integrated info button explaining folder placement logic.
 - **Full Bookmark Management:**
     - **Edit:** Hover over any bookmark to reveal an "edit" (e) button to modify its title and URL.
@@ -29,6 +30,12 @@ A powerful, highly customizable, and aesthetically premium startpage to replace 
     - **Reorder:** Drag and drop bookmarks to reorder them within a panel.
     - **Move:** Drag bookmarks to other panels or the sidebar to move them between folders.
 - **Automatic Naming:** Bookmark panels automatically use the folder name as a default title if you leave it blank.
+
+### Simultaneous Link Opening
+- **Named Link Lists:** Bundle links into a named list (for example "Morning routine") and open them all at once.
+- **Build by Drag & Drop:** Open the link modal from the sidebar, create a list, and drag links from any bookmark panel or the sidebar into the dropzone. Reorder or remove them before saving.
+- **One Click, Many Tabs:** Clicking a list name opens every link in background tabs, keeping the organizer in front.
+- **Edit & Delete:** Rename, extend or delete lists at any time. Lists are included in the Export/Import backup.
 
 ### Notes Panels
 - **Rich-Text Notes:** Jot down quick notes, to-do lists, or ideas in text-based cards.
@@ -40,7 +47,7 @@ A powerful, highly customizable, and aesthetically premium startpage to replace 
 - **Quick Actions:** Instantly create new notes (`+ P`) or bookmark (`+ L`) panels from the sidebar.
 - **Undo Deletions:** Accidentally deleted a panel or a card? Press `Ctrl+Z` to restore it instantly.
 - **Customizable Sidebar:** Choose a specific bookmark folder to display in the persistent sidebar.
-- **Open on Startup:** Choose which workspace (A, B, C, or D) opens automatically when you launch your browser.
+- **Open on Startup:** Choose which organizers open automatically when you launch your browser.
 - **Data Portability:** Use **Import** and **Export** in Settings to back up or restore your entire setup via JSON.
 - **Bulk Bookmark Import:** Quickly populate a view by creating panels for all your bookmark folders at once.
 
@@ -52,10 +59,9 @@ A powerful, highly customizable, and aesthetically premium startpage to replace 
     - **Button Color:** Primary action buttons and toggles.
     - **Border/Line Color:** Panel borders and separators.
     - **Input/Dropdown Background:** Specific control for text boxes and selection menus for maximum legibility.
-- **Multilingual Support:** Fully localized in **English, Dutch, French, German, Spanish, and Portuguese**.
-- **Localized Date & Clock:**
+- **Date & Clock:**
     - Toggle display of the **clock, date, year, and day of week**.
-    - **Smart Localization:** Formatting automatically respects your selected language.
+    - Date and time follow your browser's regional formatting.
     - **Adjustable Size:** Use a slider in Settings to change the date font size in real-time.
 
 ## How to Install and Use

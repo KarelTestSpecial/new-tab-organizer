@@ -1,11 +1,8 @@
 function getStorageKey(view) {
-    if (view === 'B') return 'panelsState_B';
-    if (view === 'C') return 'panelsState_C';
-    if (view === 'D') return 'panelsState_D';
-    return 'panelsState'; // Default for A
+    return window.getStorageKeyForView(view);
 }
 
-document.addEventListener('i18nReady', () => {
+document.addEventListener('DOMContentLoaded', () => {
     const settingsPanel = document.getElementById('settings-panel');
     const settingsBtn = document.getElementById('settings-btn');
     const closeBtn = document.getElementById('close-settings-btn');
@@ -21,7 +18,6 @@ document.addEventListener('i18nReady', () => {
     const dateToggleBtn = document.getElementById('date-toggle-btn');
     const yearToggleBtn = document.getElementById('year-toggle-btn');
     const dayToggleBtn = document.getElementById('day-toggle-btn');
-    const languageSelect = document.getElementById('language-select');
 
     const dateFontSizeSlider = document.getElementById('date-font-size-slider');
     const headerFontSizeSlider = document.getElementById('header-font-size-slider');
@@ -30,15 +26,9 @@ document.addEventListener('i18nReady', () => {
     const bookmarkFontSizeValue = document.getElementById('bookmark-font-size-value');
     const dateFontSizeValue = document.getElementById('date-font-size-value');
 
-    const startupCheckA = document.getElementById('startup-check-A');
-    const startupCheckB = document.getElementById('startup-check-B');
-    const startupCheckC = document.getElementById('startup-check-C');
-    const startupCheckD = document.getElementById('startup-check-D');
-
-    const layoutRowA = document.getElementById('layout-row-A');
-    const layoutRowB = document.getElementById('layout-row-B');
-    const layoutRowC = document.getElementById('layout-row-C');
-    const layoutRowD = document.getElementById('layout-row-D');
+    const startupContainer = document.getElementById('startup-views-container');
+    const layoutContainer = document.getElementById('layout-views-container');
+    const organizerCountSelect = document.getElementById('organizer-count-select');
 
     const useOrganizerFoldersToggle = document.getElementById('use-organizer-folders-toggle');
 
@@ -64,7 +54,6 @@ document.addEventListener('i18nReady', () => {
     }
 
     let tempSettings = {};
-    let originalLanguage = 'auto';
 
     // --- Listeners ---
     settingsBtn.addEventListener('click', () => {
@@ -108,7 +97,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
     if (useOrganizerFoldersToggle) {
         useOrganizerFoldersToggle.addEventListener('change', (e) => {
             if (e.target.checked) {
-                const confirmed = confirm(I18N.getMessage('confirm_enable_folders'));
+                const confirmed = confirm("We use the principle: What you see in the extension is what you have in Chrome.\n\nOne folder per organizer (" + getOrganizerViews().map(v => 'Organizer ' + v).join(', ') + ") will be created in Chrome Bookmarks. When you move panels via right-click or swap, the corresponding folders in Chrome will also be moved.\n\nDo you agree?");
                 if (confirmed) {
                     tempSettings.useOrganizerFolders = true;
                     const rootId = extensionRootFolderSelect.value || '1';
@@ -125,7 +114,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                     saveSettings(false);
                 }
             } else {
-                alert(I18N.getMessage('alert_auto_move_off'));
+                alert("Automatic folder moving is disabled. Your existing Organizer folders have NOT been removed.");
                 tempSettings.useOrganizerFolders = false;
                 saveSettings(false);
             }
@@ -135,13 +124,13 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
     if (sidebarFolderSelect) {
         sidebarFolderSelect.addEventListener('change', () => {
             if (sidebarFolderSelect.value === '__new_folder__') {
-                const promptMsg = I18N.getMessage('alert_provide_name') || 'Vul een naam in voor de nieuwe map:';
+                const promptMsg = "Please provide a name for the new folder." || 'Vul een naam in voor de nieuwe map:';
                 const name = prompt(promptMsg);
                 if (name && name.trim()) {
                     const parentId = tempSettings.useOrganizerFolders ? (tempSettings.rootFolderId || '1') : '2';
                     chrome.bookmarks.create({ parentId: parentId, title: name.trim() }, (newFolder) => {
                         if (chrome.runtime.lastError) {
-                            alert((I18N.getMessage('alert_error_creating') || 'Fout bij het aanmaken van de map: ') + chrome.runtime.lastError.message);
+                            alert(("Error creating folder: " || 'Fout bij het aanmaken van de map: ') + chrome.runtime.lastError.message);
                             sidebarFolderSelect.value = tempSettings.sidebarFolderId || '';
                             return;
                         }
@@ -195,36 +184,15 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             };
 
             if (isChecked) {
-                const lang = tempSettings.language || 'auto';
-                let activeLang = lang;
-                if (activeLang === 'auto') {
-                    const uiLang = chrome.i18n.getUILanguage();
-                    activeLang = uiLang ? uiLang.split('-')[0].toLowerCase() : 'en';
-                }
-
-                let confirmMsg = '';
-                if (activeLang === 'nl') {
-                    confirmMsg = 'Wil je de bestaande 4 Organizer mappen (A, B, C, D) verhuizen naar de nieuwe hoofdmap?';
-                } else if (activeLang === 'fr') {
-                    confirmMsg = 'Voulez-vous déplacer les 4 dossiers Organizer existants (A, B, C, D) vers le nouveau dossier parent ?';
-                } else if (activeLang === 'de') {
-                    confirmMsg = 'Möchten Sie die bestehenden 4 Organizer-Ordner (A, B, C, D) in den neuen Hauptordner verschieben?';
-                } else if (activeLang === 'es') {
-                    confirmMsg = '¿Desea mover las 4 carpetas Organizer existentes (A, B, C, D) a la nueva carpeta principal?';
-                } else if (activeLang === 'pt') {
-                    confirmMsg = 'Deseja mover as 4 pastas Organizer existentes (A, B, C, D) para a nova pasta principal?';
-                } else {
-                    confirmMsg = 'Do you want to move the existing 4 Organizer folders (A, B, C, D) to the new root folder?';
-                }
-
-                const wantToMove = confirm(confirmMsg);
+                const organizerNames = getOrganizerViews().map(v => 'Organizer ' + v).join(', ');
+                const wantToMove = confirm('Do you want to move the existing organizer folders (' + organizerNames + ') to the new root folder?');
                 if (wantToMove) {
                     chrome.bookmarks.getChildren(oldRootId, (children) => {
                         if (chrome.runtime.lastError || !children) {
                             chrome.bookmarks.getTree((tree) => {
                                 const foundFolders = [];
                                 function traverse(node) {
-                                    if (!node.url && ['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D'].includes(node.title)) {
+                                    if (!node.url && isOrganizerFolderTitle(node.title)) {
                                         foundFolders.push(node);
                                     }
                                     if (node.id === tempSettings.sidebarFolderId) {
@@ -239,7 +207,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                             return;
                         }
 
-                        const foldersToMove = children.filter(c => !c.url && ['Organizer A', 'Organizer B', 'Organizer C', 'Organizer D'].includes(c.title));
+                        const foldersToMove = children.filter(c => !c.url && isOrganizerFolderTitle(c.title));
                         const sidebarChild = children.find(c => c.id === tempSettings.sidebarFolderId);
                         if (sidebarChild) foldersToMove.push(sidebarChild);
                         moveFoldersList(foldersToMove, newRootId, proceedSave);
@@ -259,86 +227,35 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
     });
 
     function updateCheckboxText() {
-        const toggleLabelSpan = document.querySelector('[data-i18n="settings_toggle_folders"]');
+        const toggleLabelSpan = document.getElementById('organizer-folders-toggle-label');
         if (!toggleLabelSpan || !extensionRootFolderSelect) return;
 
-        const baseText = I18N.getMessage('settings_toggle_folders') || "Beheer Organizer mappen (A–D) + zijbalk-map in Chrome Bookmarks";
+        const baseText = 'Manage Organizer folders + Sidebar folder in Chrome Bookmarks';
         const selectedIndex = extensionRootFolderSelect.selectedIndex;
-        
+
         if (selectedIndex <= 0 || !extensionRootFolderSelect.value) {
             toggleLabelSpan.textContent = baseText;
             return;
         }
 
         const selectedText = extensionRootFolderSelect.options[selectedIndex].text;
-
-        let newText = baseText;
-        const placeholders = [
-            'Chrome Bookmarks',
-            'les favoris Chrome',
-            'Chrome-Lesezeichen',
-            'Marcadores de Chrome',
-            'Favoritos do Chrome'
-        ];
-
-        let replaced = false;
-        for (const placeholder of placeholders) {
-            if (newText.includes(placeholder)) {
-                newText = newText.replace(placeholder, selectedText);
-                replaced = true;
-                break;
-            }
-        }
-
-        if (!replaced) {
-            if (newText.includes('Chrome')) {
-                newText = newText.replace('Chrome', selectedText);
-            } else {
-                newText = `Beheer Organizer mappen (A–D) + zijbalk-map in ${selectedText}`;
-            }
-        }
-
-        toggleLabelSpan.textContent = newText;
+        toggleLabelSpan.textContent = baseText.replace('Chrome Bookmarks', selectedText);
     }
 
     function populateFolderDropdowns() {
         getBookmarkFolders(folders => {
-            sidebarFolderSelect.innerHTML = '<option value="">' + I18N.getMessage('select_sidebar_folder') + '</option>';
+            sidebarFolderSelect.innerHTML = '<option value="">' + "Select a Sidebar Folder" + '</option>';
 
             // Root Selector: Only specific main folders
-            extensionRootFolderSelect.innerHTML = '<option value="">' + I18N.getMessage('select_root_folder') + '</option>';
+            extensionRootFolderSelect.innerHTML = '<option value="">' + "Select Root Folder" + '</option>';
             const barOption = document.createElement('option');
             barOption.value = '1';
             
             const otherOption = document.createElement('option');
             otherOption.value = '2';
 
-            const lang = tempSettings.language || 'auto';
-            let activeLang = lang;
-            if (activeLang === 'auto') {
-                const uiLang = chrome.i18n.getUILanguage();
-                activeLang = uiLang ? uiLang.split('-')[0].toLowerCase() : 'en';
-            }
-
-            if (activeLang === 'nl') {
-                barOption.textContent = 'Bladwijzerbalk';
-                otherOption.textContent = 'Andere bladwijzers';
-            } else if (activeLang === 'fr') {
-                barOption.textContent = 'Barre de favoris';
-                otherOption.textContent = 'Autres favoris';
-            } else if (activeLang === 'de') {
-                barOption.textContent = 'Lesezeichenleiste';
-                otherOption.textContent = 'Andere Lesezeichen';
-            } else if (activeLang === 'es') {
-                barOption.textContent = 'Barra de marcadores';
-                otherOption.textContent = 'Otros marcadores';
-            } else if (activeLang === 'pt') {
-                barOption.textContent = 'Barra de favoritos';
-                otherOption.textContent = 'Outros favoritos';
-            } else {
-                barOption.textContent = 'Bookmark Bar';
-                otherOption.textContent = 'Other Bookmarks';
-            }
+            barOption.textContent = 'Bookmark Bar';
+            otherOption.textContent = 'Other Bookmarks';
 
             extensionRootFolderSelect.appendChild(barOption);
             extensionRootFolderSelect.appendChild(otherOption);
@@ -356,19 +273,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             // Let's add the "+ nieuwe map" option at the end of the dropdown
             const newFolderOption = document.createElement('option');
             newFolderOption.value = '__new_folder__';
-            if (activeLang === 'nl') {
-                newFolderOption.textContent = '+ Nieuwe map...';
-            } else if (activeLang === 'fr') {
-                newFolderOption.textContent = '+ Nouveau dossier...';
-            } else if (activeLang === 'de') {
-                newFolderOption.textContent = '+ Neuer Ordner...';
-            } else if (activeLang === 'es') {
-                newFolderOption.textContent = '+ Nueva carpeta...';
-            } else if (activeLang === 'pt') {
-                newFolderOption.textContent = '+ Nova pasta...';
-            } else {
-                newFolderOption.textContent = '+ New folder...';
-            }
+            newFolderOption.textContent = '+ New folder...';
             if (sidebarFolderSelect) sidebarFolderSelect.appendChild(newFolderOption);
 
             if (sidebarFolderSelect && tempSettings.sidebarFolderId) sidebarFolderSelect.value = tempSettings.sidebarFolderId;
@@ -380,23 +285,23 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
 
         function updateButtonText() {
         if (clockToggleBtn) {
-            clockToggleBtn.textContent = I18N.getMessage('btn_show_clock');
+            clockToggleBtn.textContent = "Clock";
             clockToggleBtn.classList.toggle('active', tempSettings.showClock);
         }
         if (dateToggleBtn) {
-            dateToggleBtn.textContent = I18N.getMessage('btn_show_date');
+            dateToggleBtn.textContent = "Date";
             dateToggleBtn.classList.toggle('active', tempSettings.showDate);
         }
         if (dayToggleBtn) {
-            dayToggleBtn.textContent = I18N.getMessage('btn_show_day');
+            dayToggleBtn.textContent = "Day";
             dayToggleBtn.classList.toggle('active', tempSettings.showDayOfWeek);
         }
         if (yearToggleBtn) {
-            yearToggleBtn.textContent = I18N.getMessage('btn_show_year');
+            yearToggleBtn.textContent = "Year";
             yearToggleBtn.classList.toggle('active', tempSettings.showYear);
         }
         if (batteryToggleBtn) {
-            batteryToggleBtn.textContent = I18N.getMessage('btn_show_battery');
+            batteryToggleBtn.textContent = "Battery";
             batteryToggleBtn.classList.toggle('active', tempSettings.showBattery);
         }
 
@@ -405,9 +310,9 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             if (tempSettings.theme === 'light') icon = '☀️';
             else if (tempSettings.theme === 'dark') icon = '🌙';
 
-            const themeMsg = tempSettings.theme === 'light' ? I18N.getMessage('btn_theme_light') :
-                             tempSettings.theme === 'dark' ? I18N.getMessage('btn_theme_dark') :
-                             I18N.getMessage('btn_theme_custom');
+            const themeMsg = tempSettings.theme === 'light' ? "Light" :
+                             tempSettings.theme === 'dark' ? "Dark" :
+                             "Custom";
             
             themeBtn.innerHTML = `${icon} ${themeMsg}`;
             themeBtn.classList.toggle('active', tempSettings.theme !== 'light');
@@ -479,21 +384,26 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
     });
 
     function saveSettings(hidePanel = false) {
-        let valA = startupCheckA.checked;
-        let valB = startupCheckB.checked;
-        let valC = startupCheckC.checked;
-        let valD = startupCheckD.checked;
-        let layoutA = layoutRowA ? layoutRowA.checked : false;
-        let layoutB = layoutRowB ? layoutRowB.checked : false;
-        let layoutC = layoutRowC ? layoutRowC.checked : false;
-        let layoutD = layoutRowD ? layoutRowD.checked : false;
-        let sideWidth = window.currentSidebarWidth || 142;
-        let markFont = bookmarkFontSizeSlider ? parseInt(bookmarkFontSizeSlider.value) : 12;
+        const readList = (container) => {
+            const values = [];
+            if (!container) return values;
+            container.querySelectorAll('input[type="checkbox"]').forEach(input => values.push(input.checked));
+            return values;
+        };
 
-        if (!valA && !valB && !valC && !valD) {
-            valA = true;
-            startupCheckA.checked = true;
+        // Named so they cannot be shadowed by the tempSettings spread below.
+        let startupChecks = readList(startupContainer);
+        if (startupChecks.length === 0 || !startupChecks.some(Boolean)) {
+            startupChecks = getOrganizerViews().map((view, index) => (index === 0 ? true : false));
+            if (startupContainer) {
+                const boxes = startupContainer.querySelectorAll('input[type="checkbox"]');
+                startupChecks.forEach((checked, index) => {
+                    if (boxes[index]) boxes[index].checked = checked;
+                });
+            }
         }
+        const rowLayoutChecks = readList(layoutContainer);
+        let markFont = bookmarkFontSizeSlider ? parseInt(bookmarkFontSizeSlider.value) : 12;
 
         const settingsToSave = {
             ...tempSettings,
@@ -503,29 +413,22 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             dateFontSize: `${dateFontSizeSlider.value}px`,
             headerFontSize: tempSettings.headerFontSize,
             bookmarkFontSize: `${markFont}px`,
-            startupA: valA,
-            startupB: valB,
-            startupC: valC,
-            startupD: valD,
-            layoutRowA: layoutA,
-            layoutRowB: layoutB,
-            layoutRowC: layoutC,
-            layoutRowD: layoutD,
+            organizerCount: tempSettings.organizerCount,
             useOrganizerFolders: tempSettings.useOrganizerFolders,
-            language: tempSettings.language,
 
             bgColor: bgColorPicker.value,
             sidebarBg: bgColorPicker.value,
             textColor: textColorPicker.value,
             btnColor: btnColorPicker.value,
             borderColor: borderColorPicker.value,
-
         };
+
+        // Lists are written for new code; the per-letter booleans stay in sync so
+        // older settings files and the startup check keep working.
+        writeViewSetting(settingsToSave, 'startup', startupChecks);
+        writeViewSetting(settingsToSave, 'layoutRow', rowLayoutChecks);
+
         chrome.storage.local.set({ settings: settingsToSave }, () => {
-            if (originalLanguage !== settingsToSave.language) {
-                location.reload();
-                return;
-            }
             if (hidePanel) {
                 settingsPanel.classList.add('hidden');
             }
@@ -542,7 +445,6 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
     function loadSettings() {
         chrome.storage.local.get('settings', data => {
             const currentSettings = data.settings || {};
-            originalLanguage = currentSettings.language || 'auto';
             tempSettings = {
                 theme: currentSettings.theme || 'light',
                 newPanelPosition: currentSettings.newPanelPosition || 'bottom',
@@ -553,14 +455,9 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                 showDate: typeof currentSettings.showDate === 'boolean' ? currentSettings.showDate : true,
                 showYear: typeof currentSettings.showYear === 'boolean' ? currentSettings.showYear : true,
                 showDayOfWeek: typeof currentSettings.showDayOfWeek === 'boolean' ? currentSettings.showDayOfWeek : true,
-                startupA: typeof currentSettings.startupA === 'boolean' ? currentSettings.startupA : true,
-                startupB: typeof currentSettings.startupB === 'boolean' ? currentSettings.startupB : false,
-                startupC: typeof currentSettings.startupC === 'boolean' ? currentSettings.startupC : false,
-                startupD: typeof currentSettings.startupD === 'boolean' ? currentSettings.startupD : false,
-                layoutRowA: typeof currentSettings.layoutRowA === 'boolean' ? currentSettings.layoutRowA : false,
-                layoutRowB: typeof currentSettings.layoutRowB === 'boolean' ? currentSettings.layoutRowB : false,
-                layoutRowC: typeof currentSettings.layoutRowC === 'boolean' ? currentSettings.layoutRowC : false,
-                layoutRowD: typeof currentSettings.layoutRowD === 'boolean' ? currentSettings.layoutRowD : false,
+                organizerCount: typeof currentSettings.organizerCount === 'number' ? currentSettings.organizerCount : ORGANIZERS.DEFAULT_COUNT,
+                startupViews: getStartupViews(currentSettings),
+                rowLayoutViews: getRowLayoutViews(currentSettings),
                 useOrganizerFolders: typeof currentSettings.useOrganizerFolders === 'boolean' ? currentSettings.useOrganizerFolders : false,
 
                 bgColor: currentSettings.bgColor || '#f0f2f5',
@@ -569,59 +466,39 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                 btnColor: currentSettings.btnColor || currentSettings.accentColor || '#f0f0f0',
                 borderColor: currentSettings.borderColor || currentSettings.accentColor || '#dddfe2',
                 inputBgColor: currentSettings.inputBgColor || (currentSettings.theme === 'dark' ? '#333333' : '#ffffff'),
-                language: currentSettings.language || 'auto',
-
             };
-
-    if (languageSelect) {
-        languageSelect.value = tempSettings.language || 'auto';
-        languageSelect.addEventListener('change', () => {
-            tempSettings.language = languageSelect.value;
-            saveSettings(false); // Immediate reload if language changed
-        });
-    }
-
 
             updateButtonText();
             sidebarFolderSelect.value = tempSettings.sidebarFolderId;
             extensionRootFolderSelect.value = tempSettings.rootFolderId;
             updateCheckboxText();
 
-            if (startupCheckA) {
-                startupCheckA.checked = tempSettings.startupA;
-                startupCheckA.addEventListener('change', () => saveSettings(false));
-            }
-            if (startupCheckB) {
-                startupCheckB.checked = tempSettings.startupB;
-                startupCheckB.addEventListener('change', () => saveSettings(false));
-            }
-            if (startupCheckC) {
-                startupCheckC.checked = tempSettings.startupC;
-                startupCheckC.addEventListener('change', () => saveSettings(false));
-            }
-            if (startupCheckD) {
-                startupCheckD.checked = tempSettings.startupD;
-                startupCheckD.addEventListener('change', () => saveSettings(false));
-            }
-            
-            if (layoutRowA) {
-                layoutRowA.checked = tempSettings.layoutRowA;
-                layoutRowA.addEventListener('change', () => saveSettings(false));
-            }
-            if (layoutRowB) {
-                layoutRowB.checked = tempSettings.layoutRowB;
-                layoutRowB.addEventListener('change', () => saveSettings(false));
-            }
-            if (layoutRowC) {
-                layoutRowC.checked = tempSettings.layoutRowC;
-                layoutRowC.addEventListener('change', () => saveSettings(false));
-            }
-            if (layoutRowD) {
-                layoutRowD.checked = tempSettings.layoutRowD;
-                layoutRowD.addEventListener('change', () => saveSettings(false));
+            renderOrganizerSettingsControls(getOrganizerViews(), currentSettings);
+
+            if (organizerCountSelect) {
+                organizerCountSelect.addEventListener('change', () => {
+                    const nextCount = parseInt(organizerCountSelect.value, 10);
+                    chrome.storage.local.get('settings', (data) => {
+                        const settings = data.settings || {};
+                        settings.organizerCount = nextCount;
+
+                        const views = getOrganizerViewsForCount(nextCount);
+                        const startupViews = views.map((view, index) => startupSettingValue(settings, index));
+                        const rowLayoutViews = views.map((view) => rowLayoutSettingValue(settings, view));
+                        settings.startupViews = startupViews;
+                        settings.rowLayoutViews = rowLayoutViews;
+                        writeViewSetting(settings, 'startup', startupViews);
+                        writeViewSetting(settings, 'layoutRow', rowLayoutViews);
+
+                        chrome.storage.local.set({ settings: settings }, () => location.reload());
+                    });
+                });
             }
 
-            if (useOrganizerFoldersToggle) useOrganizerFoldersToggle.checked = tempSettings.useOrganizerFolders;
+            // The checkbox listeners are bound by renderOrganizerSettingsControls,
+            // which calls this handler once per change. Binding them again here
+            // would save twice and the first save would overwrite the second.
+            window.onOrganizerViewSettingChanged = () => saveSettings(false);
 
             let fontSize = currentSettings.dateFontSize || '11px';
             let numericSize = parseInt(fontSize.replace('px', '').replace('rem', ''));
@@ -667,7 +544,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
     const importFileInput = document.getElementById('import-file-input');
 
     exportBtn.addEventListener('click', () => {
-        chrome.storage.local.get([STORAGE_KEY, 'settings'], (data) => {
+        chrome.storage.local.get([STORAGE_KEY, 'settings', 'linkLists'], (data) => {
             const panels = data[STORAGE_KEY] || [];
             const imageIds = [];
 
@@ -713,7 +590,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
         reader.onload = (e) => {
             try {
                 const importedData = JSON.parse(e.target.result);
-                if (confirm(I18N.getMessage('confirm_import_overwrite'))) {
+                if (confirm("Are you sure you want to import this data? Your current layout and settings for THIS VIEW will be overwritten.")) {
 
                     const panels = importedData[STORAGE_KEY] || [];
                     const bookmarkPanelFixes = [];
@@ -742,13 +619,13 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
 
                     Promise.all(bookmarkPanelFixes).then(() => {
                         chrome.storage.local.set(importedData, () => {
-                            alert(I18N.getMessage('alert_import_success'));
+                            alert("Data imported successfully! The page will now reload.");
                             location.reload();
                         });
                     });
                 }
             } catch (err) {
-                alert(I18N.getMessage('alert_invalid_backup'));
+                alert("Invalid backup file.");
             }
         };
         reader.readAsText(file);
@@ -762,15 +639,20 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
 
     if (swapOrganizersBtn) {
         swapOrganizersBtn.addEventListener('click', () => {
+            if (swapSelect1 && swapSelect2) {
+                const views = getOrganizerViews();
+                renderSwapOptions(swapSelect1, views);
+                renderSwapOptions(swapSelect2, views);
+            }
             const view1 = swapSelect1.value;
             const view2 = swapSelect2.value;
 
             if (view1 === view2) {
-                alert(I18N.getMessage('alert_select_two_different'));
+                alert("Please select two different organizers to swap.");
                 return;
             }
 
-            if (confirm(I18N.getMessage('confirm_swap'))) {
+            if (confirm("Are you sure you want to swap the contents?")) {
                 // Determine storage keys
                 const getKey = (v) => v === 'A' ? 'panelsState' : `panelsState_${v}`;
                 const key1 = getKey(view1);
@@ -788,7 +670,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                         newData[key2] = panels1;
 
                         chrome.storage.local.set(newData, () => {
-                            alert(I18N.getMessage('alert_swap_success'));
+                            alert("Content swapped successfully. The page will now reload.");
                             location.reload();
                         });
                     };
