@@ -131,6 +131,47 @@ window.ensureOrganizerFolders = function(rootId, callback) {
     });
 };
 
+// 5.7 created the sidebar folder under its translated name ('Zijbalk' for
+// Dutch); 6.0 calls it 'Sidebar'. Rename it in place so the id, and every
+// bookmark inside it, survives - only the title changes.
+window.migrateLegacySidebarFolder = function (callback) {
+    chrome.storage.local.get('settings', (data) => {
+        const sidebarId = (data.settings || {}).sidebarFolderId;
+        if (!sidebarId) {
+            if (callback) callback(false);
+            return;
+        }
+
+        chrome.bookmarks.get(sidebarId, (results) => {
+            const node = !chrome.runtime.lastError && results && results[0];
+            if (!node || !/^zijbalk$/i.test((node.title || '').trim())) {
+                if (callback) callback(false);
+                return;
+            }
+
+            chrome.bookmarks.getChildren(node.parentId, (children) => {
+                // Never rename onto an existing 'Sidebar' folder: that would
+                // either fail or create a confusing duplicate.
+                const clash = (children || []).some((child) =>
+                    child.id !== sidebarId && /^sidebar$/i.test((child.title || '').trim()));
+                if (clash) {
+                    if (callback) callback(false);
+                    return;
+                }
+
+                chrome.bookmarks.move(sidebarId, { title: 'Sidebar' }, () => {
+                    if (chrome.runtime.lastError) {
+                        if (callback) callback(false);
+                        return;
+                    }
+                    window.dispatchEvent(new Event('sidebarfolderrenamed'));
+                    if (callback) callback(true);
+                });
+            });
+        });
+    });
+};
+
 window.ensureSidebarFolder = function(rootId, settingsObj, callback) {
     const findOrCreateSidebar = () => {
         const folderName = 'Sidebar';
@@ -162,6 +203,10 @@ window.ensureSidebarFolder = function(rootId, settingsObj, callback) {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Renaming is async, so it can finish after the settings dropdown was
+    // filled; settings_logic listens for the event and refills it.
+    window.migrateLegacySidebarFolder();
+
     // --- Organizer configuration (count + views) ---
     // The view list is needed before any nav link or folder check runs.
     chrome.storage.local.get('settings', (data) => {

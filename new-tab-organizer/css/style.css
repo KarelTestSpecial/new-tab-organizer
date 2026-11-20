@@ -665,6 +665,178 @@ body {
     font-size: 0.85rem;
 }
 
+/* --- Folder picker (searchable replacement for the sidebar folder select) --- */
+.folder-picker {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+}
+
+/* The native select stays as the value holder for the existing save logic. */
+.folder-picker-native {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    padding: 0;
+    border: 0;
+    pointer-events: none;
+}
+
+.folder-picker-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.folder-picker-trigger:hover,
+.folder-picker-trigger[aria-expanded="true"] {
+    border-color: var(--primary-color);
+}
+
+.folder-picker-trigger-label {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.folder-picker-trigger:not(.has-value) .folder-picker-trigger-label {
+    opacity: 0.6;
+}
+
+.folder-picker-chevron {
+    flex: 0 0 auto;
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid currentColor;
+    opacity: 0.55;
+    transition: transform 0.15s;
+}
+
+.folder-picker-trigger[aria-expanded="true"] .folder-picker-chevron {
+    transform: rotate(180deg);
+}
+
+.folder-picker-popover {
+    position: fixed;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    max-height: 340px;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.folder-picker-popover.hidden {
+    display: none;
+}
+
+.folder-picker-search {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.folder-picker-input {
+    flex: 1;
+    min-width: 0;
+    padding: 6px 8px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-family: inherit;
+}
+
+.folder-picker-input:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: -1px;
+    border-color: var(--primary-color);
+}
+
+.folder-picker-count {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    opacity: 0.55;
+}
+
+.folder-picker-list {
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.folder-picker-row {
+    width: 100%;
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 0;
+    border-radius: 5px;
+    background: none;
+    color: var(--text-color);
+    font-size: 0.85rem;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.folder-picker-row:hover,
+.folder-picker-row.is-active {
+    background: var(--accent-color);
+}
+
+.folder-picker-row.is-selected {
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+.folder-picker-row-new,
+.folder-picker-row-clear {
+    opacity: 0.75;
+    font-size: 0.8rem;
+}
+
+.folder-picker-row-title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.folder-picker-row-path {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.72rem;
+    opacity: 0.55;
+}
+
+.folder-picker-empty {
+    margin: 0;
+    padding: 12px 10px;
+    font-size: 0.8rem;
+    opacity: 0.6;
+}
+
 .settings-checkbox-label {
     display: flex;
     align-items: center;

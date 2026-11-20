@@ -54,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     let tempSettings = {};
+    let sidebarFolderPicker = null;
 
     // --- Listeners ---
     settingsBtn.addEventListener('click', () => {
@@ -131,15 +132,18 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
                     chrome.bookmarks.create({ parentId: parentId, title: name.trim() }, (newFolder) => {
                         if (chrome.runtime.lastError) {
                             alert(("Error creating folder: " || 'Fout bij het aanmaken van de map: ') + chrome.runtime.lastError.message);
-                            sidebarFolderSelect.value = tempSettings.sidebarFolderId || '';
+                            setSidebarFolderValue(tempSettings.sidebarFolderId || '');
                             return;
                         }
                         tempSettings.sidebarFolderId = newFolder.id;
+                        // Refilling the list is asynchronous, so make the new
+                        // folder the selected value before saveSettings reads it.
+                        setSidebarFolderValue(newFolder.id);
                         populateFolderDropdowns();
                         saveSettings(false);
                     });
                 } else {
-                    sidebarFolderSelect.value = tempSettings.sidebarFolderId || '';
+                    setSidebarFolderValue(tempSettings.sidebarFolderId || '');
                 }
             } else {
                 tempSettings.sidebarFolderId = sidebarFolderSelect.value;
@@ -242,15 +246,26 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
         toggleLabelSpan.textContent = baseText.replace('Chrome Bookmarks', selectedText);
     }
 
-    function populateFolderDropdowns() {
-        getBookmarkFolders(folders => {
-            sidebarFolderSelect.innerHTML = '<option value="">' + "Select a Sidebar Folder" + '</option>';
+    function setSidebarFolderValue(value) {
+        const next = value == null ? '' : String(value);
+        sidebarFolderSelect.value = next;
+        if (sidebarFolderPicker) sidebarFolderPicker.setValue(next);
+    }
 
+    function populateFolderDropdowns() {
+        if (!sidebarFolderPicker) {
+            sidebarFolderPicker = window.FolderPicker.create(sidebarFolderSelect, {
+                emptyLabel: 'Select a Sidebar Folder',
+                allowNewFolder: true
+            });
+        }
+
+        getBookmarkFolders(folders => {
             // Root Selector: Only specific main folders
             extensionRootFolderSelect.innerHTML = '<option value="">' + "Select Root Folder" + '</option>';
             const barOption = document.createElement('option');
             barOption.value = '1';
-            
+
             const otherOption = document.createElement('option');
             otherOption.value = '2';
 
@@ -260,23 +275,10 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             extensionRootFolderSelect.appendChild(barOption);
             extensionRootFolderSelect.appendChild(otherOption);
 
-            folders.forEach(folder => {
-                if (folder.id === '0') return;
+            // The sidebar list rebuilds the hierarchy and adds the search box;
+            // the flat <select> it replaces lives on as the hidden value holder.
+            sidebarFolderPicker.setFolders(folders, tempSettings.sidebarFolderId || '');
 
-                // Sidebar Option (remains recursive)
-                const sidebarOption = document.createElement('option');
-                sidebarOption.value = folder.id;
-                sidebarOption.textContent = folder.title;
-                if (sidebarFolderSelect) sidebarFolderSelect.appendChild(sidebarOption);
-            });
-
-            // Let's add the "+ nieuwe map" option at the end of the dropdown
-            const newFolderOption = document.createElement('option');
-            newFolderOption.value = '__new_folder__';
-            newFolderOption.textContent = '+ New folder...';
-            if (sidebarFolderSelect) sidebarFolderSelect.appendChild(newFolderOption);
-
-            if (sidebarFolderSelect && tempSettings.sidebarFolderId) sidebarFolderSelect.value = tempSettings.sidebarFolderId;
             if (extensionRootFolderSelect && tempSettings.rootFolderId) extensionRootFolderSelect.value = tempSettings.rootFolderId;
 
             updateCheckboxText();
@@ -469,7 +471,7 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             };
 
             updateButtonText();
-            sidebarFolderSelect.value = tempSettings.sidebarFolderId;
+            setSidebarFolderValue(tempSettings.sidebarFolderId);
             extensionRootFolderSelect.value = tempSettings.rootFolderId;
             updateCheckboxText();
 
@@ -711,6 +713,12 @@ document.documentElement.style.setProperty('--header-font-size', e.target.value 
             }
         });
     }
+
+    // The sidebar folder can be renamed during startup (5.7 created it as
+    // 'Zijbalk'), and that may land after this first fill.
+    window.addEventListener('sidebarfolderrenamed', () => {
+        if (sidebarFolderPicker) populateFolderDropdowns();
+    });
 
     populateFolderDropdowns();
     loadSettings();

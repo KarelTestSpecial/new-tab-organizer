@@ -18,7 +18,10 @@ function getBookmarkFolders(callback) {
             if (!node.url) {
                 folders.push({
                     id: node.id,
-                    title: node.title || (node.id === '0' ? 'Root' : 'Unnamed Folder')
+                    title: node.title || (node.id === '0' ? 'Root' : 'Unnamed Folder'),
+                    // The flat list is only useful with the parent link: callers
+                    // need it to rebuild the hierarchy (see js/folder-picker.js).
+                    parentId: node.parentId === undefined ? null : node.parentId
                 });
                 if (node.children) {
                     node.children.forEach(findFolders);
