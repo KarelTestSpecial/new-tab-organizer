@@ -1,0 +1,8 @@
+{
+  "name": "new-tab-organizer",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/run-all.mjs"
+  }
+}
