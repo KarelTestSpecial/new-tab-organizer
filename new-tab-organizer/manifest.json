@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NewTab Startpage Organizer Dashboard",
-  "version": "6.1",
+  "version": "6.2",
   "description": "Turn your new tab into an organized workspace. Keep bookmarks separated by context. Minimalist and beautiful.",
   "permissions": [
     "bookmarks",
