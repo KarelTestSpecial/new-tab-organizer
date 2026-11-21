@@ -85,6 +85,10 @@ function getStorageKey(view) {
 const CURRENT_VIEW = getCurrentView();
 const STORAGE_KEY = getStorageKey(CURRENT_VIEW);
 
+// The HTML ships with "Organizer A" as a placeholder so the tab is never blank
+// while scripts load; update it to the real organizer this page represents.
+document.title = `Organizer ${CURRENT_VIEW}`;
+
 // --- Smart Folder Checker and Organizer Helper ---
 window.ensureOrganizerFolders = function(rootId, callback) {
     chrome.bookmarks.getTree((tree) => {
